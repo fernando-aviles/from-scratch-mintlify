@@ -1,0 +1,53 @@
+---
+title: "API リファレンス"
+sidebarTitle: "概要"
+description: "Relaybox REST API を使用して、イベントの発行、エンドポイントの管理、配信状況の確認を行います。"
+icon: "code"
+---
+
+Relaybox API は REST に基づいて設計されています。リクエストボディとレスポンスはいずれも JSON 形式で、標準的な HTTP メソッドと HTTP ステータスコードを使用します。
+
+## ベース URL {#base-url}
+
+```text
+https://api.relaybox.dev/v3
+```
+
+EU または日本のデータレジデンシーをご利用のお客様は、代わりにリージョン別のベース URL を使用してください。
+
+| リージョン       | ベース URL                          |
+| ----------- | -------------------------------- |
+| 米国 (デフォルト)  | `https://api.relaybox.dev/v3`    |
+| 欧州連合        | `https://eu.api.relaybox.dev/v3` |
+| 日本          | `https://jp.api.relaybox.dev/v3` |
+
+## 試してみる {#try-it-out}
+
+各エンドポイントのページには、インタラクティブなプレイグラウンドが用意されています。**Authorization** フィールドに**テスト用**のAPIキーを貼り付けると、ブラウザから実際のリクエストを送信できます。
+
+<Warning>
+  `rbx_live_` キーは、プレイグラウンドを含め、いかなるウェブサイトにも絶対に貼り付けないでください。
+</Warning>
+
+## バージョニング {#versioning}
+
+メジャーバージョンはURLに含まれています。同一メジャーバージョン内では、次のような後方互換性のある変更のみを行います。
+
+* 新しいエンドポイントの追加
+* 任意のリクエストパラメーターの追加
+* レスポンスへのフィールドの追加
+* 拡張可能と明記されている列挙型への新しい値の追加
+
+<Tip>
+  レスポンスに含まれる未知のフィールドは無視するようにコードを記述してください。そうしておけば、項目の追加による変更でインテグレーションが動作しなくなることはありません。
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="認証" icon="lock" href="/ja/api-reference/authentication">
+    APIキーの送信方法について説明します。
+  </Card>
+
+  <Card title="エラー" icon="circle-exclamation" href="/ja/api-reference/errors">
+    すべてのエラーコードとその対処方法を紹介します。
+  </Card>
+</CardGroup>

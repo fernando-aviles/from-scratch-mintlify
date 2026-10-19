@@ -1,0 +1,61 @@
+---
+title: "Desarrolla en local con la CLI"
+sidebarTitle: "Desarrollo local"
+description: "Reenvía eventos reales a tu portátil sin exponerlo a internet."
+---
+
+Tu portátil no tiene una URL pública, así que Relaybox no puede entregarle eventos directamente. El comando `relaybox listen` lo soluciona: abre una conexión saliente hacia Relaybox y reenvía los eventos a un puerto local.
+
+## Reenviar eventos {#forward-events}
+
+```bash
+relaybox listen --forward-to http://localhost:3000/webhooks
+```
+
+```text Output
+✔ Connected as dana@example.com (test environment)
+✔ Temporary endpoint ep_dev_4Lk9 is subscribed to all event types
+
+Waiting for events… Press Ctrl+C to stop.
+
+14:32:07  order.paid        evt_2b7XqLm9TfR4  → 204 No Content (38 ms)
+14:32:09  order.shipped     evt_2b7XqLp1VbN2  → 500 Internal Server Error (12 ms)
+```
+
+El punto de conexión temporal se elimina al detener el comando.
+
+## Opciones útiles {#useful-flags}
+
+<ParamField path="--events" type="string">
+  Tipos de evento a los que suscribirse, separados por comas. Admite comodines. De forma predeterminada, se suscribe a todos los eventos.
+</ParamField>
+
+<ParamField path="--forward-to" type="string" required>
+  URL local a la que se reenvían los eventos.
+</ParamField>
+
+<ParamField path="--skip-verify" type="boolean">
+  No firma las solicitudes reenviadas. Resulta útil cuando aún no has escrito el código de verificación. **Nunca** la uses para sortear un error de verificación.
+</ParamField>
+
+<ParamField path="--print-json" type="boolean">
+  Muestra cada carga útil completa en lugar de un resumen de una línea.
+</ParamField>
+
+## Genera eventos de prueba {#trigger-test-events}
+
+No hace falta esperar a recibir tráfico real. Envía un evento de ejemplo de cualquier tipo:
+
+```bash
+relaybox trigger order.paid
+```
+
+O reenvía un evento real desde tu entorno de pruebas:
+
+```bash
+relaybox events replay evt_2b7XqLm9TfR4 --to ep_dev_4Lk9
+```
+
+<Tip>
+  Ejecuta `relaybox fixtures` para ver todos los tipos de eventos de ejemplo integrados. También puedes añadir tus propios fixtures en una carpeta `.relaybox/fixtures` dentro de tu proyecto.
+</Tip>

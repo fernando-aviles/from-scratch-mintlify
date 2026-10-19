@@ -1,0 +1,50 @@
+---
+title: "ページネーション"
+description: "一覧を返すエンドポイントは、結果をページ単位で返します。ページ間の移動にはカーソルを使用します。"
+icon: "arrow-right-long"
+---
+
+[イベントの一覧取得](/ja/api-reference/events/list)など、一覧を返すすべてのエンドポイントは**カーソル**方式でページネーションされます。各レスポンスには `next_cursor` が含まれます。次のページを取得するには、この値を `cursor` パラメーターに指定してリクエストしてください。
+
+```json
+{
+  "data": [
+    { "id": "evt_2b7XqLm9TfR4", "type": "order.paid" },
+    { "id": "evt_2b7XqLk3PdW8", "type": "order.created" }
+  ],
+  "next_cursor": "eyJpZCI6ImV2dF8yYjdYcUxrM1BkVzgifQ"
+}
+```
+
+`next_cursor` が `null` の場合は、最後のページに到達したことを意味します。
+
+## SDK での反復処理 {#iterating-in-the-sdks}
+
+SDK ではカーソルが自動的に処理されます。結果を反復処理するだけで、必要に応じて次のページが取得されます。
+
+<CodeGroup>
+  ```javascript Node.js
+  for await (const event of relaybox.events.list({ type: "order.*" })) {
+    console.log(event.id);
+  }
+  ```
+
+  ```python Python
+  for event in relaybox.events.list(type="order.*"):
+      print(event.id)
+  ```
+
+  ```go Go
+  iter := client.Events.List(ctx, &relaybox.EventListParams{Type: "order.*"})
+  for iter.Next() {
+  	fmt.Println(iter.Event().ID)
+  }
+  if err := iter.Err(); err != nil {
+  	log.Fatal(err)
+  }
+  ```
+</CodeGroup>
+
+<Tip>
+  カーソルは内部構造が非公開の値です。自分でデコードしたり生成したりしないでください。形式は予告なく変更される場合があります。
+</Tip>

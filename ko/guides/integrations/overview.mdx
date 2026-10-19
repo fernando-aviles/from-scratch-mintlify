@@ -1,0 +1,20 @@
+---
+title: "통합"
+description: "팀에서 이미 사용 중인 도구에 Relaybox를 연결하세요."
+icon: "plug"
+---
+
+통합은 Relaybox와 서드파티 서비스를 잇는 사전 구성된 연결입니다. 통합은 방향에 따라 두 가지로 나뉩니다.
+
+* **소스**는 Stripe나 GitHub 같은 서비스*에서* 웹훅을 수신하여 Relaybox 이벤트로 바꿉니다. 직접 제어할 수 없는 웹훅에도 재시도, 재전송, 로그 기능을 활용할 수 있습니다.
+* **대상**은 변환을 직접 작성하지 않고도 Slack 같은 서비스*로* Relaybox 이벤트를 전달합니다.
+
+| 통합                                    |  소스 |  대상 |
+| ------------------------------------- | :-: | :-: |
+| [Slack](/ko/guides/integrations/slack)   |     |  ✓  |
+| [Stripe](/ko/guides/integrations/stripe) |  ✓  |     |
+| [GitHub](/ko/guides/integrations/github) |  ✓  |     |
+
+<Note>
+  필요한 서비스가 목록에 없나요? 웹훅을 보내는 서비스라면 **범용 HTTP 소스**를 사용해 소스로 연결할 수 있고, HTTP API를 제공하는 서비스라면 [변환](/ko/guides/sending-events/transformations)을 사용해 대상으로 연결할 수 있습니다.
+</Note>

@@ -1,0 +1,63 @@
+---
+title: "재시도"
+description: "Relaybox는 실패한 전송을 지수 백오프 방식으로 약 41시간 동안 재시도합니다."
+---
+
+import { retrySchedule, maxRetryWindow } from "/snippets/ko/data/retry-schedule.mdx";
+
+전송 시도가 실패하면 Relaybox는 다음 시도를 예약합니다. 문제가 생긴 서버가 복구할 시간을 벌 수 있도록 시도할 때마다 지연 시간이 늘어나며, 수천 건의 재시도가 한꺼번에 몰리지 않도록 최대 10%의 무작위 지터를 추가합니다.
+
+## 기본 재시도 일정 {#default-retry-schedule}
+
+<table>
+  <thead>
+    <tr>
+      <th>시도</th>
+      <th>이전 시도 후 대기 시간</th>
+      <th>첫 시도 후 경과 시간</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {retrySchedule.map((row) => (
+              <tr key={row.attempt}>
+                <td>{row.attempt}</td>
+                <td>{row.delay}</td>
+                <td>{row.cumulative}</td>
+              </tr>
+            ))}
+  </tbody>
+</table>
+
+여덟 번째 시도(첫 시도 후 {maxRetryWindow} 경과)까지 실패하면 해당 엔드포인트에 대한 이벤트는 **failed**로 표시됩니다. 이 경우에도 보존 기간 내라면 언제든지 수동으로 [재전송](/ko/api-reference/events/replay)할 수 있습니다.
+
+## 재시도하지 않는 응답 {#responses-that-skip-retries}
+
+일부 응답은 재시도해도 소용없다는 신호입니다. 엔드포인트가 다음 중 하나를 반환하면 Relaybox는 즉시 재시도를 중단합니다.
+
+| 상태                      | 재시도하지 않는 이유                                              |
+| ----------------------- | -------------------------------------------------------- |
+| `410 Gone`              | 엔드포인트가 더 이상 존재하지 않습니다. 이 경우 Relaybox는 해당 엔드포인트도 비활성화합니다. |
+| `413 Payload Too Large` | 같은 페이로드를 다시 보내도 여전히 크기가 초과됩니다.                           |
+
+<Note>
+  `400`, `401`, `404`는 재시도**합니다**. 이러한 응답은 잘못된 배포로 인해 발생했다가 롤백 후 해결되는 경우가 많기 때문입니다.
+</Note>
+
+## 재시도 일정 사용자 지정 {#customize-the-schedule}
+
+사용 가능 요금제: <Badge color="blue">Scale 및 Enterprise</Badge>
+
+시간이 중요한 이벤트는 일정을 단축하고, 계획된 다운타임이 예정된 엔드포인트는 일정을 연장할 수 있습니다.
+
+```json
+{
+  "retry_policy": {
+    "max_attempts": 4,
+    "backoff": "exponential",
+    "initial_delay_seconds": 2
+  }
+}
+```
+
+요금제와 관계없이 최대 기간은 7일입니다.

@@ -1,0 +1,46 @@
+---
+title: "Configurar el SDK de Python"
+sidebarTitle: "Configuración"
+description: "Todas las opciones que puedes pasarle al cliente de Relaybox."
+---
+
+```python
+relaybox = Relaybox(
+    os.environ["RELAYBOX_API_KEY"],
+    region="eu",
+    timeout=10.0,
+    max_retries=5,
+)
+```
+
+## Opciones del cliente {#client-options}
+
+<ParamField body="region" type="str" default="us">
+  La región de residencia de datos de tu cuenta: `"us"`, `"eu"` o `"jp"`.
+</ParamField>
+
+<ParamField body="timeout" type="float" default="30.0">
+  Tiempo máximo de espera de una respuesta, en segundos.
+</ParamField>
+
+<ParamField body="max_retries" type="int" default="3">
+  Número de reintentos de las solicitudes que fallan con un error de red, `429` o `5xx`.
+</ParamField>
+
+<ParamField body="http_client" type="httpx.Client">
+  Un cliente `httpx` preconfigurado, para usar proxies o una configuración de TLS personalizada.
+</ParamField>
+
+## Registro {#logging}
+
+El SDK genera sus registros mediante el módulo estándar `logging`, a través del logger `relaybox`. Para ver todas las solicitudes:
+
+```python
+import logging
+
+logging.getLogger("relaybox").setLevel(logging.DEBUG)
+```
+
+<Warning>
+  Los registros de depuración incluyen el cuerpo de las solicitudes, que puede contener datos personales. No habilites el registro de depuración en producción.
+</Warning>

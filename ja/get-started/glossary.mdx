@@ -1,0 +1,12 @@
+---
+title: "用語集"
+description: "Relaybox のドキュメントやダッシュボードで使われる用語の定義です。"
+icon: "book"
+---
+
+import { glossaryTerms } from "/snippets/ja/data/glossary.mdx";
+import { GlossaryList } from "/snippets/components/GlossaryList.jsx";
+
+Webhook を使うのは初めてですか？ここでは、よく目にする用語を紹介します。ドキュメント内でハイライトされている語句 (<Tooltip tip="Relaybox がイベントを配信する先の URL。">エンドポイント</Tooltip>など) にカーソルを合わせると、簡単な定義が表示されます。
+
+<GlossaryList terms={glossaryTerms} />

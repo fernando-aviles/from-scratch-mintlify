@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "group": "SDK de Go",
+      "pages": [
+        "es/sdks/go/overview",
+        "es/sdks/go/configuration"
+      ]
+    },
+    {
+      "group": "Recursos",
+      "pages": [
+        "es/sdks/support-policy"
+      ]
+    }
+  ]
+}

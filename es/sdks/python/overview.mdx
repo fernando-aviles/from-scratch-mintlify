@@ -1,0 +1,54 @@
+---
+title: "SDK de Python"
+sidebarTitle: "Descripción general"
+description: "Publica eventos y verifica webhooks desde Python."
+icon: "python"
+---
+
+import SdkIntro from "/snippets/es/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/es/code/publish-event.mdx";
+
+<SdkIntro language="python" />
+
+## Instalación {#install}
+
+<CodeGroup>
+  ```bash pip
+  pip install relaybox
+  ```
+
+  ```bash uv
+  uv add relaybox
+  ```
+
+  ```bash Poetry
+  poetry add relaybox
+  ```
+</CodeGroup>
+
+## Crear un cliente {#create-a-client}
+
+```python
+import os
+from relaybox import Relaybox
+
+relaybox = Relaybox(os.environ["RELAYBOX_API_KEY"])
+```
+
+El cliente es seguro para subprocesos (thread-safe). Créalo una sola vez al iniciar la aplicación y compártelo.
+
+## Publicar un evento {#publish-an-event}
+
+<PublishEvent />
+
+## Próximos pasos {#next-steps}
+
+<CardGroup cols={2}>
+  <Card title="Configuración" icon="sliders" href="/es/sdks/python/configuration">
+    Tiempos de espera, reintentos y regiones.
+  </Card>
+
+  <Card title="Uso asíncrono" icon="bolt" href="/es/sdks/python/async-usage">
+    Usa el SDK con asyncio, FastAPI y las vistas asíncronas de Django.
+  </Card>
+</CardGroup>

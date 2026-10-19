@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "group": "개요",
+      "pages": [
+        "ko/api-reference/introduction",
+        "ko/api-reference/authentication",
+        "ko/api-reference/errors",
+        "ko/api-reference/pagination"
+      ]
+    },
+    {
+      "group": "이벤트",
+      "icon": "bolt",
+      "pages": [
+        "ko/api-reference/events/create",
+        "ko/api-reference/events/list",
+        "ko/api-reference/events/get",
+        "ko/api-reference/events/replay"
+      ]
+    },
+    {
+      "group": "엔드포인트",
+      "icon": "satellite-dish",
+      "pages": [
+        "ko/api-reference/endpoints/create",
+        "ko/api-reference/endpoints/list",
+        "ko/api-reference/endpoints/update",
+        "ko/api-reference/endpoints/delete",
+        "ko/api-reference/endpoints/rotate-secret"
+      ]
+    }
+  ]
+}

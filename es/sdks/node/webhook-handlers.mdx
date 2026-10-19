@@ -1,0 +1,78 @@
+---
+title: "Controladores de webhooks en Node.js"
+sidebarTitle: "Controladores de webhooks"
+description: "Verifica las firmas de Relaybox en los frameworks de Node.js más populares."
+---
+
+La clase `Webhook` se encarga de verificar las firmas. Lo único que depende del framework es cómo acceder al cuerpo **sin procesar** de la solicitud.
+
+<Tabs>
+  <Tab title="Express">
+    ```javascript
+    app.post(
+      "/webhooks",
+      express.raw({ type: "application/json" }),
+      (req, res) => {
+        const event = webhook.verify(req.body, req.headers);
+        // ...
+        res.sendStatus(204);
+      }
+    );
+    ```
+  </Tab>
+
+  <Tab title="Fastify">
+    ```javascript
+    fastify.addContentTypeParser(
+      "application/json",
+      { parseAs: "buffer" },
+      (req, body, done) => done(null, body)
+    );
+
+    fastify.post("/webhooks", async (req, reply) => {
+      const event = webhook.verify(req.body, req.headers);
+      // ...
+      reply.code(204).send();
+    });
+    ```
+  </Tab>
+
+  <Tab title="Next.js">
+    ```typescript app/api/webhooks/route.ts
+    export async function POST(request: Request) {
+      const body = await request.text();
+      const event = webhook.verify(body, Object.fromEntries(request.headers));
+      // ...
+      return new Response(null, { status: 204 });
+    }
+    ```
+  </Tab>
+
+  <Tab title="Hono">
+    ```typescript
+    app.post("/webhooks", async (c) => {
+      const event = webhook.verify(await c.req.text(), c.req.header());
+      // ...
+      return c.body(null, 204);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+## Eventos tipados {#typed-events}
+
+Si usas TypeScript, define tus tipos de eventos una sola vez y tendrás un `event` tipado en todas partes:
+
+```typescript
+type Events = {
+  "order.paid": { order_id: string; amount: number; currency: string };
+  "order.refunded": { order_id: string; reason: string };
+};
+
+const webhook = new Webhook<Events>(process.env.RELAYBOX_SIGNING_SECRET);
+
+const event = webhook.verify(body, headers);
+if (event.type === "order.paid") {
+  event.payload.amount; // number
+}
+```

@@ -1,0 +1,63 @@
+---
+title: "Configurar el SDK de Node.js"
+sidebarTitle: "Configuración"
+description: "Todas las opciones que puedes pasar al cliente de Relaybox."
+---
+
+Pasa las opciones como segundo argumento al constructor:
+
+```typescript
+const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY, {
+  region: "eu",
+  timeout: 10_000,
+  maxRetries: 5,
+});
+```
+
+## Opciones del cliente {#client-options}
+
+<ParamField body="region" type="'us' | 'eu' | 'jp'" default="us">
+  La región de residencia de datos de tu cuenta. Define automáticamente la URL base.
+</ParamField>
+
+<ParamField body="timeout" type="number" default="30000">
+  Tiempo máximo de espera de una respuesta, en milisegundos, antes de dar la solicitud por fallida.
+</ParamField>
+
+<ParamField body="maxRetries" type="number" default="3">
+  Número de veces que se reintentan las solicitudes que fallan con un error de red, `429` o `5xx`. Establécelo en `0` para desactivar los reintentos automáticos.
+</ParamField>
+
+<ParamField body="fetch" type="typeof fetch">
+  Una implementación personalizada de `fetch`. Resulta útil para añadir trazas o para ejecutar el cliente en entornos poco habituales.
+</ParamField>
+
+<ParamField body="logger" type="Logger">
+  Un objeto con los métodos `debug`, `info`, `warn` y `error`. De forma predeterminada, no se registra nada.
+</ParamField>
+
+## Worker de outbox {#outbox-worker}
+
+El worker de outbox publica eventos desde una tabla de PostgreSQL, de modo que la publicación forma parte de tu transacción de base de datos. Para más contexto, consulta el [patrón de outbox transaccional](/es/guides/sending-events/publish-your-first-event#3-publish-from-a-transaction).
+
+```typescript
+import { OutboxWorker } from "@relaybox/node/outbox";
+import { Pool } from "pg";
+
+const worker = new OutboxWorker({
+  client: relaybox,
+  pool: new Pool({ connectionString: process.env.DATABASE_URL }),
+  table: "outbox",       // valor predeterminado
+  batchSize: 100,        // eventos por sondeo
+  pollIntervalMs: 500,
+});
+
+await worker.start();
+
+// Detiene el worker de forma ordenada al apagarse para que los eventos en curso no se publiquen dos veces.
+process.on("SIGTERM", () => worker.stop());
+```
+
+<Note>
+  Ejecuta la migración de `node_modules/@relaybox/node/outbox/migration.sql` para crear la tabla `outbox` antes de iniciar el worker.
+</Note>

@@ -1,0 +1,37 @@
+---
+title: "Go SDK"
+sidebarTitle: "개요"
+description: "Go에서 이벤트를 발행하고 웹훅을 검증합니다."
+icon: "golang"
+---
+
+import SdkIntro from "/snippets/ko/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/ko/code/publish-event.mdx";
+
+<SdkIntro language="go" />
+
+## 설치 {#install}
+
+```bash
+go get github.com/relaybox/relaybox-go/v3@latest
+```
+
+## 클라이언트 생성 {#create-a-client}
+
+```go
+import relaybox "github.com/relaybox/relaybox-go/v3"
+
+client := relaybox.NewClient(os.Getenv("RELAYBOX_API_KEY"))
+```
+
+모든 메서드는 첫 번째 인수로 `context.Context`를 받습니다. 컨텍스트를 취소하면 자동 재시도를 포함해 요청이 취소됩니다.
+
+## 이벤트 발행하기 {#publish-an-event}
+
+<PublishEvent />
+
+## 다음 단계 {#next-steps}
+
+<Card title="구성" icon="sliders" href="/ko/sdks/go/configuration">
+  함수형 옵션으로 타임아웃, 재시도, 리전을 설정하는 방법을 알아봅니다.
+</Card>

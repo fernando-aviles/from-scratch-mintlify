@@ -1,0 +1,89 @@
+---
+title: "Migrar de v2 a v3"
+sidebarTitle: "Migración desde v2"
+description: "Qué ha cambiado en Relaybox v3 y cómo actualizar tu integración."
+icon: "arrow-right-arrow-left"
+---
+
+import { sdks } from "/snippets/es/data/sdk-versions.mdx";
+
+Relaybox v3 es una versión mayor que incluye una nueva versión de la API, nuevos SDK y un nuevo esquema de firma. La mayoría de los equipos completan la migración en una hora aproximadamente.
+
+<Info>
+  La API v2 seguirá funcionando hasta el **31 de marzo de 2027**. A partir de esa fecha, las solicitudes a la v2 devolverán `410 Gone`.
+</Info>
+
+## Novedades de la v3 {#whats-new-in-v3}
+
+* **Entrega ordenada** con [claves de ordenación](/es/concepts/delivery/ordering)
+* **[Transformaciones](/es/guides/sending-events/transformations)** que se ejecutan dentro de Relaybox
+* **Reintentos durante más tiempo:** unas 41 horas en lugar de 24
+* **Metadatos** en los eventos para filtrarlos y enrutarlos
+
+## Cambios incompatibles {#breaking-changes}
+
+<AccordionGroup>
+  <Accordion title="Nueva URL base" icon="link">
+    Cambia `https://api.relaybox.dev/v2` por `https://api.relaybox.dev/v3`.
+  </Accordion>
+
+  <Accordion title="El campo data ahora es payload" icon="pen">
+    Los eventos publicados en v3 usan `payload` en lugar de `data`. Si durante la migración publicas con v2 y recibes con v3, Relaybox incluye **ambos** campos.
+  </Accordion>
+
+  <Accordion title="Nuevo encabezado de firma" icon="signature">
+    v2 enviaba `X-Relaybox-Signature` con un HMAC en hexadecimal calculado solo sobre el cuerpo. v3 envía `Relaybox-Signature` con un HMAC en base64 del ID del evento, la marca de tiempo y el cuerpo. Consulta [Firmas](/es/concepts/signatures).
+
+    Durante los 90 días posteriores a la actualización de un punto de conexión, Relaybox envía **ambos** encabezados para que puedas desplegar el nuevo código de verificación a tu ritmo.
+  </Accordion>
+
+  <Accordion title="ID de eventos" icon="fingerprint">
+    Los ID de eventos han pasado de ser cadenas numéricas (`"1849302"`) a cadenas con prefijo (`"evt_2b7XqLm9TfR4"`). Si almacenas los ID de eventos en una columna numérica, conviértela primero en una columna de texto.
+  </Accordion>
+</AccordionGroup>
+
+## Actualiza el SDK {#upgrade-the-sdk}
+
+<Tabs>
+  <Tab title="Node.js">
+    ```bash
+    npm install @relaybox/node@^3
+    ```
+
+    La versión actual es **{sdks.node.version}**.
+  </Tab>
+
+  <Tab title="Python">
+    ```bash
+    pip install --upgrade "relaybox>=3,<4"
+    ```
+
+    La versión actual es **{sdks.python.version}**.
+  </Tab>
+
+  <Tab title="Go">
+    ```bash
+    go get github.com/relaybox/relaybox-go/v3
+    ```
+
+    La versión actual es **{sdks.go.version}**. Ten en cuenta que el SDK de Go para la v3 todavía está en fase beta.
+  </Tab>
+</Tabs>
+
+## Cambiar el nombre de `data` a `payload` {#rename-data-to-payload}
+
+<CodeGroup>
+  ```javascript Antes (v2)
+  await relaybox.events.create({
+    type: "order.paid",
+    data: { order_id: "ord_8Hx2kP" },
+  });
+  ```
+
+  ```javascript Después (v3)
+  await relaybox.events.create({
+    type: "order.paid",
+    payload: { order_id: "ord_8Hx2kP" },
+  });
+  ```
+</CodeGroup>

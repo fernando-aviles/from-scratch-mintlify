@@ -1,0 +1,78 @@
+---
+title: "Node.js での Webhook ハンドラー"
+sidebarTitle: "Webhook ハンドラー"
+description: "主要な Node.js フレームワークで Relaybox の署名を検証します。"
+---
+
+署名の検証は `Webhook` クラスが行います。フレームワークごとに異なるのは、**生の**リクエストボディを取得する部分だけです。
+
+<Tabs>
+  <Tab title="Express">
+    ```javascript
+    app.post(
+      "/webhooks",
+      express.raw({ type: "application/json" }),
+      (req, res) => {
+        const event = webhook.verify(req.body, req.headers);
+        // ...
+        res.sendStatus(204);
+      }
+    );
+    ```
+  </Tab>
+
+  <Tab title="Fastify">
+    ```javascript
+    fastify.addContentTypeParser(
+      "application/json",
+      { parseAs: "buffer" },
+      (req, body, done) => done(null, body)
+    );
+
+    fastify.post("/webhooks", async (req, reply) => {
+      const event = webhook.verify(req.body, req.headers);
+      // ...
+      reply.code(204).send();
+    });
+    ```
+  </Tab>
+
+  <Tab title="Next.js">
+    ```typescript app/api/webhooks/route.ts
+    export async function POST(request: Request) {
+      const body = await request.text();
+      const event = webhook.verify(body, Object.fromEntries(request.headers));
+      // ...
+      return new Response(null, { status: 204 });
+    }
+    ```
+  </Tab>
+
+  <Tab title="Hono">
+    ```typescript
+    app.post("/webhooks", async (c) => {
+      const event = webhook.verify(await c.req.text(), c.req.header());
+      // ...
+      return c.body(null, 204);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+## 型付きイベント {#typed-events}
+
+TypeScript を使用している場合は、イベントの型を一度定義するだけで、あらゆる箇所で型付きの `event` を利用できます。
+
+```typescript
+type Events = {
+  "order.paid": { order_id: string; amount: number; currency: string };
+  "order.refunded": { order_id: string; reason: string };
+};
+
+const webhook = new Webhook<Events>(process.env.RELAYBOX_SIGNING_SECRET);
+
+const event = webhook.verify(body, headers);
+if (event.type === "order.paid") {
+  event.payload.amount; // number
+}
+```

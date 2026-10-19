@@ -1,0 +1,28 @@
+---
+title: "GitHub"
+description: "Relaybox로 GitHub 웹훅을 수신합니다."
+icon: "github"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="GitHub" logo="/images/integrations/github.svg" category="소스 · 개발자 도구" maintainedBy="Relaybox 커뮤니티">
+  푸시, 풀 리퀘스트, 릴리스 이벤트를 CI 러너, 채팅 봇, 배포 도구로 팬아웃합니다.
+</IntegrationHeader>
+
+<Info>
+  이 통합은 커뮤니티에서 관리합니다. 문제가 있으면 [GitHub](https://github.com/relaybox/integration-github/issues)에 제보해 주세요.
+</Info>
+
+## 소스 설정 {#set-up-the-source}
+
+1. Relaybox에서 **Integrations → GitHub**로 이동한 후 **Create source**를 클릭합니다.
+2. GitHub 저장소 또는 조직에서 **Settings → Webhooks → Add webhook**으로 이동합니다.
+3. **Payload URL**에는 Relaybox의 수집 URL을, **Content type**에는 `application/json`을 지정합니다.
+4. 임의의 비밀 키를 생성해 GitHub와 Relaybox에 모두 붙여 넣은 후 **Add webhook**을 클릭합니다.
+
+GitHub의 `X-GitHub-Event` 헤더 값에 `github.` 접두사가 붙어 Relaybox 이벤트 유형이 됩니다. 예를 들어 푸시 이벤트는 `github.push`, 풀 리퀘스트 이벤트는 `github.pull_request`가 됩니다.
+
+## 액션별 필터링 {#filtering-by-action}
+
+GitHub 이벤트 중 상당수에는 `action` 필드가 있습니다. 예를 들어 `pull_request` 이벤트의 액션은 `opened`, `closed`, `synchronize` 등이 될 수 있습니다. 특정 액션만 구독하려면 소스를 생성할 때 **Split by action**을 켜세요. 그러면 이벤트 유형에 액션이 포함됩니다(예: `github.pull_request.opened`).

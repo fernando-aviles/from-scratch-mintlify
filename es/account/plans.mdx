@@ -1,0 +1,49 @@
+---
+title: "Planes y límites"
+sidebarTitle: "Planes"
+description: "Compara los planes de Relaybox, entiende la facturación por uso y descubre qué ocurre cuando superas tus límites."
+icon: "credit-card"
+---
+
+import { plans, overageRate, trialLength } from "/snippets/es/data/plans.mdx";
+import { PlanTable } from "/snippets/components/PlanTable.jsx";
+
+Todos los planes incluyen puntos de conexión y firmas ilimitados, además de acceso completo a la API. Los planes varían en volumen, en el tiempo que conservamos tus registros y en el nivel de soporte que recibes.
+
+<PlanTable plans={plans} highlight="team" />
+
+Las cuentas nuevas pueden probar gratis el plan Scale durante {trialLength}. No necesitas tarjeta de crédito para empezar la prueba.
+
+## Cómo se contabiliza el uso {#how-usage-is-counted}
+
+Se te factura por **evento publicado**, no por entrega. Un evento que se distribuye a diez puntos de conexión cuenta una sola vez. Los reintentos y los reenvíos no tienen coste.
+
+<Accordion title="Ejemplo: cálculo de una factura mensual">
+  Supongamos que tienes el plan Team y publicas 2,4 millones de eventos en un mes:
+
+  * El plan incluye 2 millones de eventos.
+  * Los 400.000 eventos restantes se facturan a {overageRate}.
+  * 400.000 ÷ 10.000 × 0,25 $ = **10,00 $** de excedente.
+
+  El total del mes es de 49 $ + 10 $ = **59,00 $**.
+</Accordion>
+
+## ¿Qué ocurre al alcanzar el límite? {#what-happens-at-the-limit}
+
+<Tabs>
+  <Tab title="Hobby">
+    En el plan Hobby, la publicación se detiene al alcanzar los 100 000 eventos. La API devuelve `429 rate_limited` hasta el siguiente ciclo de facturación o hasta que cambies a un plan superior. Los eventos que ya hayas publicado se seguirán entregando.
+  </Tab>
+
+  <Tab title="Planes de pago">
+    En los planes de pago, la publicación nunca se detiene. Los eventos que superen el volumen incluido en tu plan se facturan a {overageRate}. Puedes establecer un **límite de gasto** en **Settings → Billing** para recibir una alerta o detener la publicación cuando se alcance el importe en dólares que elijas.
+  </Tab>
+</Tabs>
+
+## Cambiar de plan {#changing-plans}
+
+Si cambias a un plan superior, el cambio se aplica de inmediato y se cobra de forma prorrateada. Si cambias a un plan inferior, el cambio se aplica al final del ciclo de facturación actual.
+
+<Note>
+  Si cambias a un plan inferior con un período de retención de registros más corto, los registros con una antigüedad superior al nuevo límite se eliminarán cuando se aplique el cambio. Antes de hacerlo, exporta todo lo que necesites.
+</Note>

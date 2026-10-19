@@ -1,0 +1,89 @@
+---
+title: "エンドポイント"
+description: "エンドポイントは、Relaybox がイベントを配信する先の URL です。エンドポイントごとに、サブスクリプション、シークレット、設定を個別に持ちます。"
+icon: "satellite-dish"
+---
+
+**エンドポイント**とは、イベントを受信する URL です。イベントをパブリッシュすると、Relaybox はそのイベントタイプをサブスクライブしている、有効なすべてのエンドポイントにイベントを配信します。
+
+## エンドポイントを作成する {#create-an-endpoint}
+
+エンドポイントは、ダッシュボードまたは [API](/ja/api-reference/endpoints/create) で作成できます。
+
+<Tabs>
+  <Tab title="ダッシュボード">
+    1. **Endpoints** に移動し、**Add endpoint** をクリックします。
+    2. URL を入力します。本番環境では HTTPS の URL を指定する必要があります。
+    3. サブスクライブするイベントタイプを選択するか、**All events** を選択します。
+    4. **Create** をクリックします。署名シークレットは一度しか表示されないため、必ずこの時点でコピーしてください。
+  </Tab>
+
+  <Tab title="API">
+    ```bash
+    curl https://api.relaybox.dev/v3/endpoints \
+      -H "Authorization: Bearer $RELAYBOX_API_KEY" \
+      -d url="https://example.com/webhooks" \
+      -d "event_types[]=order.*" \
+      -d description="Order notifications for the fulfillment team"
+    ```
+  </Tab>
+
+  <Tab title="CLI">
+    ```bash
+    relaybox endpoints create https://example.com/webhooks --events "order.*"
+    ```
+  </Tab>
+</Tabs>
+
+## エンドポイントの状態 {#endpoint-states}
+
+各エンドポイントは、次の4つの状態のいずれかになります。
+
+<AccordionGroup>
+  <Accordion title="有効" icon="circle-check">
+    エンドポイントが通常どおりイベントを受信する状態です。新しく作成したエンドポイントは、デフォルトでこの状態になります。
+  </Accordion>
+
+  <Accordion title="一時停止" icon="circle-pause">
+    エンドポイントを手動で一時停止した状態です。Relaybox はイベントを最大72時間キューに保持し、再開時に順番どおり配信します。
+  </Accordion>
+
+  <Accordion title="無効" icon="circle-xmark">
+    エンドポイントが5日間連続ですべての配信試行に失敗したため、Relaybox が配信を停止した状態です。無効になる前に、アカウントオーナーへメールで通知します。エンドポイントが無効の間にパブリッシュされたイベントはキューに**保持されません**が、後から再送できます。
+  </Accordion>
+
+  <Accordion title="検証待ち" icon="hourglass-half">
+    Enterprise プランで **Require endpoint verification** が有効になっている場合、新しいエンドポイントはチャレンジリクエストに応答するまでイベントを受信できません。
+  </Accordion>
+</AccordionGroup>
+
+## 配信のレート制限 {#rate-limiting-delivery}
+
+デフォルトでは、Relaybox はエンドポイントが応答できる限り最速で配信します。サーバーの処理が追いつかない場合は、次のようにレート制限を設定してください。
+
+```json
+{
+  "rate_limit": {
+    "requests": 50,
+    "per": "second"
+  }
+}
+```
+
+上限を超えたイベントは、失敗扱いにはならずキューで待機します。キュー内のイベントは、パブリッシュされた順に処理されます。
+
+<Warning>
+  レート制限がパブリッシュレートを下回っている場合、キューは際限なく増え続けます。エンドポイントのバックログの遅延が1時間を超えると、Relaybox からアラートが通知されます。
+</Warning>
+
+## 関連項目 {#related}
+
+<CardGroup cols={2}>
+  <Card title="署名シークレット" icon="key" href="/ja/concepts/signatures">
+    Relaybox がエンドポイントへのリクエストに署名する仕組みについて説明します。
+  </Card>
+
+  <Card title="シークレットのローテーション" icon="rotate" href="/ja/api-reference/endpoints/rotate-secret">
+    イベントを取りこぼさずにシークレットを切り替える方法について説明します。
+  </Card>
+</CardGroup>

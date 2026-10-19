@@ -1,0 +1,28 @@
+---
+title: "GitHub"
+description: "Relaybox で GitHub の Webhook を受信します。"
+icon: "github"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="GitHub" logo="/images/integrations/github.svg" category="ソース · 開発者ツール" maintainedBy="Relaybox コミュニティ">
+  プッシュ、プルリクエスト、リリースのイベントを CI ランナー、チャットボット、デプロイツールにファンアウトします。
+</IntegrationHeader>
+
+<Info>
+  このインテグレーションはコミュニティによってメンテナンスされています。問題は [GitHub](https://github.com/relaybox/integration-github/issues) からご報告ください。
+</Info>
+
+## ソースを設定する {#set-up-the-source}
+
+1. Relaybox で **Integrations → GitHub** に移動し、**Create source** をクリックします。
+2. GitHub のリポジトリまたは Organization で、**Settings → Webhooks → Add webhook** に移動します。
+3. **Payload URL** に Relaybox の取り込み URL を、**Content type** に `application/json` を設定します。
+4. ランダムなシークレットを生成して GitHub と Relaybox の両方に貼り付け、**Add webhook** をクリックします。
+
+GitHub の `X-GitHub-Event` ヘッダーの値は、先頭に `github.` が付いた形で Relaybox のイベントタイプになります。たとえば、プッシュイベントは `github.push`、プルリクエストイベントは `github.pull_request` になります。
+
+## アクションによるフィルタリング {#filtering-by-action}
+
+多くの GitHub イベントには `action` フィールドが含まれています。たとえば、`pull_request` イベントのアクションには `opened`、`closed`、`synchronize` などがあります。特定のアクションのみをサブスクライブするには、ソースの作成時に **Split by action** をオンにします。これにより、イベントタイプにアクションが含まれるようになります (例: `github.pull_request.opened`) 。

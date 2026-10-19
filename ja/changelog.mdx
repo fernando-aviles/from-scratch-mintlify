@@ -1,0 +1,51 @@
+---
+title: "変更履歴"
+description: "Relaybox の新機能、改善点、修正点。"
+icon: "clock-rotate-left"
+rss: true
+---
+
+<Update label="2026年10月" description="v3.4" tags={["Dashboard", "SDKs"]}>
+  ## 配信ログ検索 {#delivery-log-search}
+
+  ペイロード内の任意のフィールドで配信ログを検索できるようになりました。**Events** ページの検索ボックスで `payload.order_id:ord_8Hx2kP` と入力してお試しください。
+
+  ## 改善点 {#improvements}
+
+  * Node.js SDK が Bun 1.1 以降に対応しました。
+  * 10,000 件を超えるイベントの再送がバックグラウンドで実行されるようになりました。完了時にはメールでお知らせします。
+  * エンドポイントのページに、過去 30 日間の成功率グラフが表示されるようになりました。
+
+  ## 修正点 {#fixes}
+
+  * CLI の `listen` コマンドが 24 時間経過後に切断されることがある問題を修正しました。
+</Update>
+
+<Update label="2026年9月" description="v3.3" tags={["API"]}>
+  ## 再試行スケジュールのカスタマイズ {#customizable-retry-schedules}
+
+  Scale プランおよび Enterprise プランのお客様は、エンドポイントごとに[再試行スケジュールをカスタマイズ](/ja/concepts/delivery/retries#customize-the-schedule)できるようになりました。
+
+  ## 改善点 {#improvements-2}
+
+  * `GET /v3/events` エンドポイントで `metadata` によるフィルタリングに対応しました。
+  * エラーレスポンスに、本ドキュメントの関連ページへのリンク `docs_url` が含まれるようになりました。
+</Update>
+
+<Update label="2026年8月" description="v3.2" tags={["Integrations"]}>
+  ## GitHub ソース {#github-source}
+
+  コミュニティが開発・保守する新しい [GitHub 連携](/ja/guides/integrations/github)により、GitHub の Webhook を Relaybox 経由で受信できるようになりました。
+
+  ## 修正点 {#fixes-2}
+
+  * 40 キロバイトを超えるテキストを含む Slack メッセージが、送信エラーにならず切り詰めて送信されるようになりました。
+</Update>
+
+<Update label="2026年7月" description="v3.0" tags={["API", "SDKs", "Dashboard"]}>
+  ## Relaybox v3 {#relaybox-v3}
+
+  過去最大規模のリリースです。主な新機能は、順序保証付き配信、変換、刷新されたダッシュボードなどです。
+
+  アップグレード方法については、[移行ガイド](/ja/guides/migrating-from-v2)をご覧ください。
+</Update>

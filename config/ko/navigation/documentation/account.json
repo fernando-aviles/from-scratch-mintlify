@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "ko/account/plans",
+    "ko/account/team-members",
+    "ko/account/api-keys",
+    {
+      "group": "보안",
+      "icon": "shield-halved",
+      "root": "ko/account/security/overview",
+      "$ref": "./security.json"
+    }
+  ]
+}

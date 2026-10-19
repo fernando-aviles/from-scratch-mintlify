@@ -13,50 +13,69 @@
       }
     ]
   },
-  "tabs": [
+  "languages": [
     {
-      "tab": "Documentation",
-      "icon": "book-open",
-      "$ref": "./navigation/documentation.json"
-    },
-    {
-      "tab": "Guides",
-      "icon": "map",
-      "$ref": "./navigation/guides.json"
-    },
-    {
-      "tab": "API Reference",
-      "icon": "code",
-      "$ref": "./navigation/api-reference.json"
-    },
-    {
-      "tab": "SDKs",
-      "icon": "cube",
-      "menu": [
+      "language": "en",
+      "tabs": [
         {
-          "item": "Node.js",
-          "icon": "node-js",
-          "description": "Official SDK for Node.js and Bun",
-          "$ref": "./navigation/sdks/node.json"
+          "tab": "Documentation",
+          "icon": "book-open",
+          "$ref": "./navigation/documentation.json"
         },
         {
-          "item": "Python",
-          "icon": "python",
-          "description": "Official SDK for Python 3.9+",
-          "$ref": "./navigation/sdks/python.json"
+          "tab": "Guides",
+          "icon": "map",
+          "$ref": "./navigation/guides.json"
         },
         {
-          "item": "Go",
-          "icon": "golang",
-          "description": "Official SDK for Go 1.21+",
-          "$ref": "./navigation/sdks/go.json"
+          "tab": "API Reference",
+          "icon": "code",
+          "$ref": "./navigation/api-reference.json"
+        },
+        {
+          "tab": "SDKs",
+          "icon": "cube",
+          "menu": [
+            {
+              "item": "Node.js",
+              "icon": "node-js",
+              "description": "Official SDK for Node.js and Bun",
+              "$ref": "./navigation/sdks/node.json"
+            },
+            {
+              "item": "Python",
+              "icon": "python",
+              "description": "Official SDK for Python 3.9+",
+              "$ref": "./navigation/sdks/python.json"
+            },
+            {
+              "item": "Go",
+              "icon": "golang",
+              "description": "Official SDK for Go 1.21+",
+              "$ref": "./navigation/sdks/go.json"
+            }
+          ]
+        },
+        {
+          "tab": "Changelog",
+          "icon": "clock-rotate-left",
+          "pages": [
+            "changelog"
+          ]
         }
       ]
     },
     {
-      "tab": "Changelog",
-      "icon": "clock-rotate-left",
-      "pages": ["changelog"]
+      "language": "es",
+      "$ref": "./es/navigation.json"
+    },
+    {
+      "language": "ja",
+      "$ref": "./ja/navigation.json"
+    },
+    {
+      "language": "ko",
+      "$ref": "./ko/navigation.json"
     }
   ]
 }

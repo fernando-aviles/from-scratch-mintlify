@@ -1,0 +1,535 @@
+openapi: 3.1.0
+info:
+  title: Relaybox API
+  version: 3.4.0
+  description: |
+    Relaybox APIでは、イベントの発行、エンドポイントの管理、配信状況の確認ができます。
+    すべてのリクエストはHTTPS経由で送信し、APIキーで認証する必要があります。
+  contact:
+    name: Relaybox Support
+    email: support@relaybox.dev
+servers:
+  - url: https://api.relaybox.dev/v3
+    description: 本番環境
+security:
+  - bearerAuth: []
+tags:
+  - name: Events
+    description: イベントの発行、一覧取得、再送を行います。
+  - name: Endpoints
+    description: イベントを受信するURLを管理します。
+paths:
+  /events:
+    post:
+      tags:
+        - Events
+      summary: イベントを発行
+      description: |
+        新しいイベントを発行します。Relayboxはイベントを保存し、そのイベントタイプを購読している
+        すべてのエンドポイントに非同期で配信します。成功レスポンスは、イベントが
+        受け付けられたことを示しますが、配信の完了を意味するものではありません。
+      operationId: createEvent
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventCreate"
+            example:
+              type: order.paid
+              ordering_key: customer_381
+              payload:
+                order_id: ord_8Hx2kP
+                amount: 4200
+                currency: usd
+      responses:
+        "202":
+          description: イベントの配信を受け付けました。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "409":
+          description: この冪等性キーは、リクエストボディが異なる別のリクエストですでに使用されています。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    get:
+      tags:
+        - Events
+      summary: イベント一覧を取得
+      description: イベントを新しい順に返します。結果はカーソルを使ってページ分割されます。
+      operationId: listEvents
+      parameters:
+        - name: type
+          in: query
+          description: このイベントタイプのイベントのみを返します。`order.*`などのワイルドカードに対応しています。
+          schema:
+            type: string
+        - name: created_after
+          in: query
+          description: この時刻より後に作成されたイベントのみを返します。
+          schema:
+            type: string
+            format: date-time
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 1ページ分のイベントです。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Event"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+                    description: 次のページを取得するには、この値を`cursor`として渡します。続きの結果がない場合は`null`です。
+  /events/{event_id}:
+    get:
+      tags:
+        - Events
+      summary: イベントを取得
+      description: 各エンドポイントへの配信状況の概要を含めて、1件のイベントを取得します。
+      operationId: getEvent
+      parameters:
+        - $ref: "#/components/parameters/EventId"
+      responses:
+        "200":
+          description: イベントです。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /events/replay:
+    post:
+      tags:
+        - Events
+      summary: イベントを再送
+      description: |
+        過去のイベントを1つ以上のエンドポイントに再送します。再送は
+        バックグラウンドで処理されます。再送するイベントが多い場合は、完了まで数分かかることがあります。
+      operationId: replayEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - endpoint_id
+              properties:
+                endpoint_id:
+                  type: string
+                  description: イベントの再送先エンドポイントです。
+                event_ids:
+                  type: array
+                  items:
+                    type: string
+                  description: 再送対象のイベントを個別に指定します。`since`および`until`とは併用できません。
+                since:
+                  type: string
+                  format: date-time
+                  description: この時刻以降に作成されたイベントを再送します。
+                until:
+                  type: string
+                  format: date-time
+                  description: この時刻より前に作成されたイベントを再送します。
+                status:
+                  type: string
+                  enum:
+                    - failed
+                    - all
+                  default: failed
+                  description: このエンドポイントへの配信に失敗したイベントのみ、またはすべてのイベントを再送します。
+      responses:
+        "202":
+          description: 再送がスケジュールされました。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  replay_id:
+                    type: string
+                    example: rpl_3Fk8Lm
+                  event_count:
+                    type: integer
+                    description: 再送されるイベントの数です。
+                    example: 1284
+  /endpoints:
+    post:
+      tags:
+        - Endpoints
+      summary: エンドポイントを作成
+      description: エンドポイントを作成します。署名シークレットはこのレスポンスでのみ返されます。
+      operationId: createEndpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EndpointCreate"
+      responses:
+        "201":
+          description: エンドポイントが作成されました。
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Endpoint"
+                  - type: object
+                    properties:
+                      signing_secret:
+                        type: string
+                        description: エンドポイントの署名シークレットです。再表示されないため、安全に保管してください。
+                        example: whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+    get:
+      tags:
+        - Endpoints
+      summary: エンドポイント一覧を取得
+      description: 環境内のすべてのエンドポイントを返します。
+      operationId: listEndpoints
+      parameters:
+        - name: status
+          in: query
+          description: この状態のエンドポイントのみを返します。
+          schema:
+            type: string
+            enum:
+              - enabled
+              - paused
+              - disabled
+              - pending_verification
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 1ページ分のエンドポイントです。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Endpoint"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+  /endpoints/{endpoint_id}:
+    patch:
+      tags:
+        - Endpoints
+      summary: エンドポイントを更新
+      description: エンドポイントを更新します。送信したフィールドのみが変更されます。
+      operationId: updateEndpoint
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                description:
+                  type: string
+                event_types:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  enum:
+                    - enabled
+                    - paused
+                  description: エンドポイントを一時停止または再開します。エンドポイントを直接`disabled`に設定することはできません。
+      responses:
+        "200":
+          description: 更新後のエンドポイントです。
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endpoint"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags:
+        - Endpoints
+      summary: エンドポイントを削除
+      description: エンドポイントを完全に削除します。このエンドポイントへの保留中の配信はキャンセルされます。
+      operationId: deleteEndpoint
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      responses:
+        "204":
+          description: エンドポイントが削除されました。
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /endpoints/{endpoint_id}/rotate-secret:
+    post:
+      tags:
+        - Endpoints
+      summary: エンドポイントの署名シークレットをローテーション
+      description: |
+        新しい署名シークレットを生成します。新旧のシークレットが両方とも有効な期間中は、リクエストが
+        両方のシークレットで署名されるため、イベントを取りこぼすことなく新しいシークレットに切り替えられます。
+      operationId: rotateEndpointSecret
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                overlap_hours:
+                  type: integer
+                  minimum: 0
+                  maximum: 168
+                  default: 24
+                  description: 古いシークレットが引き続き有効となる期間です。古いシークレットが漏えいした場合は`0`を指定してください。
+      responses:
+        "200":
+          description: 新しいシークレットです。
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signing_secret:
+                    type: string
+                    example: whsec_C2FVsBQIhrscChlQIMV+b5sSYspob7oD
+                  old_secret_expires_at:
+                    type: string
+                    format: date-time
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: RelayboxのAPIキーです（例：`rbx_live_...`）。
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: リクエストを安全に再試行するための一意のキーです。キーは24時間後に失効します。
+      schema:
+        type: string
+        maxLength: 255
+    Limit:
+      name: limit
+      in: query
+      description: 返す結果の最大件数です。1から100の範囲で指定します。
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    Cursor:
+      name: cursor
+      in: query
+      description: 前のレスポンスの`next_cursor`の値です。
+      schema:
+        type: string
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      description: "`evt_`で始まるイベントのIDです。"
+      schema:
+        type: string
+    EndpointId:
+      name: endpoint_id
+      in: path
+      required: true
+      description: "`ep_`で始まるエンドポイントのIDです。"
+      schema:
+        type: string
+  schemas:
+    EventCreate:
+      type: object
+      required:
+        - type
+        - payload
+      properties:
+        type:
+          type: string
+          description: "`order.paid`などのイベントタイプです。小文字を使用し、ドットで区切ります。"
+          maxLength: 128
+        payload:
+          type: object
+          description: イベントのデータです。256 KBまでの任意のJSONオブジェクトを指定できます。
+          additionalProperties: true
+        ordering_key:
+          type: string
+          description: 同じ順序キーを持つイベントは、各エンドポイントに順番どおりに配信されます。
+          maxLength: 256
+        application:
+          type: string
+          description: このアプリケーションのエンドポイントにのみ配信します。ご自身のシステムの顧客IDを使用してください。
+        metadata:
+          type: object
+          description: フィルタリングとルーティングに使用する、文字列のキーと値のペアです。最大20組まで指定できます。
+          additionalProperties:
+            type: string
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          example: evt_2b7XqLm9TfR4
+        type:
+          type: string
+          example: order.paid
+        created_at:
+          type: string
+          format: date-time
+        ordering_key:
+          type:
+            - string
+            - "null"
+        payload:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+        deliveries:
+          type: array
+          description: 購読している各エンドポイントへの配信状況の概要です。
+          items:
+            type: object
+            properties:
+              endpoint_id:
+                type: string
+              status:
+                type: string
+                enum:
+                  - pending
+                  - delivered
+                  - failed
+                  - skipped
+                description: "`skipped`は、変換が`null`を返したことを意味します。"
+              attempts:
+                type: integer
+    EndpointCreate:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          description: イベントの配信先URLです。本番環境ではHTTPSを使用する必要があります。
+        description:
+          type: string
+          description: ダッシュボードに表示される、ユーザー向けのメモです。
+        event_types:
+          type: array
+          items:
+            type: string
+          description: 購読するイベントタイプです。省略すると、すべてのイベントを購読します。
+        rate_limit:
+          type: object
+          properties:
+            requests:
+              type: integer
+            per:
+              type: string
+              enum:
+                - second
+                - minute
+    Endpoint:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ep_5Np8Wz
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+        event_types:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+            - enabled
+            - paused
+            - disabled
+            - pending_verification
+        created_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: 機械可読のエラーコードです。すべてのエラーコードは「エラー」ページを参照してください。
+              example: invalid_request
+            message:
+              type: string
+              description: ユーザー向けの説明です。変更される可能性があるため、プログラムで解析しないでください。
+              example: The field `type` is required.
+            request_id:
+              type: string
+              description: サポートにお問い合わせの際は、この情報を添えてください。
+              example: req_8sKd02LmQ
+            docs_url:
+              type: string
+              format: uri
+  responses:
+    InvalidRequest:
+      description: リクエストの形式が正しくないか、必須フィールドが指定されていません。
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: この環境に該当するリソースは存在しません。
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: リクエストが多すぎます。`Retry-After`ヘッダーに指定された秒数だけ待機してください。
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

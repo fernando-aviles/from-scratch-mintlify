@@ -1,0 +1,49 @@
+---
+title: "ガイド"
+description: "Relaybox の代表的なユースケースを、タスクごとに手順を追って解説します。"
+icon: "map"
+---
+
+ガイドでは、ひとつのタスクを最初から最後まで順を追って説明します。Relaybox を初めて使う場合は、まず[クイックスタート](/ja/get-started/quickstart)をご覧ください。
+
+## イベントの受信 {#receiving-events}
+
+<CardGroup cols={3}>
+  <Card title="ローカル開発" icon="laptop-code" href="/ja/guides/receiving-events/local-development">
+    CLI を使ってイベントを localhost に転送します。
+  </Card>
+
+  <Card title="署名の検証" icon="signature" href="/ja/guides/receiving-events/verify-signatures">
+    Relaybox 以外から送信されたリクエストを拒否します。
+  </Card>
+
+  <Card title="障害への対処" icon="triangle-exclamation" href="/ja/guides/receiving-events/handling-failures">
+    障害が発生してもイベントを失わずに復旧できます。
+  </Card>
+</CardGroup>
+
+## イベントの送信 {#sending-events}
+
+<CardGroup cols={3}>
+  <Card title="最初のイベントをパブリッシュする" icon="paper-plane" href="/ja/guides/sending-events/publish-your-first-event">
+    ゼロから本番運用できるパブリッシャーを構築します。
+  </Card>
+
+  <Card title="顧客へのファンアウト" icon="share-nodes" href="/ja/guides/sending-events/fan-out">
+    自社の顧客に Webhook を提供します。
+  </Card>
+
+  <Card title="ペイロードを変換する" icon="wand-magic-sparkles" href="/ja/guides/sending-events/transformations">
+    エンドポイントごとにイベントを整形します。
+  </Card>
+</CardGroup>
+
+## 連携 {#integrations}
+
+<CardGroup cols={3}>
+  <Card title="Slack" icon="slack" href="/ja/guides/integrations/slack" />
+
+  <Card title="Stripe" icon="stripe" href="/ja/guides/integrations/stripe" />
+
+  <Card title="GitHub" icon="github" href="/ja/guides/integrations/github" />
+</CardGroup>

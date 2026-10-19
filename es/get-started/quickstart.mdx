@@ -1,0 +1,99 @@
+---
+title: "Inicio rápido"
+description: "Publica tu primer evento y recíbelo en un punto de conexión local en menos de cinco minutos."
+icon: "rocket"
+---
+
+import Prerequisites from "/snippets/es/shared/prerequisites.mdx";
+import PublishEvent from "/snippets/es/code/publish-event.mdx";
+import ApiKeyWarning from "/snippets/es/shared/api-key-warning.mdx";
+import NeedHelp from "/snippets/es/shared/need-help.mdx";
+
+En esta guía de inicio rápido, crearás un punto de conexión, publicarás un evento en él y verás cómo aparece la entrega en tu terminal. Los ejemplos usan Node.js, pero todos los pasos funcionan igual con los SDK de [Python](/es/sdks/python/overview) y [Go](/es/sdks/go/overview).
+
+<Prerequisites language="node" />
+
+<Steps>
+  <Step title="Instala la CLI">
+    La CLI de Relaybox reenvía los eventos de Relaybox a tu máquina local, así que no necesitas una URL pública mientras desarrollas.
+
+    <CodeGroup>
+      ```bash macOS
+      brew install relaybox/tap/relaybox
+      ```
+
+      ```bash Linux
+      curl -fsSL https://relaybox.dev/install.sh | sh
+      ```
+
+      ```powershell Windows
+      scoop bucket add relaybox https://github.com/relaybox/scoop-bucket
+      scoop install relaybox
+      ```
+    </CodeGroup>
+
+    Después, inicia sesión. Se abrirá tu navegador y se guardará un token de corta duración en tu máquina:
+
+    ```bash
+    relaybox login
+    ```
+  </Step>
+
+  <Step title="Empieza a escuchar eventos">
+    En otra terminal, inicia un túnel que reenvíe los eventos al puerto 3000:
+
+    ```bash
+    relaybox listen --forward-to http://localhost:3000/webhooks
+    ```
+
+    La CLI muestra un ID de punto de conexión temporal que empieza por `ep_dev_`. Deja esta terminal abierta.
+
+    <Tip>
+      Todavía no necesitas tener un servidor en ejecución. La CLI muestra todos los eventos que recibe, aunque falle el reenvío.
+    </Tip>
+  </Step>
+
+  <Step title="Configura tu clave de API">
+    Copia tu clave de API de **prueba** desde el panel y expórtala como variable de entorno:
+
+    ```bash
+    export RELAYBOX_API_KEY="rbx_test_..."
+    ```
+
+    <ApiKeyWarning />
+  </Step>
+
+  <Step title="Publica un evento">
+    Instala el SDK y publica un evento `order.paid`:
+
+    ```bash
+    npm install @relaybox/node
+    ```
+
+    <PublishEvent />
+
+    En un par de segundos, el evento aparecerá en la terminal donde se ejecuta `relaybox listen`.
+  </Step>
+
+  <Step title="Revisa el registro de entregas">
+    Abre **Events** en el [panel](https://app.relaybox.dev/events) para ver la carga útil, cada intento de entrega y la respuesta que devolvió tu servidor.
+
+    <Frame caption="El registro de entregas muestra cada intento, su código de estado y cuánto tardó.">
+      <img src="/images/screenshots/delivery-log.svg" alt="El panel de Relaybox, que muestra un evento order.paid entregado con un intento correcto" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Próximos pasos {#next-steps}
+
+<CardGroup cols={2}>
+  <Card title="Comprende cómo funciona la entrega" icon="diagram-project" href="/es/get-started/how-it-works">
+    Descubre qué ocurre desde que se publica un evento hasta que llega a tu punto de conexión.
+  </Card>
+
+  <Card title="Verifica las firmas" icon="signature" href="/es/guides/receiving-events/verify-signatures">
+    Antes de pasar a producción, asegúrate de que tu punto de conexión rechace las solicitudes falsificadas.
+  </Card>
+</CardGroup>
+
+<NeedHelp />

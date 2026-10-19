@@ -1,0 +1,30 @@
+---
+title: "認証"
+description: "ベアラートークンを使用して API リクエストを認証します。"
+icon: "lock"
+---
+
+import ApiKeyWarning from "/snippets/ja/shared/api-key-warning.mdx";
+
+すべてのリクエストで、`Bearer` スキームを使用して `Authorization` ヘッダーにAPIキーを指定してください：
+
+```bash
+curl https://api.relaybox.dev/v3/endpoints \
+  -H "Authorization: Bearer rbx_test_51Hx..."
+```
+
+有効なキーが含まれていないリクエストは、`401 unauthenticated` で失敗します。キーに必要な[スコープ](/ja/account/api-keys#scopes)が付与されていない場合、リクエストは `403 insufficient_scope` で失敗します。
+
+<ApiKeyWarning />
+
+## テスト環境と本番環境 {#test-and-production}
+
+環境はキーによって決まります。`rbx_test_` キーを使ったリクエストでは、テスト用のイベントとテスト用のエンドポイントしか参照できません。本番用のキーも同様に、本番用のリソースのみが対象となります。`environment` パラメーターはありません。
+
+## IP 許可リスト {#ip-allowlist}
+
+利用可能なプラン: <Badge color="purple">Enterprise</Badge>
+
+**Settings → Security → IP allowlist** で、API へのアクセスを特定の IP 範囲に制限できます。それ以外のアドレスからのリクエストは、有効なキーを使用していても `403 ip_not_allowed` で拒否されます。
+
+自社のファイアウォールで Relaybox の*送信元*となる配信 IP を許可リストに登録するには、`https://relaybox.dev/ips.json` で公開されているリストを使用してください。このリストが変更されることはほとんどありませんが、変更する場合は少なくとも 30 日前までにお知らせします。

@@ -1,0 +1,30 @@
+---
+title: "Autenticación"
+description: "Autentica las solicitudes a la API con un token de portador (bearer token)."
+icon: "lock"
+---
+
+import ApiKeyWarning from "/snippets/es/shared/api-key-warning.mdx";
+
+Envía tu clave de API en el encabezado `Authorization` de cada solicitud con el esquema `Bearer`:
+
+```bash
+curl https://api.relaybox.dev/v3/endpoints \
+  -H "Authorization: Bearer rbx_test_51Hx..."
+```
+
+Las solicitudes que no incluyen una clave válida fallan con `401 unauthenticated`. Las solicitudes con una clave que no tiene el [ámbito](/es/account/api-keys#scopes) necesario fallan con `403 insufficient_scope`.
+
+<ApiKeyWarning />
+
+## Pruebas y producción {#test-and-production}
+
+La clave determina el entorno. Una solicitud realizada con una clave `rbx_test_` solo puede ver eventos y puntos de conexión de prueba, y viceversa. No hay ningún parámetro `environment`.
+
+## Lista de IP permitidas {#ip-allowlist}
+
+Disponible en: <Badge color="purple">Enterprise</Badge>
+
+Puedes restringir el acceso a la API a rangos de IP concretos en **Settings → Security → IP allowlist**. Las solicitudes desde otras direcciones fallan con `403 ip_not_allowed`, aunque usen una clave válida.
+
+Para permitir en tu propio firewall las IP de entrega *salientes* de Relaybox, usa la lista publicada en `https://relaybox.dev/ips.json`. Esta lista cambia muy pocas veces y anunciamos los cambios con al menos 30 días de antelación.

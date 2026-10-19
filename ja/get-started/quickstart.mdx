@@ -1,0 +1,99 @@
+---
+title: "クイックスタート"
+description: "5分以内に最初のイベントを公開し、ローカルのエンドポイントで受信してみましょう。"
+icon: "rocket"
+---
+
+import Prerequisites from "/snippets/ja/shared/prerequisites.mdx";
+import PublishEvent from "/snippets/ja/code/publish-event.mdx";
+import ApiKeyWarning from "/snippets/ja/shared/api-key-warning.mdx";
+import NeedHelp from "/snippets/ja/shared/need-help.mdx";
+
+このクイックスタートでは、エンドポイントを作成してイベントを公開し、その配信がターミナルに表示されるところを確認します。例ではNode.jsを使用していますが、[Python](/ja/sdks/python/overview)や[Go](/ja/sdks/go/overview)のSDKでもすべての手順を同じように実行できます。
+
+<Prerequisites language="node" />
+
+<Steps>
+  <Step title="CLIをインストールする">
+    Relaybox CLIはRelayboxからローカルマシンにイベントを転送するため、開発中に公開URLを用意する必要はありません。
+
+    <CodeGroup>
+      ```bash macOS
+      brew install relaybox/tap/relaybox
+      ```
+
+      ```bash Linux
+      curl -fsSL https://relaybox.dev/install.sh | sh
+      ```
+
+      ```powershell Windows
+      scoop bucket add relaybox https://github.com/relaybox/scoop-bucket
+      scoop install relaybox
+      ```
+    </CodeGroup>
+
+    次にサインインします。ブラウザが開き、有効期限の短いトークンがマシンに保存されます。
+
+    ```bash
+    relaybox login
+    ```
+  </Step>
+
+  <Step title="イベントの待ち受けを開始する">
+    新しいターミナルで、ポート3000にイベントを転送するトンネルを開始します。
+
+    ```bash
+    relaybox listen --forward-to http://localhost:3000/webhooks
+    ```
+
+    CLIに`ep_dev_`で始まる一時的なエンドポイントIDが表示されます。このターミナルは開いたままにしてください。
+
+    <Tip>
+      この時点ではまだサーバーを起動しておく必要はありません。転送に失敗しても、CLIは受信したイベントをすべて表示します。
+    </Tip>
+  </Step>
+
+  <Step title="APIキーを設定する">
+    ダッシュボードから**テスト用**のAPIキーをコピーし、環境変数としてエクスポートします。
+
+    ```bash
+    export RELAYBOX_API_KEY="rbx_test_..."
+    ```
+
+    <ApiKeyWarning />
+  </Step>
+
+  <Step title="イベントを公開する">
+    SDKをインストールし、`order.paid`イベントを公開します。
+
+    ```bash
+    npm install @relaybox/node
+    ```
+
+    <PublishEvent />
+
+    1〜2秒ほどで、`relaybox listen`を実行しているターミナルにイベントが表示されます。
+  </Step>
+
+  <Step title="配信ログを確認する">
+    [ダッシュボード](https://app.relaybox.dev/events)で**Events**を開くと、ペイロード、すべての配信試行、サーバーが返したレスポンスを確認できます。
+
+    <Frame caption="配信ログには、各試行のステータスコードと所要時間が表示されます。">
+      <img src="/images/screenshots/delivery-log.svg" alt="1回の試行で配信に成功したorder.paidイベントを表示しているRelayboxダッシュボード" />
+    </Frame>
+  </Step>
+</Steps>
+
+## 次のステップ {#next-steps}
+
+<CardGroup cols={2}>
+  <Card title="配信の仕組みを理解する" icon="diagram-project" href="/ja/get-started/how-it-works">
+    イベントを公開してからエンドポイントで受信されるまでに何が起きるのかを説明します。
+  </Card>
+
+  <Card title="署名を検証する" icon="signature" href="/ja/guides/receiving-events/verify-signatures">
+    本番環境に移行する前に、エンドポイントが偽造されたリクエストを確実に拒否するようにしてください。
+  </Card>
+</CardGroup>
+
+<NeedHelp />

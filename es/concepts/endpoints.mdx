@@ -1,0 +1,89 @@
+---
+title: "Puntos de conexión"
+description: "Los puntos de conexión son las URL a las que Relaybox entrega los eventos. Cada uno tiene sus propias suscripciones, su secreto y su configuración."
+icon: "satellite-dish"
+---
+
+Un **punto de conexión** es una URL que recibe eventos. Cuando publicas un evento, Relaybox lo entrega a todos los puntos de conexión habilitados que estén suscritos a ese tipo de evento.
+
+## Crear un punto de conexión {#create-an-endpoint}
+
+Puedes crear puntos de conexión desde el panel o con la [API](/es/api-reference/endpoints/create).
+
+<Tabs>
+  <Tab title="Panel">
+    1. Ve a **Puntos de conexión** y haz clic en **Add punto de conexión**.
+    2. Introduce la URL. En los entornos de producción, debe usar HTTPS.
+    3. Elige los tipos de eventos a los que quieres suscribirte o selecciona **All eventos**.
+    4. Haz clic en **Create**. Relaybox solo muestra el secreto de firma una vez, así que cópialo en ese momento.
+  </Tab>
+
+  <Tab title="API">
+    ```bash
+    curl https://api.relaybox.dev/v3/endpoints \
+      -H "Authorization: Bearer $RELAYBOX_API_KEY" \
+      -d url="https://example.com/webhooks" \
+      -d "event_types[]=order.*" \
+      -d description="Order notifications for the fulfillment team"
+    ```
+  </Tab>
+
+  <Tab title="CLI">
+    ```bash
+    relaybox endpoints create https://example.com/webhooks --events "order.*"
+    ```
+  </Tab>
+</Tabs>
+
+## Estados de los puntos de conexión {#endpoint-states}
+
+Cada punto de conexión puede estar en uno de estos cuatro estados:
+
+<AccordionGroup>
+  <Accordion title="Habilitado" icon="circle-check">
+    El punto de conexión recibe eventos con normalidad. Es el estado predeterminado de los puntos de conexión nuevos.
+  </Accordion>
+
+  <Accordion title="En pausa" icon="circle-pause">
+    Pausaste manualmente el punto de conexión. Relaybox pone los eventos en cola durante un máximo de 72 horas y los entrega en orden cuando lo reanudas.
+  </Accordion>
+
+  <Accordion title="Deshabilitado" icon="circle-xmark">
+    Relaybox dejó de realizar entregas porque el punto de conexión falló en todos los intentos durante cinco días consecutivos. Antes de que esto ocurra, enviamos un correo electrónico a los propietarios de la cuenta. Los eventos publicados mientras un punto de conexión está deshabilitado **no** se ponen en cola, pero puedes reenviarlos.
+  </Accordion>
+
+  <Accordion title="Verificación pendiente" icon="hourglass-half">
+    En los planes Enterprise que tienen activada la opción **Require punto de conexión verification**, los puntos de conexión nuevos deben responder a una solicitud de desafío antes de empezar a recibir eventos.
+  </Accordion>
+</AccordionGroup>
+
+## Limitación de la velocidad de entrega {#rate-limiting-delivery}
+
+De forma predeterminada, Relaybox entrega los eventos tan rápido como tu punto de conexión pueda responder. Si tu servidor no da abasto, configura un límite de velocidad:
+
+```json
+{
+  "rate_limit": {
+    "requests": 50,
+    "per": "second"
+  }
+}
+```
+
+Los eventos que superan el límite esperan en una cola en lugar de fallar. La cola se procesa en el mismo orden en que se publicaron los eventos.
+
+<Warning>
+  Si el límite de velocidad es inferior a tu ritmo de publicación, la cola crecerá indefinidamente. Relaybox te avisa cuando los eventos pendientes de un punto de conexión acumulan más de una hora de retraso.
+</Warning>
+
+## Contenido relacionado {#related}
+
+<CardGroup cols={2}>
+  <Card title="Secretos de firma" icon="key" href="/es/concepts/signatures">
+    Cómo firma Relaybox las solicitudes que envía a tu punto de conexión.
+  </Card>
+
+  <Card title="Rotar un secreto" icon="rotate" href="/es/api-reference/endpoints/rotate-secret">
+    Rota un secreto sin perder eventos.
+  </Card>
+</CardGroup>

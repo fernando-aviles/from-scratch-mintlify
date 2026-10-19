@@ -1,0 +1,18 @@
+{
+  "groups": [
+    {
+      "group": "Python SDK",
+      "pages": [
+        "ko/sdks/python/overview",
+        "ko/sdks/python/configuration",
+        "ko/sdks/python/async-usage"
+      ]
+    },
+    {
+      "group": "리소스",
+      "pages": [
+        "ko/sdks/support-policy"
+      ]
+    }
+  ]
+}

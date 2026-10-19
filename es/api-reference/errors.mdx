@@ -1,0 +1,38 @@
+---
+title: "Errores"
+description: "Cómo notifica errores la API de Relaybox y qué significa cada código de error."
+icon: "circle-exclamation"
+---
+
+import { errorCodes } from "/snippets/es/data/error-codes.mdx";
+
+Cuando una solicitud falla, la API devuelve un código de estado distinto de `2xx` y un cuerpo JSON con los detalles del error:
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "The field `type` is required.",
+    "request_id": "req_8sKd02LmQ",
+    "docs_url": "https://docs.relaybox.dev/api-reference/errors#invalid_request"
+  }
+}
+```
+
+<Note>
+  Usa `code` en tu lógica de gestión de errores. El campo `message` está destinado a personas y puede cambiar en cualquier momento.
+</Note>
+
+## Códigos de error {#error-codes}
+
+{errorCodes.map((err) => (
+  <ResponseField key={err.code} name={err.code} type={`${err.status}`}>
+    {err.meaning} {err.fix}
+  </ResponseField>
+  ))}
+
+## Reintentar solicitudes fallidas {#retrying-failed-requests}
+
+Puedes reintentar sin riesgo una solicitud que haya fallado con un estado `429` o cualquier `5xx`, siempre que envíes la misma [clave de idempotencia](/es/concepts/delivery/idempotency#when-publishing). Los SDK oficiales lo hacen automáticamente, con retroceso exponencial, hasta un máximo de tres veces.
+
+No reintentes errores `4xx` distintos de `429` sin modificar la solicitud, ya que volverán a fallar de la misma manera.

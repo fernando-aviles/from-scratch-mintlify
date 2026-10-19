@@ -1,0 +1,51 @@
+---
+title: "서명"
+description: "Relaybox에서 보내는 모든 요청에는 서명이 포함되어 있어, 엔드포인트에서 위조되거나 재사용된 요청을 거부할 수 있습니다."
+icon: "signature"
+---
+
+import VerifySignature from "/snippets/ko/code/verify-signature.mdx";
+
+엔드포인트 URL을 아는 사람이라면 누구나 해당 엔드포인트로 요청을 보낼 수 있습니다. 서명을 사용하면 요청이 Relaybox에서 보낸 것이며 전송 중에 변조되지 않았음을 증명할 수 있습니다.
+
+## 서명 방식 {#how-signing-works}
+
+각 엔드포인트에는 `whsec_`로 시작하는 **서명 비밀 키**가 있습니다. Relaybox는 매번 전송할 때 다음 과정을 수행합니다.
+
+1. 이벤트 ID, 현재 Unix 타임스탬프, 원시 요청 본문을 마침표로 연결해 `{id}.{timestamp}.{body}` 형식의 문자열을 만듭니다.
+2. 비밀 키로 이 문자열의 HMAC-SHA256 값을 계산합니다.
+3. 계산 결과를 타임스탬프와 함께 `Relaybox-Signature` 헤더에 담아 보냅니다.
+
+```http
+POST /webhooks HTTP/1.1
+Content-Type: application/json
+Relaybox-Event-Id: evt_2b7XqLm9TfR4
+Relaybox-Timestamp: 1792420327
+Relaybox-Signature: v1,K5oZfzN95Z9UVu1EsfQmfVNQhnkZ2pj9o9NDN/H/pI4=
+```
+
+## 서명 검증하기 {#verify-the-signature}
+
+SDK를 사용할 것을 강력히 권장합니다. SDK가 상수 시간 비교와 타임스탬프 확인을 대신 처리해 줍니다.
+
+<VerifySignature />
+
+<Warning>
+  반드시 **원시** 요청 본문을 기준으로 검증하세요. JSON을 파싱한 뒤 다시 직렬화하는 프레임워크는 공백이나 키 순서를 바꿀 수 있으며, 이렇게 되면 서명이 일치하지 않게 됩니다.
+</Warning>
+
+## 재전송 공격 방지 {#protecting-against-replay-attacks}
+
+유효한 서명이 증명하는 것은 Relaybox가 *언젠가* 해당 요청을 보냈다는 사실뿐입니다. 공격자가 요청을 가로챘다가 나중에 다시 보내는 것을 막기 위해, SDK는 타임스탬프가 5분 넘게 지난 요청을 모두 거부합니다.
+
+서명을 직접 검증하는 경우 `Relaybox-Timestamp`를 서버 시각과 비교하고, 허용 범위를 벗어난 요청은 모두 거부하세요.
+
+## 비밀 키 교체 중 다중 서명 {#multiple-signatures-during-rotation}
+
+[비밀 키를 교체](/ko/api-reference/endpoints/rotate-secret)하면 Relaybox는 24시간 동안 이전 비밀 키와 새 비밀 키로 각각 서명합니다. 이 기간에는 헤더에 공백으로 구분된 서명 두 개가 포함됩니다.
+
+```text
+Relaybox-Signature: v1,K5oZfz...pI4= v1,9xQ2mL...aB8=
+```
+
+서명 중 **하나라도** 일치하면 유효한 요청으로 간주됩니다. SDK는 이를 자동으로 처리합니다.

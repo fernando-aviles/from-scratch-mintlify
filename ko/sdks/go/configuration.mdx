@@ -1,0 +1,38 @@
+---
+title: "Go SDK 구성"
+sidebarTitle: "구성"
+description: "Relaybox Go 클라이언트 구성에 사용하는 함수형 옵션입니다."
+---
+
+Go 클라이언트는 다음과 같이 함수형 옵션으로 구성합니다.
+
+```go
+client := relaybox.NewClient(
+	os.Getenv("RELAYBOX_API_KEY"),
+	relaybox.WithRegion(relaybox.RegionEU),
+	relaybox.WithTimeout(10*time.Second),
+	relaybox.WithMaxRetries(5),
+)
+```
+
+## 옵션 {#options}
+
+| 옵션                  | 기본값                  | 설명                                            |
+| ------------------- | -------------------- | --------------------------------------------- |
+| `WithRegion(r)`     | `RegionUS`           | 계정의 데이터 상주 리전입니다.                             |
+| `WithTimeout(d)`    | `30s`                | 요청별 타임아웃입니다. 컨텍스트 기한이 이보다 짧으면 컨텍스트 기한이 적용됩니다. |
+| `WithMaxRetries(n)` | `3`                  | 네트워크 오류, `429`, `5xx` 발생 시 재시도 횟수입니다.         |
+| `WithHTTPClient(c)` | `http.DefaultClient` | 프록시나 트레이싱에 사용할 사용자 지정 `*http.Client`입니다.      |
+
+## 오류 처리 {#error-handling}
+
+API 오류는 `*relaybox.Error` 타입으로 반환됩니다. `errors.As`를 사용해 오류 코드를 확인하세요.
+
+```go
+_, err := client.Events.Create(ctx, params)
+
+var apiErr *relaybox.Error
+if errors.As(err, &apiErr) && apiErr.Code == "rate_limited" {
+	// 잠시 기다렸다가 나중에 다시 시도합니다.
+}
+```

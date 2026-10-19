@@ -1,0 +1,37 @@
+---
+title: "Go SDK"
+sidebarTitle: "概要"
+description: "Go からイベントをパブリッシュし、Webhook を検証します。"
+icon: "golang"
+---
+
+import SdkIntro from "/snippets/ja/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/ja/code/publish-event.mdx";
+
+<SdkIntro language="go" />
+
+## インストール {#install}
+
+```bash
+go get github.com/relaybox/relaybox-go/v3@latest
+```
+
+## クライアントを作成する {#create-a-client}
+
+```go
+import relaybox "github.com/relaybox/relaybox-go/v3"
+
+client := relaybox.NewClient(os.Getenv("RELAYBOX_API_KEY"))
+```
+
+すべてのメソッドは、第 1 引数に `context.Context` を受け取ります。コンテキストをキャンセルすると、自動リトライも含めてリクエストがキャンセルされます。
+
+## イベントをパブリッシュする {#publish-an-event}
+
+<PublishEvent />
+
+## 次のステップ {#next-steps}
+
+<Card title="設定" icon="sliders" href="/ja/sdks/go/configuration">
+  Functional Options を使用して、タイムアウト、リトライ、リージョンを設定します。
+</Card>

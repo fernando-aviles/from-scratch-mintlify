@@ -1,0 +1,50 @@
+{
+  "tabs": [
+    {
+      "tab": "ドキュメント",
+      "icon": "book-open",
+      "$ref": "./navigation/documentation.json"
+    },
+    {
+      "tab": "ガイド",
+      "icon": "map",
+      "$ref": "./navigation/guides.json"
+    },
+    {
+      "tab": "API リファレンス",
+      "icon": "code",
+      "$ref": "./navigation/api-reference.json"
+    },
+    {
+      "tab": "SDK",
+      "icon": "cube",
+      "menu": [
+        {
+          "item": "Node.js",
+          "icon": "node-js",
+          "description": "Node.js および Bun 向け公式 SDK",
+          "$ref": "./navigation/sdks/node.json"
+        },
+        {
+          "item": "Python",
+          "icon": "python",
+          "description": "Python 3.9+ 向け公式 SDK",
+          "$ref": "./navigation/sdks/python.json"
+        },
+        {
+          "item": "Go",
+          "icon": "golang",
+          "description": "Go 1.21+ 向け公式 SDK",
+          "$ref": "./navigation/sdks/go.json"
+        }
+      ]
+    },
+    {
+      "tab": "変更履歴",
+      "icon": "clock-rotate-left",
+      "pages": [
+        "ja/changelog"
+      ]
+    }
+  ]
+}

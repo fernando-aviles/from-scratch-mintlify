@@ -1,0 +1,58 @@
+---
+title: "Webhook の署名を検証する"
+sidebarTitle: "署名を検証する"
+description: "わずか数行のコードで、エンドポイントに署名検証を追加できます。"
+---
+
+import VerifySignature from "/snippets/ja/code/verify-signature.mdx";
+import NeedHelp from "/snippets/ja/shared/need-help.mdx";
+
+このガイドでは、SDK を使用して署名を検証する方法を説明します。署名方式そのものについては、[署名](/ja/concepts/signatures)を参照してください。
+
+<Steps>
+  <Step title="署名シークレットを確認する">
+    ダッシュボードでエンドポイントを開き、**Signing secret** の横にある **Reveal** をクリックします。署名シークレットは `whsec_` で始まります。
+
+    この値を `RELAYBOX_SIGNING_SECRET` という環境変数に保存します。
+  </Step>
+
+  <Step title="生のボディを読み取る">
+    リクエストボディが JSON としてパースされる**前**にアクセスできるよう、フレームワークを設定します。設定方法はフレームワークによって異なります。以下に代表的なフレームワークでの例を示します。
+  </Step>
+
+  <Step title="検証してから処理する">
+    <VerifySignature />
+  </Step>
+
+  <Step title="テストする">
+    CLI を使用して正しく署名されたイベントを送信します。続いて偽造したイベントを送信し、拒否されることを確認します。
+
+    ```bash
+    # 受け入れられることを確認
+    relaybox trigger order.paid
+
+    # 400 で拒否されることを確認
+    curl -X POST http://localhost:3000/webhooks \
+      -H "Relaybox-Signature: v1,not-a-real-signature" \
+      -d '{"type": "order.paid"}'
+    ```
+  </Step>
+</Steps>
+
+## トラブルシューティング {#troubleshooting}
+
+<AccordionGroup>
+  <Accordion title="すべてのリクエストで検証が失敗する">
+    パースして再シリアライズしたボディを検証している可能性が極めて高いです。`verify()` に渡しているバイト列をそのままログに出力し、配信ログに表示されているペイロードと比較してください。
+  </Accordion>
+
+  <Accordion title="本番環境でのみ検証が失敗する">
+    本番環境で本番用エンドポイントのシークレットを使用しているか確認してください。シークレットはエンドポイントごとに個別に発行され、テスト用と本番用のエンドポイントで共有されることはありません。
+  </Accordion>
+
+  <Accordion title="「timestamp too old」エラーで検証が失敗する">
+    サーバーの時刻がずれています。NTP が稼働していることを確認してください。一時的な回避策として SDK の許容範囲を広げることもできますが、15 分を超える値には設定しないでください。
+  </Accordion>
+</AccordionGroup>
+
+<NeedHelp />

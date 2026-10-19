@@ -1,0 +1,50 @@
+{
+  "tabs": [
+    {
+      "tab": "문서",
+      "icon": "book-open",
+      "$ref": "./navigation/documentation.json"
+    },
+    {
+      "tab": "가이드",
+      "icon": "map",
+      "$ref": "./navigation/guides.json"
+    },
+    {
+      "tab": "API 참조",
+      "icon": "code",
+      "$ref": "./navigation/api-reference.json"
+    },
+    {
+      "tab": "SDK",
+      "icon": "cube",
+      "menu": [
+        {
+          "item": "Node.js",
+          "icon": "node-js",
+          "description": "Node.js 및 Bun용 공식 SDK",
+          "$ref": "./navigation/sdks/node.json"
+        },
+        {
+          "item": "Python",
+          "icon": "python",
+          "description": "Python 3.9+용 공식 SDK",
+          "$ref": "./navigation/sdks/python.json"
+        },
+        {
+          "item": "Go",
+          "icon": "golang",
+          "description": "Go 1.21+용 공식 SDK",
+          "$ref": "./navigation/sdks/go.json"
+        }
+      ]
+    },
+    {
+      "tab": "변경 이력",
+      "icon": "clock-rotate-left",
+      "pages": [
+        "ko/changelog"
+      ]
+    }
+  ]
+}

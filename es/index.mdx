@@ -1,0 +1,59 @@
+---
+title: "Documentación de Relaybox"
+sidebarTitle: "Bienvenida"
+description: "Envía, recibe y reenvía webhooks sin tener que montar tú mismo la infraestructura."
+mode: "wide"
+---
+
+import { Hero } from "/snippets/components/Hero.jsx";
+import NeedHelp from "/snippets/es/shared/need-help.mdx";
+
+<Hero title="Webhooks que simplemente funcionan" subtitle="Relaybox entrega tus eventos a miles de puntos de conexión con reintentos automáticos, firmas y garantía de orden, para que tu equipo se dedique a lanzar funcionalidades y no a gestionar colas." primaryCta={{ label: "Empezar la guía de inicio rápido", href: "/get-started/quickstart" }} secondaryCta={{ label: "Explorar la API", href: "/api-reference/introduction" }} />
+
+## Elige tu camino {#choose-your-path}
+
+<CardGroup cols={3}>
+  <Card title="Quiero enviar webhooks" icon="paper-plane" href="/es/guides/sending-events/publish-your-first-event">
+    Ofrece a tus clientes webhooks fiables con un portal alojado, reintentos y registros.
+  </Card>
+
+  <Card title="Quiero recibir webhooks" icon="inbox" href="/es/guides/receiving-events/local-development">
+    Coloca Relaybox delante de Stripe, GitHub o Slack para almacenar eventos en búfer, verificarlos y reenviarlos.
+  </Card>
+
+  <Card title="Estoy migrando desde v2" icon="arrow-right-arrow-left" href="/es/guides/migrating-from-v2">
+    Descubre qué ha cambiado en v3 y actualiza tu integración en una hora aproximadamente.
+  </Card>
+</CardGroup>
+
+## Temas populares {#popular-topics}
+
+<Columns cols={2}>
+  <Card title="Cómo funcionan los reintentos" icon="rotate" href="/es/concepts/delivery/retries" horizontal>
+    Backoff exponencial durante un máximo de 41 horas.
+  </Card>
+
+  <Card title="Verificar firmas" icon="signature" href="/es/concepts/signatures" horizontal>
+    Asegúrate de que cada solicitud proviene realmente de nosotros.
+  </Card>
+
+  <Card title="Entrega ordenada" icon="list-ol" href="/es/concepts/delivery/ordering" horizontal>
+    Mantén el orden de los eventos relacionados.
+  </Card>
+
+  <Card title="Planes y límites" icon="credit-card" href="/es/account/plans" horizontal>
+    Compara planes y entiende cómo funcionan los excedentes.
+  </Card>
+</Columns>
+
+## SDKs {#sdks}
+
+<CardGroup cols={3}>
+  <Card title="Node.js" icon="node-js" href="/es/sdks/node/overview" />
+
+  <Card title="Python" icon="python" href="/es/sdks/python/overview" />
+
+  <Card title="Go" icon="golang" href="/es/sdks/go/overview" />
+</CardGroup>
+
+<NeedHelp />

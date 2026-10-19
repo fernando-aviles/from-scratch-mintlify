@@ -1,0 +1,8 @@
+{
+  "root": "ja/guides/integrations/overview",
+  "pages": [
+    "ja/guides/integrations/slack",
+    "ja/guides/integrations/stripe",
+    "ja/guides/integrations/github"
+  ]
+}

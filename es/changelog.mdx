@@ -1,0 +1,51 @@
+---
+title: "Registro de cambios"
+description: "Nuevas funciones, mejoras y correcciones en Relaybox."
+icon: "clock-rotate-left"
+rss: true
+---
+
+<Update label="Octubre de 2026" description="v3.4" tags={["Dashboard", "SDKs"]}>
+  ## Búsqueda en el registro de entregas {#delivery-log-search}
+
+  Ahora puedes buscar en el registro de entregas por cualquier campo de la carga útil. Prueba `payload.order_id:ord_8Hx2kP` en el cuadro de búsqueda de la página **Events**.
+
+  ## Mejoras {#improvements}
+
+  * El SDK de Node.js ahora es compatible con Bun 1.1 y versiones posteriores.
+  * El reenvío de más de 10 000 eventos ahora se ejecuta en segundo plano y te avisamos por correo electrónico cuando termina.
+  * Las páginas de los puntos de conexión muestran un gráfico con la tasa de éxito de los últimos 30 días.
+
+  ## Correcciones {#fixes}
+
+  * Se corrigió un problema por el que el comando `listen` de la CLI podía desconectarse al cabo de 24 horas.
+</Update>
+
+<Update label="Septiembre de 2026" description="v3.3" tags={["API"]}>
+  ## Calendarios de reintentos personalizables {#customizable-retry-schedules}
+
+  Los clientes de los planes Scale y Enterprise ya pueden [personalizar el calendario de reintentos](/es/concepts/delivery/retries#customize-the-schedule) de cada punto de conexión.
+
+  ## Mejoras {#improvements-2}
+
+  * El punto de conexión `GET /v3/events` ahora permite filtrar por `metadata`.
+  * Las respuestas de error ahora incluyen un `docs_url` que enlaza a la página correspondiente de esta documentación.
+</Update>
+
+<Update label="Agosto de 2026" description="v3.2" tags={["Integrations"]}>
+  ## Origen de GitHub {#github-source}
+
+  Recibe webhooks de GitHub a través de Relaybox con la nueva [integración de GitHub](/es/guides/integrations/github), creada y mantenida por la comunidad.
+
+  ## Correcciones {#fixes-2}
+
+  * Los mensajes de Slack con más de 40 kilobytes de texto ahora se truncan en lugar de generar un error.
+</Update>
+
+<Update label="Julio de 2026" description="v3.0" tags={["API", "SDKs", "Dashboard"]}>
+  ## Relaybox v3 {#relaybox-v3}
+
+  Nuestra versión más importante hasta la fecha. Entre sus novedades destacan la entrega ordenada, las transformaciones y un panel rediseñado.
+
+  Consulta la [guía de migración](/es/guides/migrating-from-v2) para actualizar.
+</Update>

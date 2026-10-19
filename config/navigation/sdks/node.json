@@ -10,7 +10,9 @@
     },
     {
       "group": "Resources",
-      "pages": ["sdks/support-policy"]
+      "pages": [
+        "sdks/support-policy"
+      ]
     }
   ]
 }

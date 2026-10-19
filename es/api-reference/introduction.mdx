@@ -1,0 +1,53 @@
+---
+title: "Referencia de la API"
+sidebarTitle: "Introducción"
+description: "Usa la API REST de Relaybox para publicar eventos, administrar puntos de conexión y consultar entregas."
+icon: "code"
+---
+
+La API de Relaybox se basa en REST. Acepta cuerpos de solicitud en JSON, devuelve respuestas en JSON y utiliza verbos y códigos de estado HTTP estándar.
+
+## URL base {#base-url}
+
+```text
+https://api.relaybox.dev/v3
+```
+
+Los clientes con residencia de datos en la UE o en Japón deben usar una URL base regional:
+
+| Región                          | URL base                         |
+| ------------------------------- | -------------------------------- |
+| Estados Unidos (predeterminada) | `https://api.relaybox.dev/v3`    |
+| Unión Europea                   | `https://eu.api.relaybox.dev/v3` |
+| Japón                           | `https://jp.api.relaybox.dev/v3` |
+
+## Pruébalo {#try-it-out}
+
+Cada página de punto de conexión incluye un entorno de pruebas interactivo. Pega una clave de API de **prueba** en el campo **Authorization** para enviar solicitudes reales desde tu navegador.
+
+<Warning>
+  Nunca pegues una clave `rbx_live_` en el entorno de pruebas ni en ningún otro sitio web.
+</Warning>
+
+## Control de versiones {#versioning}
+
+La versión principal forma parte de la URL. Dentro de una misma versión principal, solo introducimos cambios compatibles con versiones anteriores, como:
+
+* Agregar nuevos puntos de conexión
+* Agregar parámetros de solicitud opcionales
+* Agregar campos a las respuestas
+* Agregar nuevos valores a enumeraciones documentadas como extensibles
+
+<Tip>
+  Escribe tu código de modo que ignore los campos desconocidos de las respuestas. Así, los cambios aditivos nunca afectarán a tu integración.
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="Autenticación" icon="lock" href="/es/api-reference/authentication">
+    Cómo enviar tu clave de API.
+  </Card>
+
+  <Card title="Errores" icon="circle-exclamation" href="/es/api-reference/errors">
+    Todos los códigos de error y cómo resolver cada uno.
+  </Card>
+</CardGroup>

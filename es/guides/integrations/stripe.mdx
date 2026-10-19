@@ -1,0 +1,41 @@
+---
+title: "Stripe"
+description: "Recibe webhooks de Stripe a través de Relaybox para gestionar reintentos, reenvíos y distribución a múltiples destinos."
+icon: "stripe"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="Stripe" logo="/images/integrations/stripe.svg" category="Origen · Pagos">
+  Conecta Stripe a Relaybox una sola vez y enruta los eventos de pago a tantos servicios internos como quieras.
+</IntegrationHeader>
+
+## ¿Por qué colocar Relaybox delante de Stripe? {#why-put-relaybox-in-front-of-stripe}
+
+Stripe reintenta los webhooks fallidos durante un máximo de tres días, pero no es fácil reenviar un evento concreto a un servicio concreto, y cada evento solo llega a una URL. Con Relaybox como intermediario:
+
+* Cada servicio interno tiene su propio punto de conexión y su propia cola de reintentos.
+* Puedes reenviar cualquier evento de Stripe dentro de tu período de retención.
+* La verificación de la firma se realiza una sola vez, en el perímetro.
+
+## Configurar el origen {#set-up-the-source}
+
+<Steps>
+  <Step title="Crear el origen">
+    Ve a **Integrations → Stripe** y haz clic en **Create source**. Relaybox te proporciona una URL de ingesta como `https://in.relaybox.dev/src_9Kq2`.
+  </Step>
+
+  <Step title="Añadir la URL en Stripe">
+    En el panel de Stripe, ve a **Developers → Webhooks → Add endpoint**, pega la URL de ingesta y selecciona los eventos que te interesen.
+  </Step>
+
+  <Step title="Pegar el secreto de firma de Stripe">
+    Stripe muestra un secreto de firma para el nuevo punto de conexión. Cópialo y pégalo en Relaybox para que podamos rechazar las solicitudes que no procedan de Stripe.
+  </Step>
+</Steps>
+
+A partir de ahora, los eventos de Stripe aparecen en Relaybox con el prefijo `stripe.` en el tipo; por ejemplo, `stripe.invoice.paid`.
+
+<Warning>
+  A partir de ahora, tus servicios internos recibirán firmas de **Relaybox**, no de Stripe. Actualízalos para que las verifiquen con el secreto del punto de conexión de Relaybox.
+</Warning>

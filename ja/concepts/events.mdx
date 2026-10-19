@@ -1,0 +1,80 @@
+---
+title: "イベント"
+description: "イベントは、システム内で発生した出来事を表す不変のレコードです。イベントの構造と命名方法について説明します。"
+icon: "bolt"
+---
+
+import EventPayload from "/snippets/ja/code/event-payload.mdx";
+
+**イベント**は、Relaybox におけるすべての基本単位です。イベントを発行すると、Relaybox がそれを保存し、ルーティングして配信します。一度発行したイベントは編集も削除もできません。可能なのは、[再送](/ja/api-reference/events/replay)するか、ご利用のプランの保持期間が終了して期限切れになるのを待つことだけです。
+
+## イベントの構造 {#anatomy-of-an-event}
+
+<EventPayload />
+
+<ResponseField name="id" type="string" required>
+  `evt_` で始まる一意の識別子です。発行時に Relaybox が生成します。
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  [イベントタイプ](#naming-event-types)です (例: `order.paid`) 。エンドポイントはイベントタイプ単位でサブスクライブします。
+</ResponseField>
+
+<ResponseField name="created_at" type="string" required>
+  Relaybox がイベントを受け付けた日時です。UTC の ISO 8601 形式のタイムスタンプで表されます。
+</ResponseField>
+
+<ResponseField name="ordering_key" type="string">
+  省略可能です。同じキーを持つイベントは順序どおりに配信されます。詳しくは[順序付き配信](/ja/concepts/delivery/ordering)を参照してください。
+</ResponseField>
+
+<ResponseField name="payload" type="object" required>
+  送信するデータです。最大 256 KB までの任意の有効な JSON オブジェクトを指定できます。
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  文字列のキーと値のペアで、最大 20 個まで指定できます。ダッシュボードでのイベントの絞り込みに使用できます。メタデータはエンドポイントに配信されますが、変換で変更することはできません。
+
+  <Expandable title="予約済みキー">
+    <ResponseField name="environment" type="string">
+      使用した APIキーに応じて自動的に設定されます (`test` または `production`) 。
+    </ResponseField>
+
+    <ResponseField name="source" type="string">
+      自由形式です。イベントを発行したサービスの名前を指定することをお勧めします。
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## イベントタイプの命名 {#naming-event-types}
+
+イベントタイプは、小文字をドットで区切った文字列です。`resource.past_tense_verb` のパターンを推奨します。
+
+<CodeGroup>
+  ```text Good
+  order.paid
+  invoice.payment_failed
+  user.email_changed
+  ```
+
+  ```text Avoid
+  OrderPaid          # 小文字でもドット区切りでもない
+  order.pay          # 発生した出来事ではなく命令に見える
+  orders.paid.v2     # バージョンはタイプではなくペイロードに含める
+  ```
+</CodeGroup>
+
+<Tip>
+  エンドポイントはワイルドカードを使ってサブスクライブできます。`order.*` をサブスクライブすると `order.paid` や `order.refunded` には一致しますが、`order.line_item.added` には一致しません。すべての階層に一致させるには `order.**` を使用してください。
+</Tip>
+
+## サイズ制限 {#size-limits}
+
+| フィールド          | 制限                   |
+| -------------- | -------------------- |
+| `type`         | 128 文字               |
+| `ordering_key` | 256 文字               |
+| `payload`      | JSON エンコード後で 256 KB  |
+| `metadata`     | 最大 20 キー、各値 512 文字まで |
+
+これより大きなデータを送信する場合は、データをご自身のストレージにアップロードし、その署名付き URL をペイロードに含めてください。

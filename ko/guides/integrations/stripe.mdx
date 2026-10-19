@@ -1,0 +1,41 @@
+---
+title: "Stripe"
+description: "Relaybox로 Stripe 웹훅을 수신하고 재시도, 재전송, 팬아웃 기능을 활용합니다."
+icon: "stripe"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="Stripe" logo="/images/integrations/stripe.svg" category="소스 · 결제">
+  Stripe를 Relaybox에 한 번만 연결하면 결제 이벤트를 원하는 수만큼 내부 서비스로 라우팅할 수 있습니다.
+</IntegrationHeader>
+
+## Stripe 앞에 Relaybox를 두는 이유는 무엇인가요? {#why-put-relaybox-in-front-of-stripe}
+
+Stripe는 실패한 웹훅을 최대 3일 동안 재시도하지만, 특정 이벤트를 특정 서비스로 재전송하기가 쉽지 않고 이벤트마다 하나의 URL로만 전달됩니다. 중간에 Relaybox를 두면 다음과 같은 이점이 있습니다.
+
+* 내부 서비스마다 전용 엔드포인트와 재시도 대기열이 생깁니다.
+* 보존 기간 내의 모든 Stripe 이벤트를 재전송할 수 있습니다.
+* 서명 검증은 엣지에서 한 번만 이루어집니다.
+
+## 소스 설정하기 {#set-up-the-source}
+
+<Steps>
+  <Step title="소스 생성하기">
+    **Integrations → Stripe**로 이동한 후 **Create source**를 클릭합니다. Relaybox에서 `https://in.relaybox.dev/src_9Kq2`와 같은 수신 URL을 발급합니다.
+  </Step>
+
+  <Step title="Stripe에 URL 추가하기">
+    Stripe 대시보드에서 **Developers → Webhooks → Add endpoint**로 이동한 다음, 수신 URL을 붙여넣고 수신할 이벤트를 선택합니다.
+  </Step>
+
+  <Step title="Stripe 서명 비밀 키 붙여넣기">
+    Stripe에 새 엔드포인트의 서명 비밀 키가 표시됩니다. 이 값을 Relaybox에 붙여넣으면 Relaybox가 Stripe에서 보내지 않은 요청을 거부할 수 있습니다.
+  </Step>
+</Steps>
+
+이제 Stripe 이벤트는 유형 앞에 `stripe.` 접두사가 붙은 형태로 Relaybox에 표시됩니다(예: `stripe.invoice.paid`).
+
+<Warning>
+  이제 내부 서비스는 Stripe 서명이 아닌 **Relaybox** 서명을 받게 됩니다. Relaybox 엔드포인트 비밀 키로 서명을 검증하도록 내부 서비스를 업데이트하세요.
+</Warning>

@@ -1,0 +1,56 @@
+---
+title: "첫 이벤트 게시하기"
+description: "테스트 이벤트 하나를 보내는 것부터 시작해, 재시도와 멱등성을 갖춘 프로덕션용 게시자를 구축해 봅니다."
+---
+
+import Prerequisites from "/snippets/ko/shared/prerequisites.mdx";
+import PublishEvent from "/snippets/ko/code/publish-event.mdx";
+
+<Prerequisites language="node" environment="production" />
+
+## 1. 이벤트 게시하기 {#1-publish-an-event}
+
+가장 간단하게는 API 호출 한 번으로 이벤트를 게시할 수 있습니다.
+
+<PublishEvent />
+
+응답으로 `id`를 포함한 저장된 이벤트가 반환됩니다. 전달은 비동기로 이루어지므로, 성공 응답은 이벤트가 전달되었다는 뜻이 아니라 Relaybox가 이벤트를 **수락**했다는 뜻입니다.
+
+## 2. 멱등성 키 추가하기 {#2-add-an-idempotency-key}
+
+프로덕션 환경에서는 서비스와 Relaybox 사이에 네트워크 오류가 발생하기 마련입니다. 자체 데이터를 바탕으로 생성한 멱등성 키를 추가하면 게시 요청을 언제 재시도하더라도 안전합니다.
+
+```javascript {3}
+await relaybox.events.create(
+  { type: "order.paid", payload: { order_id: order.id } },
+  { idempotencyKey: `order-${order.id}-paid` }
+);
+```
+
+자세한 내용은 [멱등성](/ko/concepts/delivery/idempotency)을 참고하세요.
+
+## 3. 트랜잭션에서 게시하기 {#3-publish-from-a-transaction}
+
+흔히 발생하는 버그가 있습니다. 데이터베이스 트랜잭션이 커밋된 뒤, 이벤트를 게시하기 전에 프로세스가 비정상 종료되면 이벤트가 유실됩니다. 반대 상황도 일어날 수 있습니다. 이벤트를 게시했는데 트랜잭션이 롤백되는 경우입니다.
+
+이 문제는 **트랜잭셔널 아웃박스(transactional outbox)** 패턴으로 해결할 수 있습니다. 같은 트랜잭션 안에서 이벤트를 `outbox` 테이블에 기록하고, 별도의 워커가 이 테이블에서 이벤트를 읽어 게시하도록 합니다.
+
+```sql
+BEGIN;
+  UPDATE orders SET status = 'paid' WHERE id = 'ord_8Hx2kP';
+  INSERT INTO outbox (type, payload) VALUES ('order.paid', '{"order_id": "ord_8Hx2kP"}');
+COMMIT;
+```
+
+<Info>
+  Node.js 및 Python SDK에는 PostgreSQL용 아웃박스 워커가 포함되어 있습니다. 자세한 내용은 [Node.js 구성](/ko/sdks/node/configuration#outbox-worker)을 참고하세요.
+</Info>
+
+## 4. 프로덕션 전환 {#4-go-live}
+
+`rbx_live_` 키로 전환하기 전에 다음 사항을 확인하세요.
+
+* [ ] 모든 이벤트 유형이 해당 이벤트를 사용하는 팀을 위해 문서화되어 있음
+* [ ] 이벤트 게시 시 멱등성 키를 사용함
+* [ ] 게시 오류율에 대한 알림을 설정함
+* [ ] API 키에 `events:write` 범위만 부여되어 있음

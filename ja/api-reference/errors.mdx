@@ -1,0 +1,38 @@
+---
+title: "エラー"
+description: "Relaybox API がエラーを返す仕組みと、各エラーコードの意味について説明します。"
+icon: "circle-exclamation"
+---
+
+import { errorCodes } from "/snippets/ja/data/error-codes.mdx";
+
+リクエストが失敗した場合、API は `2xx` 以外のステータスコードと、エラーの詳細を含む JSON のレスポンスボディを返します。
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "The field `type` is required.",
+    "request_id": "req_8sKd02LmQ",
+    "docs_url": "https://docs.relaybox.dev/api-reference/errors#invalid_request"
+  }
+}
+```
+
+<Note>
+  エラー処理のロジックでは `code` を使用してください。`message` は人が読むためのものであり、予告なく変更される場合があります。
+</Note>
+
+## エラーコード {#error-codes}
+
+{errorCodes.map((err) => (
+  <ResponseField key={err.code} name={err.code} type={`${err.status}`}>
+    {err.meaning} {err.fix}
+  </ResponseField>
+  ))}
+
+## 失敗したリクエストの再試行 {#retrying-failed-requests}
+
+`429` または `5xx` 系のステータスで失敗したリクエストは、同じ[冪等性キー](/ja/concepts/delivery/idempotency#when-publishing)を送信していれば、安全に再試行できます。公式 SDK は、指数バックオフを用いて最大 3 回まで自動的に再試行します。
+
+`429` 以外の `4xx` エラーは、リクエストを修正せずに再試行しないでください。そのまま再試行しても、同じように失敗します。

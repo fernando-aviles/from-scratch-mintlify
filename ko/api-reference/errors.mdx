@@ -1,0 +1,38 @@
+---
+title: "오류"
+description: "Relaybox API가 오류를 보고하는 방식과 각 오류 코드의 의미를 설명합니다."
+icon: "circle-exclamation"
+---
+
+import { errorCodes } from "/snippets/ko/data/error-codes.mdx";
+
+요청이 실패하면 API는 `2xx`가 아닌 상태 코드와 함께 세부 정보가 담긴 JSON 본문을 반환합니다.
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "The field `type` is required.",
+    "request_id": "req_8sKd02LmQ",
+    "docs_url": "https://docs.relaybox.dev/api-reference/errors#invalid_request"
+  }
+}
+```
+
+<Note>
+  오류 처리 로직에는 `code`를 사용하세요. `message`는 사람이 읽도록 작성된 값이므로 언제든지 변경될 수 있습니다.
+</Note>
+
+## 오류 코드 {#error-codes}
+
+{errorCodes.map((err) => (
+  <ResponseField key={err.code} name={err.code} type={`${err.status}`}>
+    {err.meaning} {err.fix}
+  </ResponseField>
+  ))}
+
+## 실패한 요청 재시도 {#retrying-failed-requests}
+
+`429` 또는 `5xx` 상태로 실패한 요청은 동일한 [멱등성 키](/ko/concepts/delivery/idempotency#when-publishing)를 함께 보내기만 하면 안전하게 재시도할 수 있습니다. 공식 SDK는 지수 백오프를 적용해 최대 세 번까지 자동으로 재시도합니다.
+
+`429`를 제외한 `4xx` 오류는 요청을 수정하지 않고 그대로 재시도하지 마세요. 같은 이유로 다시 실패합니다.

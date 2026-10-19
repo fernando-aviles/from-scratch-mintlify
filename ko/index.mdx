@@ -1,0 +1,59 @@
+---
+title: "Relaybox 문서"
+sidebarTitle: "환영합니다"
+description: "복잡한 인프라를 직접 구축하지 않고도 웹훅을 보내고, 받고, 재전송하세요."
+mode: "wide"
+---
+
+import { Hero } from "/snippets/components/Hero.jsx";
+import NeedHelp from "/snippets/ko/shared/need-help.mdx";
+
+<Hero title="설정만 하면 바로 작동하는 웹훅" subtitle="Relaybox는 자동 재시도, 서명, 순서 보장을 기본으로 제공하며 수천 개의 엔드포인트에 이벤트를 안정적으로 전달합니다. 이제 팀은 큐 관리 대신 기능 개발에 집중할 수 있습니다." primaryCta={{ label: "빠른 시작 따라 하기", href: "/get-started/quickstart" }} secondaryCta={{ label: "API 살펴보기", href: "/api-reference/introduction" }} />
+
+## 시작 경로 선택하기 {#choose-your-path}
+
+<CardGroup cols={3}>
+  <Card title="웹훅을 보내고 싶어요" icon="paper-plane" href="/ko/guides/sending-events/publish-your-first-event">
+    호스팅 포털, 재시도, 로그를 갖춘 안정적인 웹훅을 고객에게 제공하세요.
+  </Card>
+
+  <Card title="웹훅을 받고 싶어요" icon="inbox" href="/ko/guides/receiving-events/local-development">
+    Stripe, GitHub, Slack 앞단에 Relaybox를 두고 이벤트를 버퍼링하고 검증하고 재전송하세요.
+  </Card>
+
+  <Card title="v2에서 마이그레이션하려고 해요" icon="arrow-right-arrow-left" href="/ko/guides/migrating-from-v2">
+    v3에서 달라진 점을 확인하고 1시간 정도면 통합을 업그레이드할 수 있습니다.
+  </Card>
+</CardGroup>
+
+## 인기 주제 {#popular-topics}
+
+<Columns cols={2}>
+  <Card title="재시도 작동 방식" icon="rotate" href="/ko/concepts/delivery/retries" horizontal>
+    최대 41시간 동안 지수 백오프 방식으로 재시도합니다.
+  </Card>
+
+  <Card title="서명 검증" icon="signature" href="/ko/concepts/signatures" horizontal>
+    모든 요청이 실제로 Relaybox에서 보낸 것인지 확인하세요.
+  </Card>
+
+  <Card title="순서 보장 전달" icon="list-ol" href="/ko/concepts/delivery/ordering" horizontal>
+    관련 이벤트를 순서대로 전달하세요.
+  </Card>
+
+  <Card title="요금제 및 한도" icon="credit-card" href="/ko/account/plans" horizontal>
+    요금제를 비교하고 초과 사용 요금을 확인하세요.
+  </Card>
+</Columns>
+
+## SDK {#sdks}
+
+<CardGroup cols={3}>
+  <Card title="Node.js" icon="node-js" href="/ko/sdks/node/overview" />
+
+  <Card title="Python" icon="python" href="/ko/sdks/python/overview" />
+
+  <Card title="Go" icon="golang" href="/ko/sdks/go/overview" />
+</CardGroup>
+
+<NeedHelp />

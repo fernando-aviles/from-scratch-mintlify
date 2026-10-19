@@ -1,0 +1,89 @@
+---
+title: "v2에서 v3로 마이그레이션"
+sidebarTitle: "v2에서 마이그레이션"
+description: "Relaybox v3의 변경 사항과 기존 통합을 업그레이드하는 방법을 알아봅니다."
+icon: "arrow-right-arrow-left"
+---
+
+import { sdks } from "/snippets/ko/data/sdk-versions.mdx";
+
+Relaybox v3는 새로운 API 버전, 새로운 SDK, 새로운 서명 체계가 도입된 메이저 릴리스입니다. 대부분의 팀은 1시간 정도면 마이그레이션을 마칩니다.
+
+<Info>
+  v2 API는 **2027년 3월 31일**까지 계속 사용할 수 있습니다. 이후에는 v2 요청에 `410 Gone`이 반환됩니다.
+</Info>
+
+## v3의 새로운 기능 {#whats-new-in-v3}
+
+* [순서 키](/ko/concepts/delivery/ordering)를 사용한 **순서 보장 전달**
+* Relaybox 내부에서 실행되는 **[변환](/ko/guides/sending-events/transformations)**
+* **더 길어진 재시도:** 기존 24시간에서 약 41시간으로 연장
+* 필터링과 라우팅에 활용할 수 있는 이벤트 **메타데이터**
+
+## 호환성이 깨지는 변경 사항 {#breaking-changes}
+
+<AccordionGroup>
+  <Accordion title="새 기본 URL" icon="link">
+    `https://api.relaybox.dev/v2`를 `https://api.relaybox.dev/v3`로 변경하세요.
+  </Accordion>
+
+  <Accordion title="data 필드가 payload로 변경됨" icon="pen">
+    v3로 게시하는 이벤트는 `data` 대신 `payload`를 사용합니다. 마이그레이션 기간에 v2로 게시하고 v3로 수신하는 경우, Relaybox는 **두** 필드를 모두 포함합니다.
+  </Accordion>
+
+  <Accordion title="새 서명 헤더" icon="signature">
+    v2는 본문만으로 계산한 16진수 인코딩 HMAC을 `X-Relaybox-Signature` 헤더에 담아 보냈습니다. v3는 이벤트 ID, 타임스탬프, 본문으로 계산한 base64 HMAC을 `Relaybox-Signature` 헤더에 담아 보냅니다. 자세한 내용은 [서명](/ko/concepts/signatures)을 참고하세요.
+
+    엔드포인트를 업그레이드한 후 90일 동안은 Relaybox가 **두** 헤더를 모두 보내므로, 새 검증 코드를 원하는 일정에 맞춰 배포할 수 있습니다.
+  </Accordion>
+
+  <Accordion title="이벤트 ID" icon="fingerprint">
+    이벤트 ID가 숫자 문자열(`"1849302"`)에서 접두사가 붙은 문자열(`"evt_2b7XqLm9TfR4"`)로 바뀌었습니다. 이벤트 ID를 숫자형 열에 저장하고 있다면 먼저 텍스트형 열로 마이그레이션하세요.
+  </Accordion>
+</AccordionGroup>
+
+## SDK 업그레이드 {#upgrade-the-sdk}
+
+<Tabs>
+  <Tab title="Node.js">
+    ```bash
+    npm install @relaybox/node@^3
+    ```
+
+    현재 버전은 **{sdks.node.version}**&#xC785;니다.
+  </Tab>
+
+  <Tab title="Python">
+    ```bash
+    pip install --upgrade "relaybox>=3,<4"
+    ```
+
+    현재 버전은 **{sdks.python.version}**&#xC785;니다.
+  </Tab>
+
+  <Tab title="Go">
+    ```bash
+    go get github.com/relaybox/relaybox-go/v3
+    ```
+
+    현재 버전은 **{sdks.go.version}**&#xC785;니다. v3용 Go SDK는 아직 베타 버전이라는 점에 유의하세요.
+  </Tab>
+</Tabs>
+
+## `data`의 이름을 `payload`로 변경 {#rename-data-to-payload}
+
+<CodeGroup>
+  ```javascript Before (v2)
+  await relaybox.events.create({
+    type: "order.paid",
+    data: { order_id: "ord_8Hx2kP" },
+  });
+  ```
+
+  ```javascript After (v3)
+  await relaybox.events.create({
+    type: "order.paid",
+    payload: { order_id: "ord_8Hx2kP" },
+  });
+  ```
+</CodeGroup>

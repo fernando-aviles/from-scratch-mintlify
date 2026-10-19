@@ -1,0 +1,44 @@
+---
+title: "Miembros del equipo y roles"
+sidebarTitle: "Miembros del equipo"
+description: "Invita a tus compañeros y controla qué pueden ver y modificar."
+icon: "users"
+---
+
+Invita a tus compañeros desde **Settings → Team**. Cada miembro tiene exactamente un rol por entorno, así que puedes, por ejemplo, dar a un contratista acceso completo a `test`, pero solo acceso de lectura a `production`.
+
+## Roles {#roles}
+
+| Permiso                            | Viewer | Developer | Admin | Owner |
+| ---------------------------------- | :----: | :-------: | :---: | :---: |
+| Ver eventos y registros de entrega |    ✓   |     ✓     |   ✓   |   ✓   |
+| Reenviar eventos                   |        |     ✓     |   ✓   |   ✓   |
+| Crear y editar puntos de conexión  |        |     ✓     |   ✓   |   ✓   |
+| Crear claves de API                |        |           |   ✓   |   ✓   |
+| Invitar y eliminar miembros        |        |           |   ✓   |   ✓   |
+| Administrar la facturación         |        |           |       |   ✓   |
+| Eliminar la cuenta                 |        |           |       |   ✓   |
+
+<Info>
+  Cada cuenta tiene un único propietario. Para transferir la propiedad, el propietario actual debe ir a **Settings → Team**, abrir el menú del miembro y seleccionar **Make owner**.
+</Info>
+
+## Invitar a un miembro {#invite-a-member}
+
+<Steps>
+  <Step title="Abre la página Team">
+    Ve a **Settings → Team** y haz clic en **Invite member**.
+  </Step>
+
+  <Step title="Elige los roles">
+    Introduce una o varias direcciones de correo electrónico, separadas por comas, y elige un rol para cada entorno.
+  </Step>
+
+  <Step title="Envía la invitación">
+    Las invitaciones caducan a los siete días. Puedes reenviar una invitación caducada desde la misma página.
+  </Step>
+</Steps>
+
+<Tip>
+  En los planes Enterprise con el [inicio de sesión único](/es/account/security/sso) habilitado, puedes prescindir por completo de las invitaciones. Los miembros se crean automáticamente la primera vez que inician sesión a través de tu proveedor de identidad.
+</Tip>

@@ -1,0 +1,46 @@
+---
+title: "보안 및 규정 준수"
+sidebarTitle: "개요"
+description: "Relaybox가 데이터를 보호하는 방식과 팀에서 사용할 수 있는 제어 기능을 알아봅니다."
+icon: "shield-halved"
+---
+
+Relaybox는 결제 확인, 계정 변경, 개인 정보 등 민감한 데이터를 다루는 경우가 많습니다. 그래서 플랫폼의 모든 계층에 보안을 기본으로 적용하고 있습니다.
+
+## 데이터 보호 {#data-protection}
+
+* **전송 중:** API와 대시보드로 오가는 모든 트래픽에는 TLS 1.2 이상이 적용됩니다. 프로덕션 환경에서 엔드포인트로 전송하려면 HTTPS를 사용해야 합니다.
+* **저장 시:** 이벤트 페이로드는 AES-256으로 암호화됩니다. Enterprise 고객은 AWS KMS 또는 Google Cloud KMS를 통해 자체 키를 사용할 수 있습니다.
+* **데이터 상주:** 계정을 생성할 때 데이터 저장 지역을 미국, 유럽 연합, 일본 중에서 선택할 수 있습니다. 데이터는 선택한 지역 밖으로 절대 이동하지 않습니다.
+
+## 규정 준수 {#compliance}
+
+<CardGroup cols={3}>
+  <Card title="SOC 2 Type II" icon="certificate">
+    매년 감사를 받습니다. 보고서가 필요하면 담당 어카운트 매니저에게 요청하세요.
+  </Card>
+
+  <Card title="GDPR" icon="scale-balanced">
+    모든 유료 고객과 데이터 처리 계약(Data Processing Agreement)을 체결합니다.
+  </Card>
+
+  <Card title="HIPAA" icon="hospital">
+    Enterprise 요금제에서 업무 협력자 계약(Business Associate Agreement)을 체결하면 이용할 수 있습니다.
+  </Card>
+</CardGroup>
+
+## 계정 관리 {#account-controls}
+
+<CardGroup cols={2}>
+  <Card title="싱글 사인온(SSO)" icon="right-to-bracket" href="/ko/account/security/sso">
+    멤버가 Okta, Microsoft Entra ID 또는 Google Workspace를 통해서만 로그인하도록 설정합니다.
+  </Card>
+
+  <Card title="감사 로그" icon="clipboard-list" href="/ko/account/security/audit-logs">
+    누가 언제 무엇을 변경했는지 확인합니다.
+  </Card>
+</CardGroup>
+
+## 취약점 신고 {#reporting-a-vulnerability}
+
+보안 문제를 발견하셨다면 [security@relaybox.dev](mailto:security@relaybox.dev)로 이메일을 보내 주세요. GitHub에 공개 이슈를 등록하지는 말아 주세요. 접수된 모든 신고에는 영업일 기준 2일 이내에 답변해 드립니다.

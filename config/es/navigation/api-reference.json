@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "group": "Descripción general",
+      "pages": [
+        "es/api-reference/introduction",
+        "es/api-reference/authentication",
+        "es/api-reference/errors",
+        "es/api-reference/pagination"
+      ]
+    },
+    {
+      "group": "Eventos",
+      "icon": "bolt",
+      "pages": [
+        "es/api-reference/events/create",
+        "es/api-reference/events/list",
+        "es/api-reference/events/get",
+        "es/api-reference/events/replay"
+      ]
+    },
+    {
+      "group": "Puntos de conexión",
+      "icon": "satellite-dish",
+      "pages": [
+        "es/api-reference/endpoints/create",
+        "es/api-reference/endpoints/list",
+        "es/api-reference/endpoints/update",
+        "es/api-reference/endpoints/delete",
+        "es/api-reference/endpoints/rotate-secret"
+      ]
+    }
+  ]
+}

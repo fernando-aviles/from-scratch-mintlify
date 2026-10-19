@@ -1,0 +1,61 @@
+---
+title: "CLI로 로컬에서 개발하기"
+sidebarTitle: "로컬 개발"
+description: "노트북을 인터넷에 노출하지 않고도 실제 이벤트를 노트북으로 전달받을 수 있습니다."
+---
+
+노트북에는 공개 URL이 없기 때문에 Relaybox가 노트북으로 직접 이벤트를 전송할 수 없습니다. `relaybox listen` 명령을 사용하면 이 문제를 해결할 수 있습니다. 이 명령은 Relaybox로 아웃바운드 연결을 열어 이벤트를 로컬 포트로 전달합니다.
+
+## 이벤트 전달하기 {#forward-events}
+
+```bash
+relaybox listen --forward-to http://localhost:3000/webhooks
+```
+
+```text Output
+✔ Connected as dana@example.com (test environment)
+✔ Temporary endpoint ep_dev_4Lk9 is subscribed to all event types
+
+Waiting for events… Press Ctrl+C to stop.
+
+14:32:07  order.paid        evt_2b7XqLm9TfR4  → 204 No Content (38 ms)
+14:32:09  order.shipped     evt_2b7XqLp1VbN2  → 500 Internal Server Error (12 ms)
+```
+
+명령을 중지하면 임시 엔드포인트가 삭제됩니다.
+
+## 유용한 플래그 {#useful-flags}
+
+<ParamField path="--events" type="string">
+  구독할 이벤트 유형을 쉼표로 구분해 지정합니다. 와일드카드를 사용할 수 있습니다. 기본값은 모든 이벤트입니다.
+</ParamField>
+
+<ParamField path="--forward-to" type="string" required>
+  이벤트를 전달할 로컬 URL입니다.
+</ParamField>
+
+<ParamField path="--skip-verify" type="boolean">
+  전달하는 요청에 서명하지 않습니다. 검증 코드를 아직 작성하지 않았을 때 유용합니다. 검증 버그를 피해 가려는 용도로는 **절대** 사용하지 마세요.
+</ParamField>
+
+<ParamField path="--print-json" type="boolean">
+  한 줄 요약 대신 각 페이로드 전체를 출력합니다.
+</ParamField>
+
+## 테스트 이벤트 트리거하기 {#trigger-test-events}
+
+실제 트래픽이 들어올 때까지 기다리지 않아도 됩니다. 어떤 유형이든 샘플 이벤트를 바로 보낼 수 있습니다.
+
+```bash
+relaybox trigger order.paid
+```
+
+또는 테스트 환경에서 발생한 실제 이벤트를 재전송할 수도 있습니다:
+
+```bash
+relaybox events replay evt_2b7XqLm9TfR4 --to ep_dev_4Lk9
+```
+
+<Tip>
+  `relaybox fixtures`를 실행하면 기본 제공되는 모든 샘플 이벤트 유형을 확인할 수 있습니다. 프로젝트의 `.relaybox/fixtures` 폴더에 직접 만든 픽스처를 추가할 수도 있습니다.
+</Tip>

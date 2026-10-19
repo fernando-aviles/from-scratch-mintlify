@@ -1,0 +1,34 @@
+---
+title: "SDK サポートポリシー"
+sidebarTitle: "サポートポリシー"
+description: "サポート対象の SDK バージョンとランタイム、およびそれぞれのサポート期間について説明します。"
+icon: "life-ring"
+---
+
+import { sdks } from "/snippets/ja/data/sdk-versions.mdx";
+
+## バージョン {#versions}
+
+各SDKの**現行メジャーバージョン**には新機能とバグ修正を提供します。**1つ前のメジャーバージョン**には、新しいメジャーバージョンのリリース後12か月間、セキュリティ修正を提供します。
+
+| SDK                | 現行バージョン                            | 最小ランタイム要件             | ステータス                |
+| ------------------ | ---------------------------------- | --------------------- | -------------------- |
+| {sdks.node.name}   | <code>{sdks.node.version}</code>   | {sdks.node.runtime}   | {sdks.node.status}   |
+| {sdks.python.name} | <code>{sdks.python.version}</code> | {sdks.python.runtime} | {sdks.python.status} |
+| {sdks.go.name}     | <code>{sdks.go.version}</code>     | {sdks.go.runtime}     | {sdks.go.status}     |
+
+## ランタイム {#runtimes}
+
+各プロジェクトでメンテナンスが継続されているランタイムバージョンは、すべてサポート対象です。ランタイムがサポート終了 (EOL) を迎えた場合は、次の SDK **マイナー**リリースでサポートを終了し、その旨を[変更履歴](/ja/changelog)に記載します。
+
+## セマンティックバージョニング {#semantic-versioning}
+
+SDK は [セマンティックバージョニング](https://semver.org) に従っています。
+
+* **パッチ**リリースではバグを修正します。
+* **マイナー**リリースでは後方互換性を保ったまま機能を追加します。
+* **メジャー**リリースには破壊的変更が含まれる場合があります。その際は必ず移行ガイドを提供します。
+
+<Info>
+  `3.0.0-beta.4` のようなプレリリース版では、リリースごとに破壊的変更が加わる場合があります。バージョンを厳密に固定する場合を除き、本番環境では使用しないでください。
+</Info>

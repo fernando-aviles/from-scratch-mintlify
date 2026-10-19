@@ -1,0 +1,88 @@
+{
+  "$schema": "https://assets.gtx.dev/config-schema.json",
+  "defaultLocale": "en",
+  "locales": [
+    "es",
+    "ja",
+    "ko"
+  ],
+  "files": {
+    "gt": {
+      "output": "translations/[locale].json"
+    },
+    "json": {
+      "include": [
+        "./docs.json"
+      ]
+    },
+    "yaml": {
+      "include": [
+        "./api-reference/openapi.yaml"
+      ],
+      "transform": {
+        "match": "^(.*)$",
+        "replace": "{locale}/$1"
+      }
+    },
+    "mdx": {
+      "include": [
+        "./**/*.mdx",
+        "./**/*.md"
+      ],
+      "transform": {
+        "match": "^(snippets/)?(.*)$",
+        "replace": "$1{locale}/$2"
+      },
+      "exclude": [
+        "./[locales]/**/*.mdx",
+        "./snippets/[locales]/**/*.mdx",
+        "./[locales]/**/*.md",
+        "./snippets/[locales]/**/*.md",
+        "./README.md",
+        "./HISTORY.md",
+        "./LICENSE.md",
+        "./CODE_OF_CONDUCT.md",
+        "./COPYING.md",
+        "./CONTRIBUTING.md",
+        "./NOTICE.md",
+        "./SECURITY.md",
+        "./CHANGELOG.md",
+        "./GOVERNANCE.md",
+        "./AGENTS.md",
+        "./OWNERS.md",
+        "./MAINTAINERS.md"
+      ]
+    }
+  },
+  "options": {
+    "mintlify": {
+      "inferTitleFromFilename": true,
+      "openapi": {
+        "files": [
+          "api-reference/openapi.yaml"
+        ]
+      }
+    },
+    "jsonSchema": {
+      "./docs.json": {
+        "preset": "mintlify-hide-default"
+      }
+    },
+    "yamlSchema": {
+      "./api-reference/openapi.yaml": {
+        "preset": "openapi"
+      }
+    },
+    "docsUrlPattern": "/[locale]",
+    "docsImportPattern": "/snippets/[locale]",
+    "experimentalLocalizeStaticImports": true,
+    "experimentalLocalizeStaticUrls": {
+      "skipUntranslatedPages": true
+    },
+    "experimentalLocalizeRelativeAssets": true,
+    "experimentalClearLocaleDirs": true,
+    "docsHideDefaultLocaleImport": true,
+    "experimentalHideDefaultLocale": true,
+    "experimentalAddHeaderAnchorIds": "mintlify"
+  }
+}

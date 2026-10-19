@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "group": "ガイド",
+      "pages": [
+        "ja/guides/overview"
+      ]
+    },
+    {
+      "group": "イベントの受信",
+      "icon": "inbox",
+      "pages": [
+        "ja/guides/receiving-events/local-development",
+        "ja/guides/receiving-events/verify-signatures",
+        "ja/guides/receiving-events/handling-failures"
+      ]
+    },
+    {
+      "group": "イベントの送信",
+      "icon": "paper-plane",
+      "pages": [
+        "ja/guides/sending-events/publish-your-first-event",
+        "ja/guides/sending-events/fan-out",
+        "ja/guides/sending-events/transformations"
+      ]
+    },
+    {
+      "group": "外部連携",
+      "icon": "plug",
+      "$ref": "./guides/integrations.json"
+    },
+    {
+      "group": "移行",
+      "pages": [
+        "ja/guides/migrating-from-v2"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+---
+title: "Python SDK 구성"
+sidebarTitle: "구성"
+description: "Relaybox 클라이언트에 전달할 수 있는 모든 옵션을 안내합니다."
+---
+
+```python
+relaybox = Relaybox(
+    os.environ["RELAYBOX_API_KEY"],
+    region="eu",
+    timeout=10.0,
+    max_retries=5,
+)
+```
+
+## 클라이언트 옵션 {#client-options}
+
+<ParamField body="region" type="str" default="us">
+  계정의 데이터 저장 리전입니다. `"us"`, `"eu"`, `"jp"` 중 하나를 지정합니다.
+</ParamField>
+
+<ParamField body="timeout" type="float" default="30.0">
+  응답 대기 시간(초)입니다.
+</ParamField>
+
+<ParamField body="max_retries" type="int" default="3">
+  네트워크 오류, `429` 또는 `5xx` 응답으로 실패한 요청의 최대 재시도 횟수입니다.
+</ParamField>
+
+<ParamField body="http_client" type="httpx.Client">
+  미리 구성된 `httpx` 클라이언트입니다. 프록시나 사용자 지정 TLS 설정이 필요할 때 사용합니다.
+</ParamField>
+
+## 로깅 {#logging}
+
+SDK는 표준 `logging` 모듈을 사용해 `relaybox` 로거로 로그를 기록합니다. 모든 요청을 확인하려면 다음과 같이 설정하세요.
+
+```python
+import logging
+
+logging.getLogger("relaybox").setLevel(logging.DEBUG)
+```
+
+<Warning>
+  디버그 로그에는 요청 본문이 포함되며, 여기에 개인정보가 들어 있을 수 있습니다. 프로덕션 환경에서는 디버그 로깅을 활성화하지 마세요.
+</Warning>

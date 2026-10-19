@@ -1,0 +1,59 @@
+---
+title: "Node.js SDK"
+sidebarTitle: "概要"
+description: "Node.js や Bun からイベントを発行し、Webhook を検証します。"
+icon: "node-js"
+---
+
+import SdkIntro from "/snippets/ja/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/ja/code/publish-event.mdx";
+
+<SdkIntro language="node" />
+
+## インストール {#install}
+
+<CodeGroup>
+  ```bash npm
+  npm install @relaybox/node
+  ```
+
+  ```bash pnpm
+  pnpm add @relaybox/node
+  ```
+
+  ```bash yarn
+  yarn add @relaybox/node
+  ```
+
+  ```bash bun
+  bun add @relaybox/node
+  ```
+</CodeGroup>
+
+このパッケージには、ESM と CommonJS の両方のビルドに加えて、TypeScript の型定義が含まれています。
+
+## クライアントを作成する {#create-a-client}
+
+```typescript
+import { Relaybox } from "@relaybox/node";
+
+const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY);
+```
+
+クライアントは1つだけ作成し、使い回してください。クライアントはリクエスト間でHTTP接続を維持します。
+
+## イベントを発行する {#publish-an-event}
+
+<PublishEvent />
+
+## 次のステップ {#next-steps}
+
+<CardGroup cols={2}>
+  <Card title="設定" icon="sliders" href="/ja/sdks/node/configuration">
+    タイムアウト、リトライ、リージョン、outbox ワーカーの設定について説明します。
+  </Card>
+
+  <Card title="Webhook ハンドラー" icon="inbox" href="/ja/sdks/node/webhook-handlers">
+    Express、Fastify、Next.js、Hono で署名を検証する方法を説明します。
+  </Card>
+</CardGroup>

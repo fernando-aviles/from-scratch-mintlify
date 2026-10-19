@@ -1,0 +1,50 @@
+{
+  "tabs": [
+    {
+      "tab": "Documentación",
+      "icon": "book-open",
+      "$ref": "./navigation/documentation.json"
+    },
+    {
+      "tab": "Guías",
+      "icon": "map",
+      "$ref": "./navigation/guides.json"
+    },
+    {
+      "tab": "Referencia de la API",
+      "icon": "code",
+      "$ref": "./navigation/api-reference.json"
+    },
+    {
+      "tab": "SDK",
+      "icon": "cube",
+      "menu": [
+        {
+          "item": "Node.js",
+          "icon": "node-js",
+          "description": "SDK oficial para Node.js y Bun",
+          "$ref": "./navigation/sdks/node.json"
+        },
+        {
+          "item": "Python",
+          "icon": "python",
+          "description": "SDK oficial para Python 3.9+",
+          "$ref": "./navigation/sdks/python.json"
+        },
+        {
+          "item": "Go",
+          "icon": "golang",
+          "description": "SDK oficial para Go 1.21+",
+          "$ref": "./navigation/sdks/go.json"
+        }
+      ]
+    },
+    {
+      "tab": "Registro de cambios",
+      "icon": "clock-rotate-left",
+      "pages": [
+        "es/changelog"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+---
+title: "Idempotencia"
+description: "Evita efectos secundarios duplicados al publicar o recibir eventos."
+---
+
+Relaybox entrega cada evento *al menos* una vez. En ocasiones, tu punto de conexión recibirá el mismo evento dos veces; por ejemplo, si tu servidor lo procesó, pero la conexión se cortó antes de que Relaybox recibiera el `200`. La idempotencia es lo que garantiza que eso no termine cobrándole dos veces a un cliente.
+
+Esto tiene dos vertientes.
+
+## Al publicar {#when-publishing}
+
+También pueden producirse errores de red entre tu servicio y la API de Relaybox. Si se agota el tiempo de espera de una solicitud de publicación, no sabrás si el evento se aceptó. Envía un encabezado `Idempotency-Key` para poder reintentar siempre de forma segura:
+
+```bash
+curl https://api.relaybox.dev/v3/events \
+  -H "Authorization: Bearer $RELAYBOX_API_KEY" \
+  -H "Idempotency-Key: checkout-ord_8Hx2kP-paid" \
+  -d '{"type": "order.paid", "payload": {"order_id": "ord_8Hx2kP"}}'
+```
+
+Si Relaybox ya ha recibido esa clave en las últimas 24 horas, devuelve el evento original en lugar de crear uno nuevo.
+
+<Info>
+  Si reutilizas una clave de idempotencia con un cuerpo **diferente**, se devuelve un error `409 idempotency_conflict`. Consulta [Errores](/es/api-reference/errors).
+</Info>
+
+## Al recibir {#when-receiving}
+
+Cada entrega incluye un encabezado `Relaybox-Event-Id`. Guarda los ID que hayas procesado y omite los que ya hayas recibido:
+
+```python
+def handle(event):
+    # El INSERT falla si el ID ya existe, así que es seguro con accesos concurrentes.
+    inserted = db.execute(
+        "INSERT INTO processed_events (id) VALUES (%s) ON CONFLICT DO NOTHING",
+        [event.id],
+    ).rowcount
+
+    if not inserted:
+        return  # Ya procesado: es una entrega duplicada.
+
+    fulfill_order(event.payload["order_id"])
+```
+
+<Tip>
+  Solo necesitas conservar los ID mientras Relaybox pueda reintentar la entrega: unos dos días con la programación predeterminada. Basta con una tarea de limpieza diaria.
+</Tip>

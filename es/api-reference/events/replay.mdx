@@ -1,0 +1,9 @@
+---
+openapi: "/es/api-reference/openapi.yaml POST /events/replay"
+---
+
+Puedes reenviar hasta 100 000 eventos por solicitud. Para rangos más amplios, divide el intervalo de tiempo en varias solicitudes.
+
+<Note>
+  Los eventos reenviados conservan su `id` y su `created_at` originales. Tus [comprobaciones de idempotencia](/es/concepts/delivery/idempotency#when-receiving) los considerarán duplicados si ya los procesaste correctamente.
+</Note>

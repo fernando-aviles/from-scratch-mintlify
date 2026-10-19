@@ -1,0 +1,59 @@
+---
+title: "Relaybox ドキュメント"
+sidebarTitle: "ようこそ"
+description: "面倒な基盤を自前で構築することなく、Webhook の送信・受信・再送を実現できます。"
+mode: "wide"
+---
+
+import { Hero } from "/snippets/components/Hero.jsx";
+import NeedHelp from "/snippets/ja/shared/need-help.mdx";
+
+<Hero title="確実に動くWebhook" subtitle="Relayboxは、自動リトライ、署名、順序保証を備えたイベント配信で、数千ものエンドポイントへ確実にイベントを届けます。キューの構築や運用に追われることなく、チームは機能開発に集中できます。" primaryCta={{ label: "クイックスタートを始める", href: "/get-started/quickstart" }} secondaryCta={{ label: "APIを詳しく見る", href: "/api-reference/introduction" }} />
+
+## 目的に合わせて選ぶ {#choose-your-path}
+
+<CardGroup cols={3}>
+  <Card title="Webhook を送信したい" icon="paper-plane" href="/ja/guides/sending-events/publish-your-first-event">
+    ホスト型ポータル、リトライ、ログを備えた信頼性の高い Webhook を顧客に提供できます。
+  </Card>
+
+  <Card title="Webhook を受信したい" icon="inbox" href="/ja/guides/receiving-events/local-development">
+    Stripe、GitHub、Slack の前段に Relaybox を配置して、イベントのバッファリング、検証、再送を行えます。
+  </Card>
+
+  <Card title="v2 から移行したい" icon="arrow-right-arrow-left" href="/ja/guides/migrating-from-v2">
+    v3 での変更点を確認し、1 時間ほどでインテグレーションをアップグレードできます。
+  </Card>
+</CardGroup>
+
+## よく読まれているトピック {#popular-topics}
+
+<Columns cols={2}>
+  <Card title="再試行の仕組み" icon="rotate" href="/ja/concepts/delivery/retries" horizontal>
+    指数バックオフで最大 41 時間にわたってリトライします。
+  </Card>
+
+  <Card title="署名を検証する" icon="signature" href="/ja/concepts/signatures" horizontal>
+    すべてのリクエストが Relaybox から送信されたものであることを確認します。
+  </Card>
+
+  <Card title="順序付き配信" icon="list-ol" href="/ja/concepts/delivery/ordering" horizontal>
+    関連するイベントを順序どおりに配信します。
+  </Card>
+
+  <Card title="プランと制限" icon="credit-card" href="/ja/account/plans" horizontal>
+    プランの比較と超過料金について説明します。
+  </Card>
+</Columns>
+
+## SDK {#sdks}
+
+<CardGroup cols={3}>
+  <Card title="Node.js" icon="node-js" href="/ja/sdks/node/overview" />
+
+  <Card title="Python" icon="python" href="/ja/sdks/python/overview" />
+
+  <Card title="Go" icon="golang" href="/ja/sdks/go/overview" />
+</CardGroup>
+
+<NeedHelp />

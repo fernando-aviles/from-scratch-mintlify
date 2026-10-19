@@ -1,0 +1,9 @@
+---
+openapi: "/ko/api-reference/openapi.yaml POST /events/replay"
+---
+
+요청당 최대 100,000개의 이벤트를 재전송할 수 있습니다. 범위가 더 넓다면 시간 구간을 나누어 여러 번 요청하세요.
+
+<Note>
+  재전송된 이벤트는 원래의 `id`와 `created_at` 값을 그대로 유지합니다. 따라서 이미 성공적으로 처리한 이벤트는 [멱등성 검사](/ko/concepts/delivery/idempotency#when-receiving)에서 중복으로 처리됩니다.
+</Note>
