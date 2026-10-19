@@ -1,0 +1,35 @@
+---
+title: "전송"
+description: "Relaybox가 이벤트를 전송하는 방식(재시도, 순서 보장, 멱등성)을 개괄적으로 설명합니다."
+icon: "truck-fast"
+---
+
+이벤트 전송은 HTTP 요청 하나만 보내면 되는 간단한 일처럼 보입니다. 하지만 실제로는 서버 응답이 시간 초과되기도 하고, 배포 중에 프로세스가 재시작되기도 하며, 네트워크에서 패킷이 유실되기도 합니다. 이러한 장애는 Relaybox의 전송 엔진이 대신 처리하므로 직접 신경 쓸 필요가 없습니다.
+
+이 섹션에서는 서로 관련된 세 가지 주제를 다룹니다.
+
+<CardGroup cols={3}>
+  <Card title="재시도" icon="rotate" href="/ko/concepts/delivery/retries">
+    엔드포인트에서 전송이 실패하면 어떻게 되는지, 그리고 재시도를 얼마나 오래 계속하는지 설명합니다.
+  </Card>
+
+  <Card title="순서 보장" icon="list-ol" href="/ko/concepts/delivery/ordering">
+    관련된 이벤트가 순서대로 도착하게 하는 방법을 설명합니다.
+  </Card>
+
+  <Card title="멱등성" icon="fingerprint" href="/ko/concepts/delivery/idempotency">
+    최소 한 번 전송(at-least-once delivery) 방식에서 생길 수 있는 중복을 처리하는 방법을 설명합니다.
+  </Card>
+</CardGroup>
+
+## 어떤 경우에 전송 성공으로 간주되나요? {#what-counts-as-a-successful-delivery}
+
+엔드포인트가 15초 이내에 `2xx` 상태 코드를 반환하면 전송 시도가 **성공**한 것으로 간주합니다. 그 외에는 모두 실패로 처리됩니다.
+
+* `3xx` 리디렉션(Relaybox는 보안상의 이유로 리디렉션을 따르지 않습니다)
+* `4xx` 및 `5xx` 응답
+* 시간 초과, TLS 오류, DNS 오류
+
+<Tip>
+  이벤트를 영구적으로 저장한 즉시 `2xx`를 반환하고, 처리는 비동기로 진행하세요. 시간 초과는 대부분 핸들러의 처리 속도가 느려서 발생합니다.
+</Tip>

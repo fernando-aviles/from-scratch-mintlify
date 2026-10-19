@@ -1,0 +1,38 @@
+---
+title: "Configurar el SDK de Go"
+sidebarTitle: "Configuración"
+description: "Opciones funcionales para el cliente de Go de Relaybox."
+---
+
+El cliente de Go se configura mediante opciones funcionales:
+
+```go
+client := relaybox.NewClient(
+	os.Getenv("RELAYBOX_API_KEY"),
+	relaybox.WithRegion(relaybox.RegionEU),
+	relaybox.WithTimeout(10*time.Second),
+	relaybox.WithMaxRetries(5),
+)
+```
+
+## Opciones {#options}
+
+| Opción              | Valor predeterminado | Descripción                                                                                                    |
+| ------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `WithRegion(r)`     | `RegionUS`           | La región de residencia de datos de tu cuenta.                                                                 |
+| `WithTimeout(d)`    | `30s`                | Tiempo de espera por solicitud. Si el plazo límite (deadline) del contexto es más corto, se aplica igualmente. |
+| `WithMaxRetries(n)` | `3`                  | Número de reintentos ante errores de red, `429` y `5xx`.                                                       |
+| `WithHTTPClient(c)` | `http.DefaultClient` | Un `*http.Client` personalizado, para usar proxies o trazas.                                                   |
+
+## Manejo de errores {#error-handling}
+
+Los errores de la API se devuelven como `*relaybox.Error`. Usa `errors.As` para inspeccionar el código:
+
+```go
+_, err := client.Events.Create(ctx, params)
+
+var apiErr *relaybox.Error
+if errors.As(err, &apiErr) && apiErr.Code == "rate_limited" {
+	// Espera un tiempo y vuelve a intentarlo más tarde.
+}
+```

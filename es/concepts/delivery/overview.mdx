@@ -1,0 +1,35 @@
+---
+title: "Entrega"
+description: "Una descripción general de cómo Relaybox entrega los eventos: reintentos, orden e idempotencia."
+icon: "truck-fast"
+---
+
+Entregar un evento parece sencillo: basta con hacer una solicitud HTTP. Pero en la práctica, los servidores superan el tiempo de espera, los despliegues reinician procesos y las redes pierden paquetes. El motor de entrega de Relaybox se encarga de estos fallos para que no tengas que hacerlo tú.
+
+En esta sección se tratan tres temas relacionados:
+
+<CardGroup cols={3}>
+  <Card title="Reintentos" icon="rotate" href="/es/concepts/delivery/retries">
+    Qué ocurre cuando falla un punto de conexión y durante cuánto tiempo seguimos intentándolo.
+  </Card>
+
+  <Card title="Orden" icon="list-ol" href="/es/concepts/delivery/ordering">
+    Cómo garantizar que los eventos relacionados lleguen en orden.
+  </Card>
+
+  <Card title="Idempotencia" icon="fingerprint" href="/es/concepts/delivery/idempotency">
+    Cómo gestionar los duplicados que puede generar la entrega «al menos una vez».
+  </Card>
+</CardGroup>
+
+## ¿Qué se considera una entrega correcta? {#what-counts-as-a-successful-delivery}
+
+Un intento de entrega **se completa correctamente** cuando tu punto de conexión devuelve cualquier código de estado `2xx` en un plazo de 15 segundos. Cualquier otro resultado se considera un fallo:
+
+* Redirecciones `3xx` (por motivos de seguridad, Relaybox no sigue redirecciones)
+* Respuestas `4xx` y `5xx`
+* Tiempos de espera agotados, errores de TLS y fallos de DNS
+
+<Tip>
+  Devuelve `2xx` en cuanto hayas almacenado el evento de forma persistente y procésalo después de forma asíncrona. Los controladores lentos son la causa más habitual de que se agote el tiempo de espera.
+</Tip>

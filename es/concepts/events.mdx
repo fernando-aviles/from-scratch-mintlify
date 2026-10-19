@@ -1,0 +1,80 @@
+---
+title: "Eventos"
+description: "Los eventos son registros inmutables de algo que ha ocurrido en tu sistema. Descubre cómo se estructuran y cómo se nombran."
+icon: "bolt"
+---
+
+import EventPayload from "/snippets/es/code/event-payload.mdx";
+
+Un **evento** es la unidad básica de todo en Relaybox. Tú publicas eventos y Relaybox los almacena, los enruta y los entrega. Una vez publicado, un evento no se puede editar ni eliminar: solo puedes [reenviarlo](/es/api-reference/events/replay) o dejar que caduque cuando termine el período de retención de tu plan.
+
+## Anatomía de un evento {#anatomy-of-an-event}
+
+<EventPayload />
+
+<ResponseField name="id" type="string" required>
+  Identificador único que empieza por `evt_`. Relaybox lo genera al publicar el evento.
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  El [tipo de evento](#naming-event-types), por ejemplo, `order.paid`. Los puntos de conexión se suscriben a tipos de eventos.
+</ResponseField>
+
+<ResponseField name="created_at" type="string" required>
+  Momento en que Relaybox aceptó el evento, expresado como marca de tiempo ISO 8601 en UTC.
+</ResponseField>
+
+<ResponseField name="ordering_key" type="string">
+  Opcional. Los eventos con la misma clave se entregan en orden. Consulta [Entrega ordenada](/es/concepts/delivery/ordering).
+</ResponseField>
+
+<ResponseField name="payload" type="object" required>
+  Tus datos. Puede ser cualquier objeto JSON válido de hasta 256 KB.
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Hasta 20 pares clave-valor de tipo cadena que puedes usar para filtrar eventos en el panel. Los metadatos se entregan a los puntos de conexión, pero las transformaciones no pueden modificarlos.
+
+  <Expandable title="claves reservadas">
+    <ResponseField name="environment" type="string">
+      Se establece automáticamente según la clave de API utilizada: `test` o `production`.
+    </ResponseField>
+
+    <ResponseField name="source" type="string">
+      Texto libre. Recomendamos usar el nombre del servicio que publicó el evento.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Nomenclatura de los tipos de evento {#naming-event-types}
+
+Los tipos de evento son cadenas en minúsculas separadas por puntos. Recomendamos el patrón `resource.past_tense_verb`:
+
+<CodeGroup>
+  ```text Correcto
+  order.paid
+  invoice.payment_failed
+  user.email_changed
+  ```
+
+  ```text Evitar
+  OrderPaid          # no está en minúsculas ni separado por puntos
+  order.pay          # parece una orden, no algo que ya ocurrió
+  orders.paid.v2     # incluye la versión en la carga útil, no en el tipo
+  ```
+</CodeGroup>
+
+<Tip>
+  Los puntos de conexión pueden suscribirse mediante comodines. Una suscripción a `order.*` abarca `order.paid` y `order.refunded`, pero no `order.line_item.added`. Usa `order.**` para abarcar todos los niveles.
+</Tip>
+
+## Límites de tamaño {#size-limits}
+
+| Campo          | Límite                              |
+| -------------- | ----------------------------------- |
+| `type`         | 128 caracteres                      |
+| `ordering_key` | 256 caracteres                      |
+| `payload`      | 256 KB tras la codificación JSON    |
+| `metadata`     | 20 claves, 512 caracteres por valor |
+
+Si necesitas enviar algo más grande, súbelo a tu propio almacenamiento e incluye una URL firmada en la carga útil.

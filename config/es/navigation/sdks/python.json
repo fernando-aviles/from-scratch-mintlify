@@ -1,0 +1,18 @@
+{
+  "groups": [
+    {
+      "group": "SDK de Python",
+      "pages": [
+        "es/sdks/python/overview",
+        "es/sdks/python/configuration",
+        "es/sdks/python/async-usage"
+      ]
+    },
+    {
+      "group": "Recursos",
+      "pages": [
+        "es/sdks/support-policy"
+      ]
+    }
+  ]
+}

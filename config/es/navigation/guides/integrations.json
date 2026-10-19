@@ -1,0 +1,8 @@
+{
+  "root": "es/guides/integrations/overview",
+  "pages": [
+    "es/guides/integrations/slack",
+    "es/guides/integrations/stripe",
+    "es/guides/integrations/github"
+  ]
+}

@@ -1,0 +1,9 @@
+---
+openapi: "/ja/api-reference/openapi.yaml POST /events/replay"
+---
+
+1 回のリクエストで再送できるイベントは最大 100,000 件です。それより広い範囲を再送する場合は、時間枠を分割して複数のリクエストで実行してください。
+
+<Note>
+  再送されたイベントは、元の `id` と `created_at` をそのまま保持します。すでに正常に処理済みのイベントは、[冪等性チェック](/ja/concepts/delivery/idempotency#when-receiving)で重複として扱われます。
+</Note>

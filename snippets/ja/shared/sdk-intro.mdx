@@ -1,0 +1,10 @@
+import { sdks } from "/snippets/ja/data/sdk-versions.mdx";
+import { SdkHeader } from "/snippets/components/SdkHeader.jsx";
+
+<SdkHeader sdk={sdks[language]} />
+
+{sdks[language].status === "beta" && (
+  <Note>
+    {sdks[language].name} SDKはパブリックベータ版です。{sdks[language].version.split("-")[0]}がリリースされるまでは、プレリリース版の更新に伴いAPIの仕様が変更される可能性があります。本番環境ではバージョンを厳密に指定して固定してください。
+  </Note>
+  )}

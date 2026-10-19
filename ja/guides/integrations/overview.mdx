@@ -1,0 +1,20 @@
+---
+title: "インテグレーション"
+description: "チームで普段使っているツールと Relaybox を連携できます。"
+icon: "plug"
+---
+
+インテグレーションは、Relaybox とサードパーティサービスをつなぐ構築済みの連携機能です。連携の方向は次の 2 種類です。
+
+* **ソース**は、Stripe や GitHub などのサービス*から* Webhook を受信し、Relaybox のイベントに変換します。自分で管理していない Webhook でも、リトライ、再送、ログを利用できます。
+* **送信先**は、Slack などのサービス*へ* Relaybox のイベントを配信します。変換を手作業で記述する必要はありません。
+
+| インテグレーション                             | ソース | 送信先 |
+| ------------------------------------- | :-: | :-: |
+| [Slack](/ja/guides/integrations/slack)   |     |  ✓  |
+| [Stripe](/ja/guides/integrations/stripe) |  ✓  |     |
+| [GitHub](/ja/guides/integrations/github) |  ✓  |     |
+
+<Note>
+  必要なサービスが見つからない場合でも、Webhook を送信するサービスであれば**汎用 HTTP ソース**を使ってソースにできます。また、HTTP API を備えたサービスであれば、[変換](/ja/guides/sending-events/transformations)を使って送信先にできます。
+</Note>

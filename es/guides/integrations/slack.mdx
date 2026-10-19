@@ -1,0 +1,40 @@
+---
+title: "Slack"
+description: "Publica eventos de Relaybox en un canal de Slack."
+icon: "slack"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="Slack" logo="/images/integrations/slack.svg" category="Destination · Chat">
+  Envía un mensaje con formato a un canal cada vez que se publica un evento.
+</IntegrationHeader>
+
+## Conecta tu espacio de trabajo {#connect-your-workspace}
+
+<Steps>
+  <Step title="Autoriza a Relaybox">
+    En el panel, ve a **Integrations → Slack** y haz clic en **Add to Slack**. Elige el espacio de trabajo y aprueba los permisos solicitados.
+  </Step>
+
+  <Step title="Elige un canal y los eventos">
+    Selecciona el canal donde se publicarán los mensajes y los tipos de evento que generarán un mensaje. En los canales privados, primero debes invitar a la aplicación **Relaybox**; para ello, escribe `/invite @Relaybox` en el canal.
+  </Step>
+
+  <Step title="Personaliza el mensaje">
+    Usa una plantilla para definir el texto del mensaje. Las plantillas usan marcadores de posición `{{ }}` que hacen referencia a campos del evento:
+
+    ```handlebars
+    :package: Order *{{payload.order_id}}* shipped to {{payload.shipping.city}}.
+    <{{payload.tracking_url}}|Track the package>
+    ```
+  </Step>
+</Steps>
+
+## Límites de frecuencia {#rate-limits}
+
+Slack permite aproximadamente un mensaje por segundo en cada canal. Si publicas a un ritmo mayor, Relaybox pone los mensajes en cola y los envía tan rápido como Slack los acepte.
+
+<Tip>
+  Para tipos de eventos de alto volumen, considera usar una [transformación](/es/guides/sending-events/transformations) que solo reenvíe los eventos que una persona realmente necesite ver.
+</Tip>

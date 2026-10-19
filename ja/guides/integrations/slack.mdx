@@ -1,0 +1,40 @@
+---
+title: "Slack"
+description: "Relaybox のイベントを Slack チャンネルに投稿します。"
+icon: "slack"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="Slack" logo="/images/integrations/slack.svg" category="送信先 · チャット">
+  イベントがパブリッシュされるたびに、書式設定済みのメッセージをチャンネルに送信します。
+</IntegrationHeader>
+
+## ワークスペースを接続する {#connect-your-workspace}
+
+<Steps>
+  <Step title="Relaybox を承認する">
+    ダッシュボードで **Integrations → Slack** に移動し、**Add to Slack** をクリックします。ワークスペースを選択し、要求された権限を承認します。
+  </Step>
+
+  <Step title="チャンネルとイベントを選択する">
+    投稿先のチャンネルと、メッセージ送信のトリガーとなるイベントタイプを選択します。プライベートチャンネルに投稿する場合は、あらかじめそのチャンネルで `/invite @Relaybox` と入力し、**Relaybox** アプリを招待しておく必要があります。
+  </Step>
+
+  <Step title="メッセージをカスタマイズする">
+    テンプレートを使うと、メッセージの文面を自由に設定できます。テンプレートでは、イベント内のフィールドを参照する `{{ }}` プレースホルダーを使用します。
+
+    ```handlebars
+    :package: Order *{{payload.order_id}}* shipped to {{payload.shipping.city}}.
+    <{{payload.tracking_url}}|Track the package>
+    ```
+  </Step>
+</Steps>
+
+## レート制限 {#rate-limits}
+
+Slack では、1 つのチャンネルにつき 1 秒あたり約 1 件までしかメッセージを送信できません。これを上回るペースでイベントをパブリッシュすると、Relaybox はメッセージをキューに入れ、Slack が受け付けられる最大の速度で順次送信します。
+
+<Tip>
+  大量に発生するイベントタイプについては、人が実際に確認する必要のあるイベントだけを転送する[変換](/ja/guides/sending-events/transformations)の利用を検討してください。
+</Tip>

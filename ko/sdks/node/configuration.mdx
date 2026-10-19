@@ -1,0 +1,63 @@
+---
+title: "Node.js SDK 구성하기"
+sidebarTitle: "구성"
+description: "Relaybox 클라이언트에 전달할 수 있는 모든 옵션을 설명합니다."
+---
+
+옵션은 생성자의 두 번째 인수로 전달합니다.
+
+```typescript
+const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY, {
+  region: "eu",
+  timeout: 10_000,
+  maxRetries: 5,
+});
+```
+
+## 클라이언트 옵션 {#client-options}
+
+<ParamField body="region" type="'us' | 'eu' | 'jp'" default="us">
+  계정의 데이터 상주 리전입니다. 이 값에 따라 기본 URL이 자동으로 설정됩니다.
+</ParamField>
+
+<ParamField body="timeout" type="number" default="30000">
+  요청을 실패로 처리하기 전까지 응답을 기다리는 시간(밀리초)입니다.
+</ParamField>
+
+<ParamField body="maxRetries" type="number" default="3">
+  네트워크 오류, `429` 또는 `5xx`로 실패한 요청을 재시도할 횟수입니다. 자동 재시도를 끄려면 `0`으로 설정하세요.
+</ParamField>
+
+<ParamField body="fetch" type="typeof fetch">
+  사용자 지정 `fetch` 구현입니다. 트레이싱을 추가하거나 특수한 환경에서 실행할 때 유용합니다.
+</ParamField>
+
+<ParamField body="logger" type="Logger">
+  `debug`, `info`, `warn`, `error` 메서드를 가진 객체입니다. 기본값은 로깅 없음입니다.
+</ParamField>
+
+## 아웃박스 워커 {#outbox-worker}
+
+아웃박스 워커는 PostgreSQL 테이블에 저장된 이벤트를 발행하므로, 이벤트 발행을 데이터베이스 트랜잭션의 일부로 처리할 수 있습니다. 자세한 배경은 [트랜잭셔널 아웃박스 패턴](/ko/guides/sending-events/publish-your-first-event#3-publish-from-a-transaction)을 참고하세요.
+
+```typescript
+import { OutboxWorker } from "@relaybox/node/outbox";
+import { Pool } from "pg";
+
+const worker = new OutboxWorker({
+  client: relaybox,
+  pool: new Pool({ connectionString: process.env.DATABASE_URL }),
+  table: "outbox",       // 기본값
+  batchSize: 100,        // 폴링 1회당 이벤트 수
+  pollIntervalMs: 500,
+});
+
+await worker.start();
+
+// 처리 중인 이벤트가 중복 발행되지 않도록 종료 시 워커를 정상적으로 중지합니다.
+process.on("SIGTERM", () => worker.stop());
+```
+
+<Note>
+  워커를 시작하기 전에 `node_modules/@relaybox/node/outbox/migration.sql`에 있는 마이그레이션을 실행하여 `outbox` 테이블을 생성하세요.
+</Note>

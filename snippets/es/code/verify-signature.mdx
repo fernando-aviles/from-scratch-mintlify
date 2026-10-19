@@ -1,0 +1,74 @@
+<CodeGroup>
+  ```javascript Node.js
+  import express from "express";
+  import { Webhook } from "@relaybox/node";
+
+  const app = express();
+  const webhook = new Webhook(process.env.RELAYBOX_SIGNING_SECRET);
+
+  // Usa el cuerpo sin procesar: si vuelves a serializar el JSON, no coincidirá con la firma.
+  app.post("/webhooks", express.raw({ type: "application/json" }), (req, res) => {
+    try {
+      const event = webhook.verify(req.body, req.headers);
+      console.log(`Received ${event.type} (${event.id})`);
+      res.sendStatus(204);
+    } catch (err) {
+      // La firma falta, no es válida o es demasiado antigua.
+      res.status(400).send("Invalid signature");
+    }
+  });
+  ```
+
+  ```python Python
+  import os
+  from flask import Flask, request
+  from relaybox import Webhook, WebhookVerificationError
+
+  app = Flask(__name__)
+  webhook = Webhook(os.environ["RELAYBOX_SIGNING_SECRET"])
+
+  @app.post("/webhooks")
+  def handle_webhook():
+      try:
+          # Pasa los bytes sin procesar, no request.json
+          event = webhook.verify(request.get_data(), request.headers)
+      except WebhookVerificationError:
+          return "Invalid signature", 400
+
+      print(f"Received {event.type} ({event.id})")
+      return "", 204
+  ```
+
+  ```go Go
+  package main
+
+  import (
+  	"io"
+  	"log"
+  	"net/http"
+  	"os"
+
+  	relaybox "github.com/relaybox/relaybox-go/v3"
+  )
+
+  func main() {
+  	wh := relaybox.NewWebhook(os.Getenv("RELAYBOX_SIGNING_SECRET"))
+
+  	http.HandleFunc("/webhooks", func(w http.ResponseWriter, r *http.Request) {
+  		body, _ := io.ReadAll(r.Body)
+
+  		event, err := wh.Verify(body, r.Header)
+  		if err != nil {
+  			// La firma falta, no es válida o es demasiado antigua.
+  			http.Error(w, "Invalid signature", http.StatusBadRequest)
+  			return
+  		}
+
+  		log.Printf("Received %s (%s)", event.Type, event.ID)
+  		w.WriteHeader(http.StatusNoContent)
+  	})
+
+  	log.Fatal(http.ListenAndServe(":3000", nil))
+  }
+  ```
+</CodeGroup>

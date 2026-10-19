@@ -1,0 +1,37 @@
+---
+title: "SDK de Go"
+sidebarTitle: "Descripción general"
+description: "Publica eventos y verifica webhooks desde Go."
+icon: "golang"
+---
+
+import SdkIntro from "/snippets/es/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/es/code/publish-event.mdx";
+
+<SdkIntro language="go" />
+
+## Instalación {#install}
+
+```bash
+go get github.com/relaybox/relaybox-go/v3@latest
+```
+
+## Crear un cliente {#create-a-client}
+
+```go
+import relaybox "github.com/relaybox/relaybox-go/v3"
+
+client := relaybox.NewClient(os.Getenv("RELAYBOX_API_KEY"))
+```
+
+Todos los métodos reciben un `context.Context` como primer argumento. Si cancelas el contexto, se cancela la solicitud, incluidos los reintentos automáticos.
+
+## Publicar un evento {#publish-an-event}
+
+<PublishEvent />
+
+## Próximos pasos {#next-steps}
+
+<Card title="Configuración" icon="sliders" href="/es/sdks/go/configuration">
+  Opciones funcionales para configurar tiempos de espera, reintentos y regiones.
+</Card>

@@ -1,0 +1,12 @@
+export const retrySchedule = [
+  { attempt: 1, delay: "Immediately", cumulative: "0 seconds" },
+  { attempt: 2, delay: "5 seconds", cumulative: "5 seconds" },
+  { attempt: 3, delay: "1 minute", cumulative: "about 1 minute" },
+  { attempt: 4, delay: "10 minutes", cumulative: "about 11 minutes" },
+  { attempt: 5, delay: "1 hour", cumulative: "about 1 hour" },
+  { attempt: 6, delay: "4 hours", cumulative: "about 5 hours" },
+  { attempt: 7, delay: "12 hours", cumulative: "about 17 hours" },
+  { attempt: 8, delay: "24 hours", cumulative: "about 41 hours" },
+];
+
+export const maxRetryWindow = "about 41 hours";

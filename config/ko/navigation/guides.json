@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "group": "가이드",
+      "pages": [
+        "ko/guides/overview"
+      ]
+    },
+    {
+      "group": "이벤트 수신",
+      "icon": "inbox",
+      "pages": [
+        "ko/guides/receiving-events/local-development",
+        "ko/guides/receiving-events/verify-signatures",
+        "ko/guides/receiving-events/handling-failures"
+      ]
+    },
+    {
+      "group": "이벤트 전송",
+      "icon": "paper-plane",
+      "pages": [
+        "ko/guides/sending-events/publish-your-first-event",
+        "ko/guides/sending-events/fan-out",
+        "ko/guides/sending-events/transformations"
+      ]
+    },
+    {
+      "group": "연동",
+      "icon": "plug",
+      "$ref": "./guides/integrations.json"
+    },
+    {
+      "group": "마이그레이션",
+      "pages": [
+        "ko/guides/migrating-from-v2"
+      ]
+    }
+  ]
+}

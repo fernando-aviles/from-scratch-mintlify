@@ -1,0 +1,46 @@
+---
+title: "Seguridad y cumplimiento normativo"
+sidebarTitle: "Descripción general"
+description: "Cómo protege Relaybox tus datos y qué controles tiene tu equipo a su disposición."
+icon: "shield-halved"
+---
+
+Relaybox gestiona datos que a menudo son confidenciales: confirmaciones de pago, cambios en cuentas o información personal. La seguridad está integrada en todas las capas de la plataforma.
+
+## Protección de datos {#data-protection}
+
+* **En tránsito:** Todo el tráfico hacia la API y el panel usa TLS 1.2 o una versión posterior. En producción, las entregas a tus puntos de conexión requieren HTTPS.
+* **En reposo:** Las cargas útiles de los eventos se cifran con AES-256. Los clientes Enterprise pueden usar su propia clave mediante AWS KMS o Google Cloud KMS.
+* **Residencia:** Al crear tu cuenta, puedes elegir almacenar los datos en Estados Unidos, la Unión Europea o Japón. Los datos nunca salen de la región que elijas.
+
+## Cumplimiento normativo {#compliance}
+
+<CardGroup cols={3}>
+  <Card title="SOC 2 Type II" icon="certificate">
+    Auditoría anual. Solicita el informe a tu gestor de cuenta.
+  </Card>
+
+  <Card title="RGPD" icon="scale-balanced">
+    Firmamos un Acuerdo de Tratamiento de Datos con todos los clientes de pago.
+  </Card>
+
+  <Card title="HIPAA" icon="hospital">
+    Disponible en los planes Enterprise, previa firma de un Acuerdo de Socio Comercial (Business Associate Agreement).
+  </Card>
+</CardGroup>
+
+## Controles de la cuenta {#account-controls}
+
+<CardGroup cols={2}>
+  <Card title="Inicio de sesión único" icon="right-to-bracket" href="/es/account/security/sso">
+    Exige que los miembros inicien sesión con Okta, Microsoft Entra ID o Google Workspace.
+  </Card>
+
+  <Card title="Registros de auditoría" icon="clipboard-list" href="/es/account/security/audit-logs">
+    Consulta quién hizo cada cambio y cuándo.
+  </Card>
+</CardGroup>
+
+## Cómo informar de una vulnerabilidad {#reporting-a-vulnerability}
+
+Si crees que has encontrado un problema de seguridad, escribe a [security@relaybox.dev](mailto:security@relaybox.dev). Te pedimos que no abras una incidencia pública en GitHub. Respondemos a todos los informes en un plazo máximo de dos días hábiles.

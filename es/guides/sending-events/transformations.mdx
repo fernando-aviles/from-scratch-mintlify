@@ -1,0 +1,70 @@
+---
+title: "Transformar cargas útiles por punto de conexión"
+sidebarTitle: "Transformaciones"
+description: "Ejecuta una pequeña función de JavaScript para reestructurar, filtrar u ocultar datos de los eventos antes de que lleguen a un punto de conexión concreto."
+---
+
+import BetaFeature from "/snippets/es/shared/beta-feature.mdx";
+
+<BetaFeature feature="Transformaciones" plans="Scale y Enterprise" />
+
+Cada consumidor espera un formato distinto. Tu servicio de facturación necesita todos los campos, mientras que a un canal de Slack le basta con un mensaje de una sola línea. En lugar de publicar el mismo evento dos veces, asocia una **transformación** a un punto de conexión.
+
+## Escribir una transformación {#write-a-transformation}
+
+Una transformación es una función de JavaScript llamada `handler`. Recibe el evento y devuelve la solicitud que se va a enviar, o `null` para omitir la entrega.
+
+```javascript
+export function handler(event) {
+  // Notificar a Slack solo sobre los pedidos grandes.
+  if (event.payload.amount < 100_000) {
+    return null;
+  }
+
+  const dollars = (event.payload.amount / 100).toFixed(2);
+
+  return {
+    body: {
+      text: `💰 New order for $${dollars} (${event.payload.order_id})`,
+    },
+  };
+}
+```
+
+También puedes cambiar la URL, el método y los encabezados:
+
+```javascript
+export function handler(event) {
+  return {
+    url: `https://api.example.com/tenants/${event.metadata.tenant}/hooks`,
+    headers: { "X-Event-Type": event.type },
+    body: event.payload,
+  };
+}
+```
+
+## Límites {#limits}
+
+<Columns cols={3}>
+  <Card title="50 ms" icon="stopwatch">
+    Tiempo máximo de ejecución por evento.
+  </Card>
+
+  <Card title="16 MB" icon="memory">
+    Memoria máxima.
+  </Card>
+
+  <Card title="Sin acceso a la red" icon="ban">
+    `fetch` y otras operaciones de E/S no están disponibles.
+  </Card>
+</Columns>
+
+Si una transformación lanza un error o supera algún límite, el intento de entrega falla y se reintenta como cualquier otro fallo. El mensaje de error aparecerá en el registro de entregas.
+
+## Prueba antes de desplegar {#test-before-you-deploy}
+
+El editor del dashboard incluye un panel **Test**. Elige un evento reciente, ejecuta la transformación sobre él y revisa el resultado antes de guardar.
+
+<Warning>
+  Los cambios en una transformación se aplican de inmediato al guardarla, incluso a los eventos que están pendientes de reintento.
+</Warning>

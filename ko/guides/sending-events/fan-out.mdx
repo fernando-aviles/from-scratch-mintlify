@@ -1,0 +1,67 @@
+---
+title: "고객에게 웹훅 제공하기"
+sidebarTitle: "고객에게 팬아웃하기"
+description: "애플리케이션과 고객 포털을 사용하여 각 고객의 엔드포인트로 웹훅을 전송합니다."
+---
+
+플랫폼을 구축하고 있다면 고객들은 아마 *여러분의 서비스*에서 보내는 웹훅을 원할 것입니다. Relaybox를 사용하면 전송 인프라를 직접 구축하지 않고도 고객에게 웹훅을 제공할 수 있습니다.
+
+## 애플리케이션 {#applications}
+
+**애플리케이션**은 고객 한 곳에 해당합니다. 애플리케이션마다 자체 엔드포인트가 있으며, 특정 애플리케이션에 발행된 이벤트는 해당 애플리케이션의 엔드포인트로만 전달됩니다.
+
+```javascript
+// 고객마다 애플리케이션을 하나씩 생성합니다. 보통 가입 시점에 생성합니다.
+const app = await relaybox.applications.create({
+  name: "Acme Corp",
+  uid: customer.id, // 자체 ID를 사용하므로 Relaybox ID를 따로 저장할 필요가 없습니다
+});
+
+// 해당 고객에게만 이벤트를 발행합니다.
+await relaybox.events.create({
+  application: customer.id,
+  type: "invoice.created",
+  payload: { invoice_id: "inv_492" },
+});
+```
+
+## 고객 포털 {#customer-portal}
+
+고객에게는 엔드포인트를 추가하고, 전송 내역을 확인하고, 실패한 전송을 재전송할 수 있는 방법이 필요합니다. **고객 포털**은 앱에 바로 임베드할 수 있는 사전 구축된 UI입니다.
+
+```html
+<relaybox-portal
+  publishable-key="rbx_pub_..."
+  session-token="{{ token_from_your_backend }}"
+  theme="auto"
+></relaybox-portal>
+<script src="https://cdn.relaybox.dev/portal/v3.js" async></script>
+```
+
+서버에서 단일 애플리케이션으로 범위를 한정한 세션 토큰을 생성합니다.
+
+```javascript
+const { token } = await relaybox.portal.createSession({
+  application: customer.id,
+  expiresIn: "1h",
+});
+```
+
+<Frame caption="설정 페이지에 임베드된 고객 포털">
+  <img src="/images/screenshots/customer-portal.svg" alt="엔드포인트 목록과 엔드포인트별 상태 및 최근 전송 성공률을 표시하는 임베드된 포털" />
+</Frame>
+
+## 포털 브랜딩 {#branding-the-portal}
+
+Team 요금제 이상에서는 포털을 자사 제품에 맞게 꾸밀 수 있습니다.
+
+| 설정                     | 설명                                                                       |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `primaryColor`         | 버튼 및 링크 색상                                                               |
+| `fontFamily`           | 페이지에 이미 로드된 글꼴 중 원하는 글꼴                                                  |
+| `hideRelayboxBranding` | &quot;Powered by Relaybox&quot; 푸터를 제거합니다. Scale 및 Enterprise 요금제 전용입니다. |
+| `eventCatalog`         | 고객이 구독할 때 표시되는 이벤트 유형 설명                                                 |
+
+<Tip>
+  이벤트 카탈로그를 잘 정리해 두면 지원 문의를 크게 줄일 수 있습니다. 각 이벤트에 어떤 내용이 담기는지뿐 아니라 *언제* 전송되는지도 설명하세요.
+</Tip>

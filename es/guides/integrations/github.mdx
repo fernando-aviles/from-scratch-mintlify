@@ -1,0 +1,28 @@
+---
+title: "GitHub"
+description: "Recibe webhooks de GitHub a través de Relaybox."
+icon: "github"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="GitHub" logo="/images/integrations/github.svg" category="Origen · Herramientas para desarrolladores" maintainedBy="la comunidad de Relaybox">
+  Distribuye eventos de push, pull request y release a ejecutores de CI, bots de chat y herramientas de despliegue.
+</IntegrationHeader>
+
+<Info>
+  La comunidad se encarga de mantener esta integración. Si encuentras algún problema, infórmalo en [GitHub](https://github.com/relaybox/integration-github/issues).
+</Info>
+
+## Configurar el origen {#set-up-the-source}
+
+1. En Relaybox, ve a **Integrations → GitHub** y haz clic en **Create source**.
+2. En tu repositorio u organización de GitHub, ve a **Settings → Webhooks → Add webhook**.
+3. En **Payload URL**, indica la URL de ingesta de Relaybox y, en **Content type**, selecciona `application/json`.
+4. Genera un secreto aleatorio, pégalo tanto en GitHub como en Relaybox y haz clic en **Add webhook**.
+
+El valor del encabezado `X-GitHub-Event` de GitHub pasa a ser el tipo de evento de Relaybox, con el prefijo `github.`. Por ejemplo, un evento push se convierte en `github.push` y un evento de pull request, en `github.pull_request`.
+
+## Filtrar por acción {#filtering-by-action}
+
+Muchos eventos de GitHub incluyen un campo `action`: por ejemplo, un evento `pull_request` puede ser `opened`, `closed` o `synchronize`. Para suscribirte solo a algunas acciones, activa **Split by action** al crear el origen. De este modo, los tipos de evento incluirán la acción: `github.pull_request.opened`.

@@ -1,0 +1,51 @@
+---
+title: "署名"
+description: "Relaybox から送信されるリクエストにはすべて署名が付与されるため、エンドポイント側で偽造されたリクエストやリプレイ攻撃によるリクエストを拒否できます。"
+icon: "signature"
+---
+
+import VerifySignature from "/snippets/ja/code/verify-signature.mdx";
+
+エンドポイントのURLを知っていれば、誰でもそのエンドポイントにリクエストを送信できます。署名を使えば、リクエストがRelayboxから送信されたものであり、送信途中で改ざんされていないことを証明できます。
+
+## 署名の仕組み {#how-signing-works}
+
+各エンドポイントには、`whsec_` で始まる**署名シークレット**があります。Relaybox は配信のたびに、次の処理を行います。
+
+1. イベント ID、現在の Unix タイムスタンプ、生のリクエストボディをピリオドでつなげた文字列 `{id}.{timestamp}.{body}` を作成します。
+2. シークレットを使って、その文字列の HMAC-SHA256 を計算します。
+3. 計算結果をタイムスタンプとともに `Relaybox-Signature` ヘッダーに含めて送信します。
+
+```http
+POST /webhooks HTTP/1.1
+Content-Type: application/json
+Relaybox-Event-Id: evt_2b7XqLm9TfR4
+Relaybox-Timestamp: 1792420327
+Relaybox-Signature: v1,K5oZfzN95Z9UVu1EsfQmfVNQhnkZ2pj9o9NDN/H/pI4=
+```
+
+## 署名を検証する {#verify-the-signature}
+
+SDK の使用を強くお勧めします。定数時間比較やタイムスタンプのチェックは SDK が自動で処理します。
+
+<VerifySignature />
+
+<Warning>
+  検証は必ず**生の**リクエストボディに対して行ってください。JSON をパースして再シリアライズするフレームワークでは、空白やキーの順序が変わることがあり、署名の検証に失敗する原因になります。
+</Warning>
+
+## リプレイ攻撃への対策 {#protecting-against-replay-attacks}
+
+有効な署名で証明できるのは、Relaybox がそのリクエストを*いずれかの時点で*送信したということだけです。攻撃者がリクエストを傍受して後から再送信するのを防ぐため、SDK はタイムスタンプが 5 分より古いリクエストをすべて拒否します。
+
+署名を手動で検証する場合は、`Relaybox-Timestamp` をサーバーの時刻と比較し、許容範囲を外れるリクエストはすべて拒否してください。
+
+## ローテーション中の複数の署名 {#multiple-signatures-during-rotation}
+
+[シークレットをローテーション](/ja/api-reference/endpoints/rotate-secret)すると、Relaybox は 24 時間にわたって旧シークレットと新シークレットの両方で署名します。この間、ヘッダーには次のように、スペースで区切られた 2 つの署名が含まれます。
+
+```text
+Relaybox-Signature: v1,K5oZfz...pI4= v1,9xQ2mL...aB8=
+```
+
+署名の**いずれか**が一致すれば、リクエストは有効です。SDKではこの処理が自動的に行われます。

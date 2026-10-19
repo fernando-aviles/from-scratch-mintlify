@@ -1,0 +1,54 @@
+---
+title: "Uso asíncrono"
+description: "Usa el SDK de Python de Relaybox con asyncio."
+---
+
+Cada método de `Relaybox` tiene su equivalente asíncrono en `AsyncRelaybox`:
+
+```python
+import asyncio
+import os
+from relaybox import AsyncRelaybox
+
+async def main():
+    async with AsyncRelaybox(os.environ["RELAYBOX_API_KEY"]) as relaybox:
+        event = await relaybox.events.create(
+            type="order.paid",
+            payload={"order_id": "ord_8Hx2kP"},
+        )
+        print(event.id)
+
+asyncio.run(main())
+```
+
+## FastAPI {#fastapi}
+
+Crea el cliente en un controlador de ciclo de vida (lifespan) para que se comparta entre solicitudes y se cierre correctamente al detener la aplicación:
+
+```python
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request, HTTPException
+from relaybox import AsyncRelaybox, Webhook, WebhookVerificationError
+
+webhook = Webhook(os.environ["RELAYBOX_SIGNING_SECRET"])
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.relaybox = AsyncRelaybox(os.environ["RELAYBOX_API_KEY"])
+    yield
+    await app.state.relaybox.close()
+
+app = FastAPI(lifespan=lifespan)
+
+@app.post("/webhooks", status_code=204)
+async def receive(request: Request):
+    try:
+        event = webhook.verify(await request.body(), request.headers)
+    except WebhookVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    # ...
+```
+
+<Note>
+  La verificación de firmas es rápida y solo consume CPU, así que `Webhook.verify` es síncrono incluso en código asíncrono.
+</Note>

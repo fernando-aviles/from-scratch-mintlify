@@ -1,0 +1,84 @@
+---
+title: "Inicio de sesión único (SSO)"
+sidebarTitle: "Inicio de sesión único"
+description: "Permite que tu equipo inicie sesión en Relaybox con el proveedor de identidad de tu empresa."
+---
+
+Disponible en: <Badge color="purple">Enterprise</Badge>
+
+Con SSO, los miembros inician sesión a través de tu proveedor de identidad (IdP) en lugar de hacerlo con una contraseña de Relaybox. Cuando alguien deja tu empresa y lo desactivas en tu IdP, también pierde el acceso a Relaybox.
+
+Relaybox es compatible con SAML 2.0 y OpenID Connect.
+
+## Configurar el SSO {#set-up-sso}
+
+<Tabs>
+  <Tab title="Okta">
+    <Steps>
+      <Step title="Crear la aplicación en Okta">
+        En la consola de administración de Okta, ve a **Applications → Browse App Catalog**, busca **Relaybox** y haz clic en **Add integration**.
+      </Step>
+
+      <Step title="Copiar la URL de metadatos">
+        En la pestaña **Sign On**, copia la **Metadata URL**.
+      </Step>
+
+      <Step title="Conectar Relaybox">
+        En Relaybox, ve a **Settings → Security → Inicio de sesión único**, elige **Okta** y pega la URL de metadatos.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Microsoft Entra ID">
+    <Steps>
+      <Step title="Registrar una aplicación empresarial">
+        En el centro de administración de Entra, ve a **Enterprise applications → New application → Create your own application**. Ponle el nombre «Relaybox» y elige **Integrate any other application you don&#39;t find in the gallery**.
+      </Step>
+
+      <Step title="Configurar SAML">
+        En **Inicio de sesión único**, elige **SAML**. Asigna al **Identifier** y a la **Reply URL** los valores que aparecen en Relaybox, en **Settings → Security → Inicio de sesión único**.
+      </Step>
+
+      <Step title="Subir los metadatos de federación">
+        Descarga el archivo **Federation Metadata XML** y súbelo a Relaybox.
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Google Workspace">
+    <Steps>
+      <Step title="Añadir una aplicación SAML personalizada">
+        En la consola de administración de Google, ve a **Apps → Web and mobile apps → Add app → Add custom SAML app**.
+      </Step>
+
+      <Step title="Intercambiar los datos">
+        Descarga los metadatos del IdP desde Google y, después, introduce la ACS URL y el Entity ID que te proporciona Relaybox.
+      </Step>
+
+      <Step title="Activar la aplicación">
+        Establece **User access** en **ON for everyone** o actívala solo para las unidades organizativas que deban tener acceso.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## Exigir SSO {#enforce-sso}
+
+Cuando termines las pruebas, activa **Require SSO**. A los miembros que se registraron con contraseña se les pedirá que inicien sesión a través de tu IdP la próxima vez que accedan.
+
+<Warning>
+  El propietario de la cuenta siempre puede iniciar sesión con contraseña y un segundo factor, así que no te quedarás sin acceso aunque tu IdP sufra una interrupción. Asegúrate de que la cuenta del propietario tenga una contraseña segura y única.
+</Warning>
+
+## Aprovisionamiento just-in-time {#just-in-time-provisioning}
+
+Si el **Aprovisionamiento just-in-time** está activado, cualquier persona a la que tu IdP permita el acceso recibe automáticamente una cuenta de Relaybox con el rol **Viewer**. Para conceder más permisos, asigna grupos del IdP a roles:
+
+```json
+{
+  "role_mappings": [
+    { "idp_group": "platform-engineering", "role": "admin" },
+    { "idp_group": "engineering", "role": "developer" }
+  ]
+}
+```

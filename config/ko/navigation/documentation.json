@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "group": "시작하기",
+      "pages": [
+        "ko/index",
+        "ko/get-started/quickstart",
+        "ko/get-started/how-it-works",
+        "ko/get-started/glossary"
+      ]
+    },
+    {
+      "group": "핵심 개념",
+      "pages": [
+        "ko/concepts/events",
+        "ko/concepts/endpoints",
+        {
+          "group": "전달",
+          "icon": "truck-fast",
+          "root": "ko/concepts/delivery/overview",
+          "pages": [
+            "ko/concepts/delivery/retries",
+            "ko/concepts/delivery/ordering",
+            "ko/concepts/delivery/idempotency"
+          ]
+        },
+        "ko/concepts/signatures"
+      ]
+    },
+    {
+      "group": "계정 및 결제",
+      "$ref": "./documentation/account.json"
+    }
+  ]
+}

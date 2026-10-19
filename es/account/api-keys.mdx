@@ -1,0 +1,53 @@
+---
+title: "Claves de API"
+description: "Crea, limita el alcance y rota las claves que usan tus servicios para llamar a la API de Relaybox."
+icon: "key"
+---
+
+import ApiKeyWarning from "/snippets/es/shared/api-key-warning.mdx";
+
+Las claves de API autentican las solicitudes a la API de Relaybox. Cada clave pertenece a un único entorno y solo se muestra una vez, en el momento de crearla.
+
+<ApiKeyWarning />
+
+## Prefijos de claves {#key-prefixes}
+
+El prefijo de una clave indica para qué sirve:
+
+| Prefijo     | Entorno    | Uso                                                                                                                                                 |
+| ----------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rbx_test_` | Pruebas    | Desarrollo local e integración continua (CI). Los eventos se entregan, pero nunca se facturan.                                                      |
+| `rbx_live_` | Producción | Tus servicios de producción.                                                                                                                        |
+| `rbx_pub_`  | Ambos      | Insertar el [portal de clientes](/es/guides/sending-events/fan-out#customer-portal) en tu frontend. Las claves publicables no pueden publicar eventos. |
+
+## Ámbitos {#scopes}
+
+De forma predeterminada, una clave nueva tiene acceso completo a su entorno. Para mayor seguridad, concede a cada servicio solo los ámbitos que necesite:
+
+<ParamField path="events:write" type="scope">
+  Publicar eventos. Por lo general, es el único ámbito que necesita un servicio productor.
+</ParamField>
+
+<ParamField path="events:read" type="scope">
+  Enumerar y consultar eventos e intentos de entrega.
+</ParamField>
+
+<ParamField path="endpoints:write" type="scope">
+  Crear, actualizar y eliminar puntos de conexión, y rotar sus secretos.
+</ParamField>
+
+<ParamField path="endpoints:read" type="scope">
+  Enumerar y consultar puntos de conexión. No incluye los secretos de firma.
+</ParamField>
+
+## Rotar una clave {#rotate-a-key}
+
+Al rotar una clave, se crea una nueva con los mismos ámbitos y se programa la eliminación de la anterior.
+
+1. Ve a **Settings → Claves de API** y busca la clave.
+2. Haz clic en **Rotate** y elige durante cuánto tiempo seguirá funcionando la clave anterior: inmediatamente, 1 hora, 24 horas o 7 días.
+3. Copia la nueva clave y despliégala en tus servicios antes de que caduque la anterior.
+
+<Note>
+  Si crees que se ha filtrado una clave, elige **Immediately**. Las solicitudes que usen la clave anterior empezarán a fallar de inmediato con `401 unauthenticated`.
+</Note>

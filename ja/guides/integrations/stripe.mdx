@@ -1,0 +1,41 @@
+---
+title: "Stripe"
+description: "Stripe の Webhook を Relaybox 経由で受信し、再試行、再送、ファンアウトを活用できます。"
+icon: "stripe"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="Stripe" logo="/images/integrations/stripe.svg" category="ソース · 決済">
+  Stripe の送信先を一度 Relaybox に設定するだけで、決済イベントを社内のサービスへいくつでもルーティングできます。
+</IntegrationHeader>
+
+## Stripe の前段に Relaybox を置く理由 {#why-put-relaybox-in-front-of-stripe}
+
+Stripe は失敗した Webhook を最大 3 日間再試行しますが、特定のイベントを特定のサービスへ再送するのは容易ではなく、各イベントを受信できる URL も 1 つに限られます。Relaybox を間に挟むと、次のようなメリットがあります。
+
+* 社内の各サービスが、それぞれ専用のエンドポイントと再試行キューを持てます。
+* 保持期間内であれば、どの Stripe イベントでも再送できます。
+* 署名の検証はエッジで一度行うだけで済みます。
+
+## ソースを設定する {#set-up-the-source}
+
+<Steps>
+  <Step title="ソースを作成する">
+    **Integrations → Stripe** に移動し、**Create source** をクリックします。Relaybox から `https://in.relaybox.dev/src_9Kq2` のような取り込み用 URL が発行されます。
+  </Step>
+
+  <Step title="Stripe に URL を追加する">
+    Stripe ダッシュボードで **Developers → Webhooks → Add endpoint** に移動し、取り込み用 URL を貼り付けて、受信したいイベントを選択します。
+  </Step>
+
+  <Step title="Stripe の署名シークレットを貼り付ける">
+    新しいエンドポイントの署名シークレットが Stripe に表示されます。これを Relaybox に貼り付けると、Stripe 以外から送信されたリクエストを Relaybox で拒否できるようになります。
+  </Step>
+</Steps>
+
+これで、Stripe のイベントが Relaybox に表示されるようになります。イベントタイプには `stripe.` という接頭辞が付きます (例: `stripe.invoice.paid`) 。
+
+<Warning>
+  今後、内部サービスが受け取るのは Stripe の署名ではなく **Relaybox** の署名になります。Relaybox のエンドポイントシークレットで検証するよう、内部サービスを更新してください。
+</Warning>

@@ -1,0 +1,54 @@
+---
+title: "Python SDK"
+sidebarTitle: "概要"
+description: "Python からイベントを発行し、Webhook を検証します。"
+icon: "python"
+---
+
+import SdkIntro from "/snippets/ja/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/ja/code/publish-event.mdx";
+
+<SdkIntro language="python" />
+
+## インストール {#install}
+
+<CodeGroup>
+  ```bash pip
+  pip install relaybox
+  ```
+
+  ```bash uv
+  uv add relaybox
+  ```
+
+  ```bash Poetry
+  poetry add relaybox
+  ```
+</CodeGroup>
+
+## クライアントを作成する {#create-a-client}
+
+```python
+import os
+from relaybox import Relaybox
+
+relaybox = Relaybox(os.environ["RELAYBOX_API_KEY"])
+```
+
+クライアントはスレッドセーフです。起動時に一度だけ作成し、アプリケーション全体で共有してください。
+
+## イベントを発行する {#publish-an-event}
+
+<PublishEvent />
+
+## 次のステップ {#next-steps}
+
+<CardGroup cols={2}>
+  <Card title="設定" icon="sliders" href="/ja/sdks/python/configuration">
+    タイムアウト、リトライ、リージョンを設定します。
+  </Card>
+
+  <Card title="非同期での利用" icon="bolt" href="/ja/sdks/python/async-usage">
+    asyncio、FastAPI、Django の非同期ビューで SDK を利用します。
+  </Card>
+</CardGroup>

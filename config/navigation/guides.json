@@ -2,7 +2,9 @@
   "groups": [
     {
       "group": "Guides",
-      "pages": ["guides/overview"]
+      "pages": [
+        "guides/overview"
+      ]
     },
     {
       "group": "Receiving events",
@@ -29,7 +31,9 @@
     },
     {
       "group": "Migration",
-      "pages": ["guides/migrating-from-v2"]
+      "pages": [
+        "guides/migrating-from-v2"
+      ]
     }
   ]
 }

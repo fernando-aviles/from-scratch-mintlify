@@ -1,0 +1,30 @@
+---
+title: "인증"
+description: "Bearer 토큰으로 API 요청을 인증합니다."
+icon: "lock"
+---
+
+import ApiKeyWarning from "/snippets/ko/shared/api-key-warning.mdx";
+
+모든 요청의 `Authorization` 헤더에 `Bearer` 스킴으로 API 키를 담아 보내세요.
+
+```bash
+curl https://api.relaybox.dev/v3/endpoints \
+  -H "Authorization: Bearer rbx_test_51Hx..."
+```
+
+유효한 키 없이 보낸 요청은 `401 unauthenticated` 오류와 함께 실패합니다. 필요한 [범위](/ko/account/api-keys#scopes)가 없는 키로 보낸 요청은 `403 insufficient_scope` 오류와 함께 실패합니다.
+
+<ApiKeyWarning />
+
+## 테스트와 프로덕션 {#test-and-production}
+
+환경은 키에 따라 결정됩니다. `rbx_test_` 키로 보낸 요청은 테스트 이벤트와 테스트 엔드포인트만 조회할 수 있으며, 프로덕션 키도 마찬가지로 프로덕션 리소스만 조회할 수 있습니다. 환경을 지정하는 `environment` 매개변수는 따로 없습니다.
+
+## IP 허용 목록 {#ip-allowlist}
+
+사용 가능 플랜: <Badge color="purple">Enterprise</Badge>
+
+**Settings → Security → IP allowlist**에서 API 접근을 특정 IP 범위로 제한할 수 있습니다. 허용되지 않은 주소에서 보낸 요청은 유효한 키를 사용하더라도 `403 ip_not_allowed` 오류로 실패합니다.
+
+자체 방화벽에서 Relaybox의 *발신* 전송 IP를 허용하려면 `https://relaybox.dev/ips.json`에 게시된 목록을 사용하세요. 이 목록은 거의 바뀌지 않으며, 변경 사항이 있으면 최소 30일 전에 미리 공지합니다.

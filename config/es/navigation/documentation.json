@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "group": "Primeros pasos",
+      "pages": [
+        "es/index",
+        "es/get-started/quickstart",
+        "es/get-started/how-it-works",
+        "es/get-started/glossary"
+      ]
+    },
+    {
+      "group": "Conceptos básicos",
+      "pages": [
+        "es/concepts/events",
+        "es/concepts/endpoints",
+        {
+          "group": "Entrega",
+          "icon": "truck-fast",
+          "root": "es/concepts/delivery/overview",
+          "pages": [
+            "es/concepts/delivery/retries",
+            "es/concepts/delivery/ordering",
+            "es/concepts/delivery/idempotency"
+          ]
+        },
+        "es/concepts/signatures"
+      ]
+    },
+    {
+      "group": "Cuenta y facturación",
+      "$ref": "./documentation/account.json"
+    }
+  ]
+}

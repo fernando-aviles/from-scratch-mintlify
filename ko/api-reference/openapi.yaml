@@ -1,0 +1,535 @@
+openapi: 3.1.0
+info:
+  title: Relaybox API
+  version: 3.4.0
+  description: |
+    Relaybox API를 사용하면 이벤트를 발행하고, 엔드포인트를 관리하고, 전달 내역을 확인할 수 있습니다.
+    모든 요청은 HTTPS로 전송해야 하며 API 키로 인증해야 합니다.
+  contact:
+    name: Relaybox Support
+    email: support@relaybox.dev
+servers:
+  - url: https://api.relaybox.dev/v3
+    description: 운영
+security:
+  - bearerAuth: []
+tags:
+  - name: Events
+    description: 이벤트를 발행하고, 목록을 조회하고, 재전송합니다.
+  - name: Endpoints
+    description: 이벤트를 수신하는 URL을 관리합니다.
+paths:
+  /events:
+    post:
+      tags:
+        - Events
+      summary: 이벤트 발행
+      description: |
+        새 이벤트를 발행합니다. Relaybox는 이벤트를 저장하고 해당 유형을 구독하는
+        모든 엔드포인트에 비동기적으로 전달합니다. 성공 응답은 이벤트가
+        접수되었다는 뜻이며, 전달이 완료되었다는 뜻은 아닙니다.
+      operationId: createEvent
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventCreate"
+            example:
+              type: order.paid
+              ordering_key: customer_381
+              payload:
+                order_id: ord_8Hx2kP
+                amount: 4200
+                currency: usd
+      responses:
+        "202":
+          description: 전달할 이벤트가 접수되었습니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "409":
+          description: 멱등성 키가 이미 다른 요청 본문에 사용되었습니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    get:
+      tags:
+        - Events
+      summary: 이벤트 목록 조회
+      description: 이벤트를 최신순으로 반환합니다. 결과는 커서 기반으로 페이지가 나뉩니다.
+      operationId: listEvents
+      parameters:
+        - name: type
+          in: query
+          description: 이 유형의 이벤트만 반환합니다. `order.*`와 같은 와일드카드를 지원합니다.
+          schema:
+            type: string
+        - name: created_after
+          in: query
+          description: 이 시각 이후에 생성된 이벤트만 반환합니다.
+          schema:
+            type: string
+            format: date-time
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 이벤트 목록의 한 페이지입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Event"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+                    description: 다음 페이지를 가져오려면 이 값을 `cursor`로 전달하세요. 더 이상 결과가 없으면 `null`입니다.
+  /events/{event_id}:
+    get:
+      tags:
+        - Events
+      summary: 이벤트 조회
+      description: 이벤트 하나를 각 엔드포인트별 전달 상태 요약과 함께 조회합니다.
+      operationId: getEvent
+      parameters:
+        - $ref: "#/components/parameters/EventId"
+      responses:
+        "200":
+          description: 이벤트입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /events/replay:
+    post:
+      tags:
+        - Events
+      summary: 이벤트 재전송
+      description: |
+        과거 이벤트를 하나 이상의 엔드포인트에 재전송합니다. 재전송은 백그라운드에서
+        처리되며, 재전송할 이벤트가 많으면 완료까지 몇 분이 걸릴 수 있습니다.
+      operationId: replayEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - endpoint_id
+              properties:
+                endpoint_id:
+                  type: string
+                  description: 이벤트를 재전송할 엔드포인트입니다.
+                event_ids:
+                  type: array
+                  items:
+                    type: string
+                  description: 재전송할 특정 이벤트입니다. `since` 및 `until`과 함께 사용할 수 없습니다.
+                since:
+                  type: string
+                  format: date-time
+                  description: 이 시각 또는 그 이후에 생성된 이벤트를 재전송합니다.
+                until:
+                  type: string
+                  format: date-time
+                  description: 이 시각 이전에 생성된 이벤트를 재전송합니다.
+                status:
+                  type: string
+                  enum:
+                    - failed
+                    - all
+                  default: failed
+                  description: 이 엔드포인트로 전달하는 데 실패한 이벤트만 재전송하거나 모든 이벤트를 재전송합니다.
+      responses:
+        "202":
+          description: 재전송이 예약되었습니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  replay_id:
+                    type: string
+                    example: rpl_3Fk8Lm
+                  event_count:
+                    type: integer
+                    description: 재전송할 이벤트 수입니다.
+                    example: 1284
+  /endpoints:
+    post:
+      tags:
+        - Endpoints
+      summary: 엔드포인트 생성
+      description: 엔드포인트를 생성합니다. 서명 비밀 키는 이 응답에서만 반환됩니다.
+      operationId: createEndpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EndpointCreate"
+      responses:
+        "201":
+          description: 엔드포인트가 생성되었습니다.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Endpoint"
+                  - type: object
+                    properties:
+                      signing_secret:
+                        type: string
+                        description: 엔드포인트의 서명 비밀 키입니다. 다시 표시되지 않으므로 안전하게 보관하세요.
+                        example: whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+    get:
+      tags:
+        - Endpoints
+      summary: 엔드포인트 목록 조회
+      description: 환경 내 모든 엔드포인트를 반환합니다.
+      operationId: listEndpoints
+      parameters:
+        - name: status
+          in: query
+          description: 이 상태의 엔드포인트만 반환합니다.
+          schema:
+            type: string
+            enum:
+              - enabled
+              - paused
+              - disabled
+              - pending_verification
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 엔드포인트 목록의 한 페이지입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Endpoint"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+  /endpoints/{endpoint_id}:
+    patch:
+      tags:
+        - Endpoints
+      summary: 엔드포인트 수정
+      description: 엔드포인트를 수정합니다. 전송한 필드만 변경됩니다.
+      operationId: updateEndpoint
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                description:
+                  type: string
+                event_types:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  enum:
+                    - enabled
+                    - paused
+                  description: 엔드포인트를 일시 중지하거나 재개합니다. 엔드포인트를 직접 `disabled`로 설정할 수는 없습니다.
+      responses:
+        "200":
+          description: 수정된 엔드포인트입니다.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endpoint"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags:
+        - Endpoints
+      summary: 엔드포인트 삭제
+      description: 엔드포인트를 영구적으로 삭제합니다. 이 엔드포인트로 전달 대기 중인 요청은 취소됩니다.
+      operationId: deleteEndpoint
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      responses:
+        "204":
+          description: 엔드포인트가 삭제되었습니다.
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /endpoints/{endpoint_id}/rotate-secret:
+    post:
+      tags:
+        - Endpoints
+      summary: 엔드포인트의 서명 비밀 키 교체
+      description: |
+        새 서명 비밀 키를 생성합니다. 두 키가 모두 유효한 기간에는 기존 비밀 키와 새 비밀 키로 각각
+        요청에 서명하므로, 이벤트 누락 없이 새 비밀 키를 배포할 수 있습니다.
+      operationId: rotateEndpointSecret
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                overlap_hours:
+                  type: integer
+                  minimum: 0
+                  maximum: 168
+                  default: 24
+                  description: 기존 비밀 키의 유효 기간입니다. 기존 비밀 키가 유출되었다면 `0`을 사용하세요.
+      responses:
+        "200":
+          description: 새 비밀 키입니다.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signing_secret:
+                    type: string
+                    example: whsec_C2FVsBQIhrscChlQIMV+b5sSYspob7oD
+                  old_secret_expires_at:
+                    type: string
+                    format: date-time
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: "Relaybox API 키입니다. 예: `rbx_live_...`."
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: 요청을 안전하게 재시도할 수 있도록 하는 고유 키입니다. 키는 24시간 후에 만료됩니다.
+      schema:
+        type: string
+        maxLength: 255
+    Limit:
+      name: limit
+      in: query
+      description: 반환할 최대 결과 수로, 1~100 사이의 값입니다.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    Cursor:
+      name: cursor
+      in: query
+      description: 이전 응답의 `next_cursor` 값입니다.
+      schema:
+        type: string
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      description: "`evt_`로 시작하는 이벤트 ID입니다."
+      schema:
+        type: string
+    EndpointId:
+      name: endpoint_id
+      in: path
+      required: true
+      description: "`ep_`로 시작하는 엔드포인트 ID입니다."
+      schema:
+        type: string
+  schemas:
+    EventCreate:
+      type: object
+      required:
+        - type
+        - payload
+      properties:
+        type:
+          type: string
+          description: "`order.paid`와 같은 이벤트 유형입니다. 소문자를 사용하고 점으로 구분합니다."
+          maxLength: 128
+        payload:
+          type: object
+          description: 이벤트 데이터입니다. 크기가 256 KB 이하인 JSON 객체를 사용할 수 있습니다.
+          additionalProperties: true
+        ordering_key:
+          type: string
+          description: 순서 키가 같은 이벤트는 각 엔드포인트에 순서대로 전달됩니다.
+          maxLength: 256
+        application:
+          type: string
+          description: 이 애플리케이션의 엔드포인트에만 전달합니다. 자체적으로 사용하는 고객 ID를 지정하세요.
+        metadata:
+          type: object
+          description: 필터링 및 라우팅에 사용할 최대 20개의 문자열 키-값 쌍입니다.
+          additionalProperties:
+            type: string
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          example: evt_2b7XqLm9TfR4
+        type:
+          type: string
+          example: order.paid
+        created_at:
+          type: string
+          format: date-time
+        ordering_key:
+          type:
+            - string
+            - "null"
+        payload:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+        deliveries:
+          type: array
+          description: 구독 중인 각 엔드포인트의 전달 상태 요약입니다.
+          items:
+            type: object
+            properties:
+              endpoint_id:
+                type: string
+              status:
+                type: string
+                enum:
+                  - pending
+                  - delivered
+                  - failed
+                  - skipped
+                description: "`skipped`는 변환이 `null`을 반환했음을 의미합니다."
+              attempts:
+                type: integer
+    EndpointCreate:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          description: 이벤트를 전달할 URL입니다. 운영 환경에서는 HTTPS를 사용해야 합니다.
+        description:
+          type: string
+          description: 대시보드에 표시되는 사용자용 메모입니다.
+        event_types:
+          type: array
+          items:
+            type: string
+          description: 구독할 이벤트 유형입니다. 생략하면 모든 이벤트를 구독합니다.
+        rate_limit:
+          type: object
+          properties:
+            requests:
+              type: integer
+            per:
+              type: string
+              enum:
+                - second
+                - minute
+    Endpoint:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ep_5Np8Wz
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+        event_types:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+            - enabled
+            - paused
+            - disabled
+            - pending_verification
+        created_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: 프로그램에서 처리할 수 있는 오류 코드입니다. 전체 목록은 오류 페이지를 참조하세요.
+              example: invalid_request
+            message:
+              type: string
+              description: 사용자가 읽을 수 있는 설명입니다. 내용이 변경될 수 있으므로 파싱하지 마세요.
+              example: The field `type` is required.
+            request_id:
+              type: string
+              description: 지원팀에 문의할 때 이 값을 포함하세요.
+              example: req_8sKd02LmQ
+            docs_url:
+              type: string
+              format: uri
+  responses:
+    InvalidRequest:
+      description: 요청 형식이 잘못되었거나 필수 필드가 누락되었습니다.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: 이 환경에 리소스가 존재하지 않습니다.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: 요청이 너무 많습니다. `Retry-After` 헤더에 지정된 시간(초)만큼 기다리세요.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

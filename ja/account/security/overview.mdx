@@ -1,0 +1,46 @@
+---
+title: "セキュリティとコンプライアンス"
+sidebarTitle: "概要"
+description: "Relaybox がお客様のデータを保護する仕組みと、チームで利用できる管理機能について説明します。"
+icon: "shield-halved"
+---
+
+Relaybox が扱うデータには、決済の確認通知、アカウントの変更、個人情報など、機密性の高いものが多く含まれます。そのため、Relaybox ではプラットフォームのあらゆるレイヤーにセキュリティを組み込んでいます。
+
+## データ保護 {#data-protection}
+
+* **転送時:** API およびダッシュボードとの通信はすべて TLS 1.2 以降で保護されます。本番環境では、エンドポイントへの配信に HTTPS が必須です。
+* **保存時:** イベントのペイロードは AES-256 で暗号化されます。Enterprise プランのお客様は、AWS KMS または Google Cloud KMS を利用して独自の暗号鍵を使用できます (BYOK)。
+* **データ所在地:** アカウント作成時に、データの保存先を米国、欧州連合、日本から選択できます。データが選択したリージョンの外に出ることはありません。
+
+## コンプライアンス {#compliance}
+
+<CardGroup cols={3}>
+  <Card title="SOC 2 Type II" icon="certificate">
+    年次で監査を受けています。報告書はアカウントマネージャーにご依頼ください。
+  </Card>
+
+  <Card title="GDPR" icon="scale-balanced">
+    有料プランをご利用のすべてのお客様とデータ処理契約 (DPA) を締結しています。
+  </Card>
+
+  <Card title="HIPAA" icon="hospital">
+    Enterprise プランで、事業提携契約 (BAA) を締結いただいた場合にご利用いただけます。
+  </Card>
+</CardGroup>
+
+## アカウント管理 {#account-controls}
+
+<CardGroup cols={2}>
+  <Card title="シングルサインオン" icon="right-to-bracket" href="/ja/account/security/sso">
+    メンバーに Okta、Microsoft Entra ID、または Google Workspace でのサインインを義務付けます。
+  </Card>
+
+  <Card title="監査ログ" icon="clipboard-list" href="/ja/account/security/audit-logs">
+    いつ、誰が、何を変更したかを確認できます。
+  </Card>
+</CardGroup>
+
+## 脆弱性の報告 {#reporting-a-vulnerability}
+
+セキュリティ上の問題を発見された場合は、[security@relaybox.dev](mailto:security@relaybox.dev) までメールでご連絡ください。GitHub に公開の issue を作成するのはお控えください。いただいたご報告には、すべて 2 営業日以内に返信いたします。

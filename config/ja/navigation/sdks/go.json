@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "group": "Go SDK",
+      "pages": [
+        "ja/sdks/go/overview",
+        "ja/sdks/go/configuration"
+      ]
+    },
+    {
+      "group": "リソース",
+      "pages": [
+        "ja/sdks/support-policy"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+---
+title: "Registros de auditoría"
+description: "Un registro de todos los cambios realizados en tu cuenta de Relaybox que permite detectar cualquier manipulación."
+---
+
+Disponible en: <Badge color="green">Scale y Enterprise</Badge>
+
+Los registros de auditoría indican **quién** hizo **qué**, **cuándo** y **desde dónde**. Incluyen los cambios realizados desde el panel, la API y la CLI.
+
+## Qué se registra {#whats-logged}
+
+<AccordionGroup>
+  <Accordion title="Puntos de conexión">
+    Creación, actualización, pausa, reanudación, eliminación y rotación del secreto.
+  </Accordion>
+
+  <Accordion title="Claves de API">
+    Creación, rotación, revocación y cambios de ámbito. La clave en sí nunca se registra.
+  </Accordion>
+
+  <Accordion title="Equipo">
+    Invitación y eliminación de miembros, y cambios de rol. Transferencia de la propiedad.
+  </Accordion>
+
+  <Accordion title="Configuración de seguridad">
+    Configuración o modificación del SSO, activación o desactivación de Require SSO y cambios en la lista de IP permitidas.
+  </Accordion>
+
+  <Accordion title="Reenvíos">
+    Quién reenvió qué eventos y a qué puntos de conexión. La publicación de eventos no se audita, ya que queda registrada en el registro de eventos.
+  </Accordion>
+</AccordionGroup>
+
+## Formato de las entradas de registro {#log-entry-format}
+
+```json
+{
+  "id": "aud_7Gm3Rk",
+  "action": "endpoint.secret_rotated",
+  "actor": {
+    "type": "member",
+    "email": "dana@example.com"
+  },
+  "target": {
+    "type": "endpoint",
+    "id": "ep_5Np8Wz"
+  },
+  "ip_address": "203.0.113.42",
+  "occurred_at": "2026-10-18T09:15:44Z"
+}
+```
+
+## Exportación {#exporting}
+
+Descarga los registros en formato CSV desde **Settings → Registro de auditoría** o transmítelos de forma continua a Datadog, Splunk o un bucket de S3. Los destinos de transmisión reciben las entradas nuevas en menos de un minuto.
+
+<Info>
+  Los registros de auditoría se conservan durante un año en todos los planes que los incluyen, con independencia del periodo de retención de tus eventos.
+</Info>

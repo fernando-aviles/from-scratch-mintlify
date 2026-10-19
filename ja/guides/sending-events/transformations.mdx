@@ -1,0 +1,70 @@
+---
+title: "エンドポイントごとにペイロードを変換する"
+sidebarTitle: "変換"
+description: "小さな JavaScript 関数を実行し、イベントが特定のエンドポイントに届く前に、内容の再構成、フィルタリング、秘匿化を行います。"
+---
+
+import BetaFeature from "/snippets/ja/shared/beta-feature.mdx";
+
+<BetaFeature feature="Transformations" plans="Scale and Enterprise" />
+
+必要なデータの形は、受信側によって異なります。請求サービスではすべてのフィールドが必要ですが、Slack チャンネルでは 1 行のメッセージがあれば十分です。同じイベントを 2 回公開するのではなく、エンドポイントに**変換**を設定しましょう。
+
+## 変換を作成する {#write-a-transformation}
+
+変換は、`handler` という名前の JavaScript 関数です。この関数はイベントを受け取り、送信するリクエストを返します。配信をスキップするには `null` を返します。
+
+```javascript
+export function handler(event) {
+  // 高額な注文の場合のみ Slack に通知します。
+  if (event.payload.amount < 100_000) {
+    return null;
+  }
+
+  const dollars = (event.payload.amount / 100).toFixed(2);
+
+  return {
+    body: {
+      text: `💰 New order for $${dollars} (${event.payload.order_id})`,
+    },
+  };
+}
+```
+
+URL、メソッド、ヘッダーの変更も可能です：
+
+```javascript
+export function handler(event) {
+  return {
+    url: `https://api.example.com/tenants/${event.metadata.tenant}/hooks`,
+    headers: { "X-Event-Type": event.type },
+    body: event.payload,
+  };
+}
+```
+
+## 制限 {#limits}
+
+<Columns cols={3}>
+  <Card title="50 ms" icon="stopwatch">
+    1 イベントあたりの最大実行時間です。
+  </Card>
+
+  <Card title="16 MB" icon="memory">
+    最大メモリ量です。
+  </Card>
+
+  <Card title="ネットワーク接続不可" icon="ban">
+    `fetch` やその他の I/O は使用できません。
+  </Card>
+</Columns>
+
+変換でエラーがスローされた場合や制限を超えた場合、その配信試行は失敗となり、他の失敗と同様に再試行されます。エラーメッセージは配信ログで確認できます。
+
+## デプロイ前にテストする {#test-before-you-deploy}
+
+ダッシュボードのエディターには **Test** パネルがあります。保存する前に、最近のイベントを選んで変換を実行し、出力を確認してください。
+
+<Warning>
+  変換は保存した時点で直ちに反映されます。再試行待ちのイベントにも適用されるため注意してください。
+</Warning>

@@ -1,0 +1,35 @@
+---
+title: "配信"
+description: "Relaybox がイベントを配信する仕組み（再試行、順序保証、冪等性）の概要です。"
+icon: "truck-fast"
+---
+
+イベントの配信は、HTTP リクエストを送るだけの単純な処理に思えるかもしれません。しかし実際には、サーバーのタイムアウト、デプロイに伴うプロセスの再起動、ネットワークでのパケットロスなどが発生します。Relaybox の配信エンジンがこうした障害に対処するため、利用者側で対応する必要はありません。
+
+このセクションでは、相互に関連する 3 つのトピックを扱います。
+
+<CardGroup cols={3}>
+  <Card title="再試行" icon="rotate" href="/ja/concepts/delivery/retries">
+    エンドポイントで障害が発生した場合の動作と、再試行を続ける期間について説明します。
+  </Card>
+
+  <Card title="順序保証" icon="list-ol" href="/ja/concepts/delivery/ordering">
+    関連するイベントを確実に順番どおりに届ける方法を説明します。
+  </Card>
+
+  <Card title="冪等性" icon="fingerprint" href="/ja/concepts/delivery/idempotency">
+    at-least-once 配信によって発生しうる重複イベントへの対処方法を説明します。
+  </Card>
+</CardGroup>
+
+## 配信成功とみなされる条件 {#what-counts-as-a-successful-delivery}
+
+エンドポイントが 15 秒以内に `2xx` ステータスコードを返した場合、配信試行は**成功**とみなされます。それ以外はすべて失敗となります。
+
+* `3xx` リダイレクト (セキュリティ上の理由から、Relaybox はリダイレクトに従いません)
+* `4xx` および `5xx` レスポンス
+* タイムアウト、TLS エラー、DNS の解決失敗
+
+<Tip>
+  イベントを永続ストレージに保存したらすぐに `2xx` を返し、処理は非同期で行ってください。タイムアウトの原因として最も多いのは、処理に時間のかかるハンドラーです。
+</Tip>

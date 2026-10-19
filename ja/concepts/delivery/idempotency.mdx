@@ -1,0 +1,47 @@
+---
+title: "冪等性"
+description: "イベントのパブリッシュ時や受信時に、副作用が重複して発生するのを防ぎます。"
+---
+
+Relaybox はすべてのイベントを*少なくとも* 1 回配信します。そのため、エンドポイントが同じイベントを 2 回受信することがまれにあります。たとえば、サーバーがイベントを処理したものの、Relaybox が `200` を受け取る前に接続が切れた場合などです。冪等性を確保すれば、こうした状況でも顧客に二重請求が発生するのを防げます。
+
+冪等性には 2 つの側面があります。
+
+## パブリッシュ時 {#when-publishing}
+
+ネットワークエラーは、お使いのサービスと Relaybox API の間でも発生することがあります。パブリッシュリクエストがタイムアウトした場合、イベントが受け付けられたかどうかを判断できません。`Idempotency-Key` ヘッダーを送信して、いつでも安全に再試行できるようにしてください。
+
+```bash
+curl https://api.relaybox.dev/v3/events \
+  -H "Authorization: Bearer $RELAYBOX_API_KEY" \
+  -H "Idempotency-Key: checkout-ord_8Hx2kP-paid" \
+  -d '{"type": "order.paid", "payload": {"order_id": "ord_8Hx2kP"}}'
+```
+
+Relaybox が過去 24 時間以内に同じキーをすでに受け取っている場合は、新しいイベントを作成せずに元のイベントを返します。
+
+<Info>
+  同じ冪等キーを**異なる**リクエストボディで再利用すると、`409 idempotency_conflict` エラーが返されます。詳しくは[エラー](/ja/api-reference/errors)を参照してください。
+</Info>
+
+## 受信時 {#when-receiving}
+
+すべての配信には `Relaybox-Event-Id` ヘッダーが含まれます。処理済みの ID を保存しておき、すでに受信した ID はスキップしてください。
+
+```python
+def handle(event):
+    # ID が既に存在する場合は INSERT が失敗するため、並行処理でも安全です。
+    inserted = db.execute(
+        "INSERT INTO processed_events (id) VALUES (%s) ON CONFLICT DO NOTHING",
+        [event.id],
+    ).rowcount
+
+    if not inserted:
+        return  # 処理済み（重複配信）のためスキップします。
+
+    fulfill_order(event.payload["order_id"])
+```
+
+<Tip>
+  ID を保持しておく必要があるのは、Relaybox が再試行する可能性のある期間だけです (デフォルトのスケジュールでは約 2 日間) 。クリーンアップジョブを 1 日 1 回実行すれば十分です。
+</Tip>

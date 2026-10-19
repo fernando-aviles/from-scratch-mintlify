@@ -1,0 +1,59 @@
+---
+title: "SDK de Node.js"
+sidebarTitle: "Descripción general"
+description: "Publica eventos y verifica webhooks desde Node.js y Bun."
+icon: "node-js"
+---
+
+import SdkIntro from "/snippets/es/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/es/code/publish-event.mdx";
+
+<SdkIntro language="node" />
+
+## Instalación {#install}
+
+<CodeGroup>
+  ```bash npm
+  npm install @relaybox/node
+  ```
+
+  ```bash pnpm
+  pnpm add @relaybox/node
+  ```
+
+  ```bash yarn
+  yarn add @relaybox/node
+  ```
+
+  ```bash bun
+  bun add @relaybox/node
+  ```
+</CodeGroup>
+
+El paquete incluye compilaciones ESM y CommonJS, además de los tipos de TypeScript.
+
+## Crear un cliente {#create-a-client}
+
+```typescript
+import { Relaybox } from "@relaybox/node";
+
+const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY);
+```
+
+Crea un solo cliente y reutilízalo. El cliente mantiene activas las conexiones HTTP entre una solicitud y otra.
+
+## Publicar un evento {#publish-an-event}
+
+<PublishEvent />
+
+## Próximos pasos {#next-steps}
+
+<CardGroup cols={2}>
+  <Card title="Configuración" icon="sliders" href="/es/sdks/node/configuration">
+    Tiempos de espera, reintentos, regiones y el worker de outbox.
+  </Card>
+
+  <Card title="Controladores de webhooks" icon="inbox" href="/es/sdks/node/webhook-handlers">
+    Verifica firmas en Express, Fastify, Next.js y Hono.
+  </Card>
+</CardGroup>

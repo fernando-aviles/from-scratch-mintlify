@@ -1,0 +1,54 @@
+---
+title: "Python SDK"
+sidebarTitle: "개요"
+description: "Python에서 이벤트를 게시하고 웹훅을 검증합니다."
+icon: "python"
+---
+
+import SdkIntro from "/snippets/ko/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/ko/code/publish-event.mdx";
+
+<SdkIntro language="python" />
+
+## 설치 {#install}
+
+<CodeGroup>
+  ```bash pip
+  pip install relaybox
+  ```
+
+  ```bash uv
+  uv add relaybox
+  ```
+
+  ```bash Poetry
+  poetry add relaybox
+  ```
+</CodeGroup>
+
+## 클라이언트 생성 {#create-a-client}
+
+```python
+import os
+from relaybox import Relaybox
+
+relaybox = Relaybox(os.environ["RELAYBOX_API_KEY"])
+```
+
+클라이언트는 스레드로부터 안전합니다. 애플리케이션 시작 시 한 번만 생성한 후 공유해서 사용하세요.
+
+## 이벤트 게시하기 {#publish-an-event}
+
+<PublishEvent />
+
+## 다음 단계 {#next-steps}
+
+<CardGroup cols={2}>
+  <Card title="구성" icon="sliders" href="/ko/sdks/python/configuration">
+    타임아웃, 재시도, 리전을 설정합니다.
+  </Card>
+
+  <Card title="비동기 사용" icon="bolt" href="/ko/sdks/python/async-usage">
+    asyncio, FastAPI, Django 비동기 뷰에서 SDK를 사용하는 방법을 알아봅니다.
+  </Card>
+</CardGroup>

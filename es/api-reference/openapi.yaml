@@ -1,0 +1,572 @@
+openapi: 3.1.0
+info:
+  title: Relaybox API
+  version: 3.4.0
+  description: >
+    La API de Relaybox permite publicar eventos, gestionar puntos de conexión e
+    inspeccionar las entregas.
+
+    Todas las solicitudes deben realizarse mediante HTTPS y autenticarse con una
+    clave de API.
+  contact:
+    name: Relaybox Support
+    email: support@relaybox.dev
+servers:
+  - url: https://api.relaybox.dev/v3
+    description: Producción
+security:
+  - bearerAuth: []
+tags:
+  - name: Events
+    description: Publicar, listar y reenviar eventos.
+  - name: Endpoints
+    description: Gestionar las URL que reciben eventos.
+paths:
+  /events:
+    post:
+      tags:
+        - Events
+      summary: Publicar un evento
+      description: >
+        Publica un nuevo evento. Relaybox almacena el evento y lo entrega de
+        forma asíncrona
+
+        a cada punto de conexión suscrito a su tipo. Una respuesta satisfactoria
+        indica que el evento
+
+        se ha aceptado, no que se haya entregado.
+      operationId: createEvent
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventCreate"
+            example:
+              type: order.paid
+              ordering_key: customer_381
+              payload:
+                order_id: ord_8Hx2kP
+                amount: 4200
+                currency: usd
+      responses:
+        "202":
+          description: Se ha aceptado el evento para su entrega.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "409":
+          description: La clave de idempotencia ya se ha utilizado con un cuerpo de
+            solicitud diferente.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    get:
+      tags:
+        - Events
+      summary: Listar eventos
+      description: Devuelve eventos en orden cronológico inverso. Los resultados se
+        paginan mediante cursores.
+      operationId: listEvents
+      parameters:
+        - name: type
+          in: query
+          description: Devolver solo eventos de este tipo. Admite comodines como `order.*`.
+          schema:
+            type: string
+        - name: created_after
+          in: query
+          description: Devolver solo eventos creados después de este momento.
+          schema:
+            type: string
+            format: date-time
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Una página de eventos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Event"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+                    description: Pasa este valor como `cursor` para obtener la página siguiente. Es
+                      `null` cuando no hay más resultados.
+  /events/{event_id}:
+    get:
+      tags:
+        - Events
+      summary: Obtener un evento
+      description: Obtiene un único evento, incluido un resumen de su estado de
+        entrega para cada punto de conexión.
+      operationId: getEvent
+      parameters:
+        - $ref: "#/components/parameters/EventId"
+      responses:
+        "200":
+          description: El evento.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /events/replay:
+    post:
+      tags:
+        - Events
+      summary: Reenviar eventos
+      description: >
+        Reenvía eventos anteriores a uno o varios puntos de conexión. Los
+        reenvíos se procesan en
+
+        segundo plano; los de gran volumen pueden tardar varios minutos en
+        completarse.
+      operationId: replayEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - endpoint_id
+              properties:
+                endpoint_id:
+                  type: string
+                  description: El punto de conexión al que reenviar los eventos.
+                event_ids:
+                  type: array
+                  items:
+                    type: string
+                  description: Eventos específicos que se reenviarán. No se puede combinar con
+                    `since` y `until`.
+                since:
+                  type: string
+                  format: date-time
+                  description: Reenviar eventos creados a partir de este momento, inclusive.
+                until:
+                  type: string
+                  format: date-time
+                  description: Reenviar eventos creados antes de este momento.
+                status:
+                  type: string
+                  enum:
+                    - failed
+                    - all
+                  default: failed
+                  description: Reenviar solo los eventos cuya entrega a este punto de conexión
+                    haya fallado, o todos los eventos.
+      responses:
+        "202":
+          description: Se ha programado el reenvío.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  replay_id:
+                    type: string
+                    example: rpl_3Fk8Lm
+                  event_count:
+                    type: integer
+                    description: El número de eventos que se reenviarán.
+                    example: 1284
+  /endpoints:
+    post:
+      tags:
+        - Endpoints
+      summary: Crear un punto de conexión
+      description: Crea un punto de conexión. El secreto de firma se devuelve
+        únicamente en esta respuesta.
+      operationId: createEndpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EndpointCreate"
+      responses:
+        "201":
+          description: Se ha creado el punto de conexión.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Endpoint"
+                  - type: object
+                    properties:
+                      signing_secret:
+                        type: string
+                        description: El secreto de firma del punto de conexión. Guárdalo de forma
+                          segura; no volverá a mostrarse.
+                        example: whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+    get:
+      tags:
+        - Endpoints
+      summary: Listar puntos de conexión
+      description: Devuelve todos los puntos de conexión del entorno.
+      operationId: listEndpoints
+      parameters:
+        - name: status
+          in: query
+          description: Devolver solo puntos de conexión en este estado.
+          schema:
+            type: string
+            enum:
+              - enabled
+              - paused
+              - disabled
+              - pending_verification
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: Una página de puntos de conexión.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Endpoint"
+                  next_cursor:
+                    type:
+                      - string
+                      - "null"
+  /endpoints/{endpoint_id}:
+    patch:
+      tags:
+        - Endpoints
+      summary: Actualizar un punto de conexión
+      description: Actualiza un punto de conexión. Solo se modifican los campos que envíes.
+      operationId: updateEndpoint
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                description:
+                  type: string
+                event_types:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  enum:
+                    - enabled
+                    - paused
+                  description: Pausar o reanudar el punto de conexión. No puedes establecer
+                    directamente su estado en `disabled`.
+      responses:
+        "200":
+          description: El punto de conexión actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Endpoint"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags:
+        - Endpoints
+      summary: Eliminar un punto de conexión
+      description: Elimina definitivamente un punto de conexión. Se cancelan las
+        entregas pendientes a este punto de conexión.
+      operationId: deleteEndpoint
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      responses:
+        "204":
+          description: Se ha eliminado el punto de conexión.
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /endpoints/{endpoint_id}/rotate-secret:
+    post:
+      tags:
+        - Endpoints
+      summary: Rotar el secreto de firma de un punto de conexión
+      description: >
+        Genera un nuevo secreto de firma. Durante el período de solapamiento,
+        las solicitudes se firman
+
+        con el secreto anterior y el nuevo, para que puedas poner en uso el
+        nuevo secreto sin perder eventos.
+      operationId: rotateEndpointSecret
+      parameters:
+        - $ref: "#/components/parameters/EndpointId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                overlap_hours:
+                  type: integer
+                  minimum: 0
+                  maximum: 168
+                  default: 24
+                  description: Tiempo durante el que sigue siendo válido el secreto anterior. Usa
+                    `0` si este se ha filtrado.
+      responses:
+        "200":
+          description: El nuevo secreto.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  signing_secret:
+                    type: string
+                    example: whsec_C2FVsBQIhrscChlQIMV+b5sSYspob7oD
+                  old_secret_expires_at:
+                    type: string
+                    format: date-time
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Tu clave de API de Relaybox, por ejemplo `rbx_live_...`.
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: Una clave única que permite reintentar la solicitud de forma
+        segura. Las claves caducan a las 24 horas.
+      schema:
+        type: string
+        maxLength: 255
+    Limit:
+      name: limit
+      in: query
+      description: El número máximo de resultados que se devolverán, entre 1 y 100.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    Cursor:
+      name: cursor
+      in: query
+      description: El valor de `next_cursor` de una respuesta anterior.
+      schema:
+        type: string
+    EventId:
+      name: event_id
+      in: path
+      required: true
+      description: El ID del evento, que empieza por `evt_`.
+      schema:
+        type: string
+    EndpointId:
+      name: endpoint_id
+      in: path
+      required: true
+      description: El ID del punto de conexión, que empieza por `ep_`.
+      schema:
+        type: string
+  schemas:
+    EventCreate:
+      type: object
+      required:
+        - type
+        - payload
+      properties:
+        type:
+          type: string
+          description: El tipo de evento, como `order.paid`. En minúsculas y con segmentos
+            separados por puntos.
+          maxLength: 128
+        payload:
+          type: object
+          description: Los datos de tu evento. Cualquier objeto JSON de hasta 256 KB.
+          additionalProperties: true
+        ordering_key:
+          type: string
+          description: Los eventos con la misma clave de ordenación se entregan en orden a
+            cada punto de conexión.
+          maxLength: 256
+        application:
+          type: string
+          description: Entregar solo a los puntos de conexión de esta aplicación. Usa tu
+            propio ID de cliente.
+        metadata:
+          type: object
+          description: Hasta 20 pares clave-valor de tipo cadena para el filtrado y el
+            enrutamiento.
+          additionalProperties:
+            type: string
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          example: evt_2b7XqLm9TfR4
+        type:
+          type: string
+          example: order.paid
+        created_at:
+          type: string
+          format: date-time
+        ordering_key:
+          type:
+            - string
+            - "null"
+        payload:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+        deliveries:
+          type: array
+          description: Un resumen del estado de entrega para cada punto de conexión
+            suscrito.
+          items:
+            type: object
+            properties:
+              endpoint_id:
+                type: string
+              status:
+                type: string
+                enum:
+                  - pending
+                  - delivered
+                  - failed
+                  - skipped
+                description: "`skipped` significa que una transformación ha devuelto `null`."
+              attempts:
+                type: integer
+    EndpointCreate:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          description: La URL a la que se entregarán los eventos. Debe usar HTTPS en
+            producción.
+        description:
+          type: string
+          description: Una nota legible para las personas que aparece en el panel de
+            control.
+        event_types:
+          type: array
+          items:
+            type: string
+          description: Tipos de evento a los que suscribirse. Omite este campo para
+            suscribirte a todos los eventos.
+        rate_limit:
+          type: object
+          properties:
+            requests:
+              type: integer
+            per:
+              type: string
+              enum:
+                - second
+                - minute
+    Endpoint:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ep_5Np8Wz
+        url:
+          type: string
+          format: uri
+        description:
+          type: string
+        event_types:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum:
+            - enabled
+            - paused
+            - disabled
+            - pending_verification
+        created_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: Un código de error procesable por máquina. Consulta la página de
+                errores para ver la lista completa.
+              example: invalid_request
+            message:
+              type: string
+              description: Una explicación legible para las personas. No la proceses mediante
+                código, ya que puede cambiar.
+              example: The field `type` is required.
+            request_id:
+              type: string
+              description: Incluye este valor al contactar con el equipo de soporte.
+              example: req_8sKd02LmQ
+            docs_url:
+              type: string
+              format: uri
+  responses:
+    InvalidRequest:
+      description: La solicitud tenía un formato incorrecto o le faltaba un campo
+        obligatorio.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: El recurso no existe en este entorno.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: Demasiadas solicitudes. Espera el número de segundos indicado en la
+        cabecera `Retry-After`.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

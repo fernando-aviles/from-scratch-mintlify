@@ -1,0 +1,59 @@
+---
+title: "Node.js SDK"
+sidebarTitle: "개요"
+description: "Node.js와 Bun에서 이벤트를 게시하고 웹훅을 검증합니다."
+icon: "node-js"
+---
+
+import SdkIntro from "/snippets/ko/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/ko/code/publish-event.mdx";
+
+<SdkIntro language="node" />
+
+## 설치 {#install}
+
+<CodeGroup>
+  ```bash npm
+  npm install @relaybox/node
+  ```
+
+  ```bash pnpm
+  pnpm add @relaybox/node
+  ```
+
+  ```bash yarn
+  yarn add @relaybox/node
+  ```
+
+  ```bash bun
+  bun add @relaybox/node
+  ```
+</CodeGroup>
+
+이 패키지는 ESM 빌드와 CommonJS 빌드를 모두 제공하며, TypeScript 타입 정의도 포함되어 있습니다.
+
+## 클라이언트 생성 {#create-a-client}
+
+```typescript
+import { Relaybox } from "@relaybox/node";
+
+const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY);
+```
+
+클라이언트는 하나만 생성해 재사용하세요. 클라이언트는 요청 사이에 HTTP 연결을 계속 유지합니다.
+
+## 이벤트 게시하기 {#publish-an-event}
+
+<PublishEvent />
+
+## 다음 단계 {#next-steps}
+
+<CardGroup cols={2}>
+  <Card title="구성" icon="sliders" href="/ko/sdks/node/configuration">
+    타임아웃, 재시도, 리전, 아웃박스 워커를 설정합니다.
+  </Card>
+
+  <Card title="웹훅 핸들러" icon="inbox" href="/ko/sdks/node/webhook-handlers">
+    Express, Fastify, Next.js, Hono에서 서명을 검증합니다.
+  </Card>
+</CardGroup>

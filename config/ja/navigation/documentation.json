@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "group": "はじめに",
+      "pages": [
+        "ja/index",
+        "ja/get-started/quickstart",
+        "ja/get-started/how-it-works",
+        "ja/get-started/glossary"
+      ]
+    },
+    {
+      "group": "基本概念",
+      "pages": [
+        "ja/concepts/events",
+        "ja/concepts/endpoints",
+        {
+          "group": "配信",
+          "icon": "truck-fast",
+          "root": "ja/concepts/delivery/overview",
+          "pages": [
+            "ja/concepts/delivery/retries",
+            "ja/concepts/delivery/ordering",
+            "ja/concepts/delivery/idempotency"
+          ]
+        },
+        "ja/concepts/signatures"
+      ]
+    },
+    {
+      "group": "アカウントと請求",
+      "$ref": "./documentation/account.json"
+    }
+  ]
+}

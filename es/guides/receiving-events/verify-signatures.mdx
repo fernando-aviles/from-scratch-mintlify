@@ -1,0 +1,58 @@
+---
+title: "Verificar firmas de webhooks"
+sidebarTitle: "Verificar firmas"
+description: "Añade la verificación de firmas a tu punto de conexión con solo unas líneas de código."
+---
+
+import VerifySignature from "/snippets/es/code/verify-signature.mdx";
+import NeedHelp from "/snippets/es/shared/need-help.mdx";
+
+Esta guía te muestra cómo verificar firmas con un SDK. Si quieres una explicación del esquema de firma en sí, consulta [Firmas](/es/concepts/signatures).
+
+<Steps>
+  <Step title="Encuentra tu secreto de firma">
+    En el panel, abre el punto de conexión y haz clic en **Reveal** junto a **Secreto de firma**. Empieza por `whsec_`.
+
+    Guárdalo en una variable de entorno llamada `RELAYBOX_SIGNING_SECRET`.
+  </Step>
+
+  <Step title="Lee el cuerpo sin procesar">
+    Configura tu framework para poder acceder al cuerpo de la solicitud **antes** de que se analice como JSON. Cómo hacerlo depende del framework; en los ejemplos siguientes se muestran los más habituales.
+  </Step>
+
+  <Step title="Verifica y luego procesa">
+    <VerifySignature />
+  </Step>
+
+  <Step title="Pruébalo">
+    Usa la CLI para enviar un evento correctamente firmado y, después, envía uno falsificado para comprobar que se rechaza:
+
+    ```bash
+    # Debería aceptarse
+    relaybox trigger order.paid
+
+    # Debería rechazarse con un 400
+    curl -X POST http://localhost:3000/webhooks \
+      -H "Relaybox-Signature: v1,not-a-real-signature" \
+      -d '{"type": "order.paid"}'
+    ```
+  </Step>
+</Steps>
+
+## Solución de problemas {#troubleshooting}
+
+<AccordionGroup>
+  <Accordion title="Todas las solicitudes fallan la verificación">
+    Lo más probable es que estés verificando un cuerpo que ya se analizó y se volvió a serializar. Registra los bytes exactos que pasas a `verify()` y compáralos con la carga útil que aparece en el registro de entregas.
+  </Accordion>
+
+  <Accordion title="La verificación falla solo en producción">
+    Comprueba que en producción se use el secreto del punto de conexión de producción. Cada punto de conexión tiene su propio secreto, y los puntos de conexión de prueba y de producción nunca lo comparten.
+  </Accordion>
+
+  <Accordion title="La verificación falla con el error «timestamp too old»">
+    El reloj de tu servidor se está desincronizando. Asegúrate de que NTP esté en ejecución. Como solución temporal, puedes aumentar la tolerancia en el SDK, pero no la establezcas en más de 15 minutos.
+  </Accordion>
+</AccordionGroup>
+
+<NeedHelp />

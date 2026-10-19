@@ -1,0 +1,68 @@
+<CodeGroup>
+  ```bash cURL
+  curl https://api.relaybox.dev/v3/events \
+    -H "Authorization: Bearer $RELAYBOX_API_KEY" \
+    -H "Content-Type: application/json" \
+    -d '{
+      "type": "order.paid",
+      "payload": {
+        "order_id": "ord_8Hx2kP",
+        "amount": 4200,
+        "currency": "usd"
+      }
+    }'
+  ```
+
+  ```javascript Node.js
+  import { Relaybox } from "@relaybox/node";
+
+  const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY);
+
+  const event = await relaybox.events.create({
+    type: "order.paid",
+    payload: {
+      order_id: "ord_8Hx2kP",
+      amount: 4200,
+      currency: "usd",
+    },
+  });
+
+  console.log(`Published event ${event.id}`);
+  ```
+
+  ```python Python
+  import os
+  from relaybox import Relaybox
+
+  relaybox = Relaybox(os.environ["RELAYBOX_API_KEY"])
+
+  event = relaybox.events.create(
+      type="order.paid",
+      payload={
+          "order_id": "ord_8Hx2kP",
+          "amount": 4200,
+          "currency": "usd",
+      },
+  )
+
+  print(f"Published event {event.id}")
+  ```
+
+  ```go Go
+  client := relaybox.NewClient(os.Getenv("RELAYBOX_API_KEY"))
+
+  event, err := client.Events.Create(ctx, &relaybox.EventParams{
+  	Type: "order.paid",
+  	Payload: map[string]any{
+  		"order_id": "ord_8Hx2kP",
+  		"amount":   4200,
+  		"currency": "usd",
+  	},
+  })
+  if err != nil {
+  	log.Fatalf("publish failed: %v", err)
+  }
+
+  fmt.Printf("Published event %s\n", event.ID)
+  ```
+</CodeGroup>

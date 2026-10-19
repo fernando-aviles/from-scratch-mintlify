@@ -1,0 +1,61 @@
+---
+title: "CLI を使ってローカルで開発する"
+sidebarTitle: "ローカル開発"
+description: "ノート PC をインターネットに公開せずに、実際のイベントを手元の環境に転送します。"
+---
+
+ノート PC にはパブリック URL がないため、Relaybox から直接配信することはできません。`relaybox listen` コマンドは、Relaybox へのアウトバウンド接続を確立し、イベントをローカルのポートに転送することで、この問題を解決します。
+
+## イベントを転送する {#forward-events}
+
+```bash
+relaybox listen --forward-to http://localhost:3000/webhooks
+```
+
+```text Output
+✔ Connected as dana@example.com (test environment)
+✔ Temporary endpoint ep_dev_4Lk9 is subscribed to all event types
+
+Waiting for events… Press Ctrl+C to stop.
+
+14:32:07  order.paid        evt_2b7XqLm9TfR4  → 204 No Content (38 ms)
+14:32:09  order.shipped     evt_2b7XqLp1VbN2  → 500 Internal Server Error (12 ms)
+```
+
+一時エンドポイントは、コマンドを停止すると削除されます。
+
+## 便利なフラグ {#useful-flags}
+
+<ParamField path="--events" type="string">
+  サブスクライブするイベントタイプをカンマ区切りで指定します。ワイルドカードを使用できます。デフォルトではすべてのイベントが対象です。
+</ParamField>
+
+<ParamField path="--forward-to" type="string" required>
+  イベントの転送先となるローカル URL です。
+</ParamField>
+
+<ParamField path="--skip-verify" type="boolean">
+  転送するリクエストに署名しません。検証コードをまだ実装していない場合に便利です。検証処理のバグを回避する目的では**絶対に**使用しないでください。
+</ParamField>
+
+<ParamField path="--print-json" type="boolean">
+  1 行の概要ではなく、各ペイロードの全体を出力します。
+</ParamField>
+
+## テストイベントをトリガーする {#trigger-test-events}
+
+実際のトラフィックが発生するのを待つ必要はありません。任意の種類のサンプルイベントを送信できます。
+
+```bash
+relaybox trigger order.paid
+```
+
+または、テスト環境の実際のイベントを再送することもできます：
+
+```bash
+relaybox events replay evt_2b7XqLm9TfR4 --to ep_dev_4Lk9
+```
+
+<Tip>
+  `relaybox fixtures` を実行すると、組み込みのサンプルイベントタイプをすべて確認できます。プロジェクト内の `.relaybox/fixtures` フォルダーに独自のフィクスチャを追加することもできます。
+</Tip>

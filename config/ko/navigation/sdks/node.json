@@ -1,0 +1,18 @@
+{
+  "groups": [
+    {
+      "group": "Node.js SDK",
+      "pages": [
+        "ko/sdks/node/overview",
+        "ko/sdks/node/configuration",
+        "ko/sdks/node/webhook-handlers"
+      ]
+    },
+    {
+      "group": "리소스",
+      "pages": [
+        "ko/sdks/support-policy"
+      ]
+    }
+  ]
+}

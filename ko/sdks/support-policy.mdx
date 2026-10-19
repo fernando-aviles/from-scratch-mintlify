@@ -1,0 +1,34 @@
+---
+title: "SDK 지원 정책"
+sidebarTitle: "지원 정책"
+description: "지원하는 SDK 버전과 런타임, 그리고 각각의 지원 기간을 안내합니다."
+icon: "life-ring"
+---
+
+import { sdks } from "/snippets/ko/data/sdk-versions.mdx";
+
+## 버전 {#versions}
+
+각 SDK의 **현재 메이저 버전**에는 새로운 기능과 버그 수정을 제공하고, **이전 메이저 버전**에는 새 메이저 버전 출시 후 12개월 동안 보안 수정을 제공합니다.
+
+| SDK                | 현재 버전                              | 최소 런타임                | 상태                   |
+| ------------------ | ---------------------------------- | --------------------- | -------------------- |
+| {sdks.node.name}   | <code>{sdks.node.version}</code>   | {sdks.node.runtime}   | {sdks.node.status}   |
+| {sdks.python.name} | <code>{sdks.python.version}</code> | {sdks.python.runtime} | {sdks.python.status} |
+| {sdks.go.name}     | <code>{sdks.go.version}</code>     | {sdks.go.runtime}     | {sdks.go.status}     |
+
+## 런타임 {#runtimes}
+
+해당 런타임 프로젝트에서 아직 유지 관리 중인 모든 런타임 버전을 지원합니다. 런타임이 지원 종료(EOL)되면 다음 **마이너** SDK 릴리스부터 해당 런타임을 더 이상 지원하지 않으며, 이 변경 사항은 [변경 로그](/ko/changelog)에 기록합니다.
+
+## 유의적 버전 관리 {#semantic-versioning}
+
+SDK는 [유의적 버전 관리](https://semver.org) 규칙을 따릅니다.
+
+* **패치** 릴리스는 버그를 수정합니다.
+* **마이너** 릴리스는 하위 호환성을 유지하면서 기능을 추가합니다.
+* **메이저** 릴리스에는 호환성이 깨지는 변경 사항이 포함될 수 있으며, 항상 마이그레이션 가이드가 함께 제공됩니다.
+
+<Info>
+  `3.0.0-beta.4`와 같은 사전 릴리스 버전은 릴리스마다 호환성이 깨지는 변경 사항이 포함될 수 있습니다. 정확한 버전을 고정하지 않았다면 프로덕션 환경에서는 사용하지 마세요.
+</Info>

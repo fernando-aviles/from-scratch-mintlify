@@ -1,0 +1,56 @@
+---
+title: "Publica tu primer evento"
+description: "Pasa de un simple evento de prueba a un publicador listo para producción, con reintentos e idempotencia."
+---
+
+import Prerequisites from "/snippets/es/shared/prerequisites.mdx";
+import PublishEvent from "/snippets/es/code/publish-event.mdx";
+
+<Prerequisites language="node" environment="production" />
+
+## 1. Publicar un evento {#1-publish-an-event}
+
+La forma más sencilla de publicar es con una sola llamada a la API:
+
+<PublishEvent />
+
+La respuesta devuelve el evento almacenado, incluido su `id`. La entrega se realiza de forma asíncrona, por lo que una respuesta correcta indica que Relaybox **aceptó** el evento, no que se haya entregado.
+
+## 2. Añade una clave de idempotencia {#2-add-an-idempotency-key}
+
+En producción, es inevitable que se produzcan errores de red entre tu servicio y Relaybox. Añade una clave de idempotencia derivada de tus propios datos para poder reintentar una publicación siempre de forma segura:
+
+```javascript {3}
+await relaybox.events.create(
+  { type: "order.paid", payload: { order_id: order.id } },
+  { idempotencyKey: `order-${order.id}-paid` }
+);
+```
+
+Obtén más información en [Idempotencia](/es/concepts/delivery/idempotency).
+
+## 3. Publicar desde una transacción {#3-publish-from-a-transaction}
+
+Un error habitual: la transacción de tu base de datos se confirma y, a continuación, el proceso falla antes de publicar. El evento se pierde. También puede ocurrir lo contrario: publicas y luego la transacción se revierte.
+
+La solución es el patrón de **bandeja de salida transaccional** (*transactional outbox*): escribe el evento en una tabla `outbox` dentro de la misma transacción y deja que un worker independiente se encargue de publicar desde esa tabla.
+
+```sql
+BEGIN;
+  UPDATE orders SET status = 'paid' WHERE id = 'ord_8Hx2kP';
+  INSERT INTO outbox (type, payload) VALUES ('order.paid', '{"order_id": "ord_8Hx2kP"}');
+COMMIT;
+```
+
+<Info>
+  Los SDK de Node.js y Python incluyen un worker de outbox para PostgreSQL. Consulta la [configuración de Node.js](/es/sdks/node/configuration#outbox-worker).
+</Info>
+
+## 4. Pasar a producción {#4-go-live}
+
+Antes de cambiar a tu clave `rbx_live_`, comprueba lo siguiente:
+
+* [ ] Todos los tipos de evento están documentados para los equipos que los consumen
+* [ ] La publicación usa claves de idempotencia
+* [ ] Has configurado una alerta para la tasa de errores de publicación
+* [ ] Tu clave de API solo tiene el ámbito `events:write`

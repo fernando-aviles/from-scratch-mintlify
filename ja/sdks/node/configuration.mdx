@@ -1,0 +1,63 @@
+---
+title: "Node.js SDK を設定する"
+sidebarTitle: "設定"
+description: "Relaybox クライアントに渡せるすべてのオプション。"
+---
+
+オプションは、コンストラクターの第 2 引数として渡します。
+
+```typescript
+const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY, {
+  region: "eu",
+  timeout: 10_000,
+  maxRetries: 5,
+});
+```
+
+## クライアントオプション {#client-options}
+
+<ParamField body="region" type="'us' | 'eu' | 'jp'" default="us">
+  アカウントのデータレジデンシーのリージョンです。ベース URL は自動的に設定されます。
+</ParamField>
+
+<ParamField body="timeout" type="number" default="30000">
+  レスポンスを待機する時間 (ミリ秒) です。この時間を過ぎるとリクエストは失敗します。
+</ParamField>
+
+<ParamField body="maxRetries" type="number" default="3">
+  ネットワークエラー、`429`、または `5xx` で失敗したリクエストを再試行する回数です。自動再試行を無効にするには `0` を設定します。
+</ParamField>
+
+<ParamField body="fetch" type="typeof fetch">
+  カスタムの `fetch` 実装です。トレーシングを追加する場合や、一般的でない環境で実行する場合に便利です。
+</ParamField>
+
+<ParamField body="logger" type="Logger">
+  `debug`、`info`、`warn`、`error` の各メソッドを持つオブジェクトです。デフォルトではログを出力しません。
+</ParamField>
+
+## Outbox ワーカー {#outbox-worker}
+
+Outbox ワーカーは PostgreSQL のテーブルからイベントを発行するため、イベントの発行をデータベーストランザクションの一部として扱えます。詳しい背景については、[トランザクショナルアウトボックスパターン](/ja/guides/sending-events/publish-your-first-event#3-publish-from-a-transaction)を参照してください。
+
+```typescript
+import { OutboxWorker } from "@relaybox/node/outbox";
+import { Pool } from "pg";
+
+const worker = new OutboxWorker({
+  client: relaybox,
+  pool: new Pool({ connectionString: process.env.DATABASE_URL }),
+  table: "outbox",       // デフォルト値
+  batchSize: 100,        // 1回のポーリングで取得するイベント数
+  pollIntervalMs: 500,
+});
+
+await worker.start();
+
+// 処理中のイベントが二重に発行されないよう、シャットダウン時はグレースフルに停止します。
+process.on("SIGTERM", () => worker.stop());
+```
+
+<Note>
+  ワーカーを起動する前に、`node_modules/@relaybox/node/outbox/migration.sql` のマイグレーションを実行して `outbox` テーブルを作成してください。
+</Note>

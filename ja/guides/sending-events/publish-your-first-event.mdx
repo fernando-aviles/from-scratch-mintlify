@@ -1,0 +1,56 @@
+---
+title: "最初のイベントを発行する"
+description: "1 件のテストイベントの発行から始めて、リトライと冪等性を備えた本番環境対応のパブリッシャーを構築します。"
+---
+
+import Prerequisites from "/snippets/ja/shared/prerequisites.mdx";
+import PublishEvent from "/snippets/ja/code/publish-event.mdx";
+
+<Prerequisites language="node" environment="production" />
+
+## 1. イベントを発行する {#1-publish-an-event}
+
+最もシンプルな発行方法は、API を 1 回呼び出すだけです。
+
+<PublishEvent />
+
+レスポンスとして、`id` を含む保存済みのイベントが返されます。配信は非同期で行われるため、成功レスポンスは Relaybox がイベントを**受け付けた**ことを示すだけで、配信が完了したことを意味するわけではありません。
+
+## 2. 冪等性キーを追加する {#2-add-an-idempotency-key}
+
+本番環境では、サービスと Relaybox の間のネットワークエラーは避けられません。自社のデータから生成した冪等性キーを追加し、発行をいつ再試行しても安全なようにしましょう。
+
+```javascript {3}
+await relaybox.events.create(
+  { type: "order.paid", payload: { order_id: order.id } },
+  { idempotencyKey: `order-${order.id}-paid` }
+);
+```
+
+詳しくは[冪等性](/ja/concepts/delivery/idempotency)をご覧ください。
+
+## 3. トランザクションから発行する {#3-publish-from-a-transaction}
+
+よくあるバグとして、データベースのトランザクションがコミットされた後、イベントを発行する前にプロセスがクラッシュするケースがあります。この場合、イベントは失われます。逆に、イベントを発行した後でトランザクションがロールバックされることもあります。
+
+この問題は **トランザクショナルアウトボックス** パターンで解決できます。イベントを同じトランザクション内で `outbox` テーブルに書き込み、別のワーカーがそのテーブルからイベントを発行するようにします。
+
+```sql
+BEGIN;
+  UPDATE orders SET status = 'paid' WHERE id = 'ord_8Hx2kP';
+  INSERT INTO outbox (type, payload) VALUES ('order.paid', '{"order_id": "ord_8Hx2kP"}');
+COMMIT;
+```
+
+<Info>
+  Node.js と Python の SDK には、PostgreSQL 用のアウトボックスワーカーが用意されています。詳しくは [Node.js の設定](/ja/sdks/node/configuration#outbox-worker)を参照してください。
+</Info>
+
+## 4. 本番運用を開始する {#4-go-live}
+
+`rbx_live_` キーに切り替える前に、次の点を確認してください。
+
+* [ ] すべてのイベントタイプについて、それを利用するチーム向けのドキュメントが用意されている
+* [ ] イベントの発行時に冪等性キーを使用している
+* [ ] 発行エラー率に対するアラートを設定している
+* [ ] APIキーに付与されているスコープが `events:write` のみである

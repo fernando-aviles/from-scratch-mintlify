@@ -1,0 +1,51 @@
+---
+title: "Firmas"
+description: "Todas las solicitudes de Relaybox van firmadas para que tu punto de conexión pueda rechazar solicitudes falsificadas o repetidas."
+icon: "signature"
+---
+
+import VerifySignature from "/snippets/es/code/verify-signature.mdx";
+
+Cualquiera que conozca la URL de tu punto de conexión puede enviarle una solicitud. Las firmas te permiten comprobar que una solicitud proviene de Relaybox y que no se modificó por el camino.
+
+## Cómo funciona la firma {#how-signing-works}
+
+Cada punto de conexión tiene un **secreto de firma** que empieza por `whsec_`. En cada entrega, Relaybox:
+
+1. Construye una cadena con el ID del evento, la marca de tiempo Unix actual y el cuerpo sin procesar de la solicitud, separados por puntos: `{id}.{timestamp}.{body}`.
+2. Calcula un HMAC-SHA256 de esa cadena con el secreto.
+3. Envía el resultado, junto con la marca de tiempo, en el encabezado `Relaybox-Signature`.
+
+```http
+POST /webhooks HTTP/1.1
+Content-Type: application/json
+Relaybox-Event-Id: evt_2b7XqLm9TfR4
+Relaybox-Timestamp: 1792420327
+Relaybox-Signature: v1,K5oZfzN95Z9UVu1EsfQmfVNQhnkZ2pj9o9NDN/H/pI4=
+```
+
+## Verifica la firma {#verify-the-signature}
+
+Te recomendamos encarecidamente usar un SDK, ya que se encarga por ti de la comparación en tiempo constante y de la validación de la marca de tiempo:
+
+<VerifySignature />
+
+<Warning>
+  Realiza siempre la verificación con el cuerpo **sin procesar** de la solicitud. Los frameworks que analizan el JSON y lo vuelven a serializar pueden alterar los espacios en blanco o el orden de las claves, lo que invalida la firma.
+</Warning>
+
+## Protección contra ataques de repetición {#protecting-against-replay-attacks}
+
+Una firma válida solo demuestra que Relaybox envió la solicitud *en algún momento*. Para impedir que un atacante intercepte una solicitud y la vuelva a enviar más tarde, los SDK rechazan cualquier solicitud cuya marca de tiempo tenga más de cinco minutos de antigüedad.
+
+Si verificas las firmas manualmente, compara `Relaybox-Timestamp` con el reloj de tu servidor y rechaza cualquier solicitud que quede fuera de tu margen de tolerancia.
+
+## Varias firmas durante la rotación {#multiple-signatures-during-rotation}
+
+Cuando [rotas un secreto](/es/api-reference/endpoints/rotate-secret), Relaybox firma con el secreto anterior y con el nuevo durante 24 horas. Durante ese periodo, el encabezado contiene dos firmas separadas por un espacio:
+
+```text
+Relaybox-Signature: v1,K5oZfz...pI4= v1,9xQ2mL...aB8=
+```
+
+Una solicitud es válida si coincide **cualquiera** de las firmas. Los SDK se encargan de esto automáticamente.

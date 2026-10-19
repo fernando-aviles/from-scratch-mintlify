@@ -1,0 +1,46 @@
+---
+title: "Python SDK の設定"
+sidebarTitle: "設定"
+description: "Relaybox クライアントに渡せるすべてのオプションについて説明します。"
+---
+
+```python
+relaybox = Relaybox(
+    os.environ["RELAYBOX_API_KEY"],
+    region="eu",
+    timeout=10.0,
+    max_retries=5,
+)
+```
+
+## クライアントオプション {#client-options}
+
+<ParamField body="region" type="str" default="us">
+  アカウントのデータレジデンシーリージョン。`"us"`、`"eu"`、`"jp"` のいずれかです。
+</ParamField>
+
+<ParamField body="timeout" type="float" default="30.0">
+  レスポンスを待機する時間 (秒) 。
+</ParamField>
+
+<ParamField body="max_retries" type="int" default="3">
+  ネットワークエラー、`429`、または `5xx` で失敗したリクエストを再試行する回数。
+</ParamField>
+
+<ParamField body="http_client" type="httpx.Client">
+  事前に設定済みの `httpx` クライアント。プロキシやカスタム TLS 設定を使用する場合に指定します。
+</ParamField>
+
+## ログ出力 {#logging}
+
+SDK は標準の `logging` モジュールを通じて、`relaybox` ロガーにログを出力します。すべてのリクエストを確認するには、次のように設定します。
+
+```python
+import logging
+
+logging.getLogger("relaybox").setLevel(logging.DEBUG)
+```
+
+<Warning>
+  デバッグログにはリクエストボディが記録され、個人データが含まれる可能性があります。本番環境ではデバッグログを有効にしないでください。
+</Warning>

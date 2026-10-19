@@ -1,0 +1,67 @@
+---
+title: "顧客にWebhookを提供する"
+sidebarTitle: "顧客へのファンアウト"
+description: "アプリケーションとカスタマーポータルを使用して、各顧客のエンドポイントにWebhookを送信します。"
+---
+
+プラットフォームを構築しているなら、顧客はおそらく*自社のプラットフォーム*からWebhookを受け取りたいと考えているはずです。Relayboxを使えば、配信基盤を自前で構築することなく、顧客にWebhookを提供できます。
+
+## アプリケーション {#applications}
+
+**アプリケーション**は、お客様の顧客 1 社を表します。アプリケーションごとに専用のエンドポイントがあり、あるアプリケーションにパブリッシュされたイベントは、そのアプリケーションのエンドポイントにのみ配信されます。
+
+```javascript
+// 顧客ごとにアプリケーションを1つ作成します（通常はサインアップ時）。
+const app = await relaybox.applications.create({
+  name: "Acme Corp",
+  uid: customer.id, // 自社のIDを使用するため、Relaybox側のIDを保存する必要はありません
+});
+
+// その顧客に対してのみパブリッシュします。
+await relaybox.events.create({
+  application: customer.id,
+  type: "invoice.created",
+  payload: { invoice_id: "inv_492" },
+});
+```
+
+## カスタマーポータル {#customer-portal}
+
+顧客には、エンドポイントの追加、配信状況の確認、失敗した配信の再送を行うための手段が必要です。**カスタマーポータル**は、アプリに埋め込んで使える構築済みのUIです。
+
+```html
+<relaybox-portal
+  publishable-key="rbx_pub_..."
+  session-token="{{ token_from_your_backend }}"
+  theme="auto"
+></relaybox-portal>
+<script src="https://cdn.relaybox.dev/portal/v3.js" async></script>
+```
+
+セッショントークンは、1 つのアプリケーションにスコープを限定してサーバー側で生成します。
+
+```javascript
+const { token } = await relaybox.portal.createSession({
+  application: customer.id,
+  expiresIn: "1h",
+});
+```
+
+<Frame caption="設定ページに埋め込まれたカスタマーポータル">
+  <img src="/images/screenshots/customer-portal.svg" alt="エンドポイントの一覧を表示する埋め込みポータル。各エンドポイントのステータスと直近の配信成功率が表示されている" />
+</Frame>
+
+## ポータルのブランディング {#branding-the-portal}
+
+Team プラン以上では、ポータルの外観を自社製品に合わせてカスタマイズできます。
+
+| 設定                     | 説明                                                            |
+| ---------------------- | ------------------------------------------------------------- |
+| `primaryColor`         | ボタンとリンクの色                                                     |
+| `fontFamily`           | ページで読み込み済みの任意のフォント                                            |
+| `hideRelayboxBranding` | 「Powered by Relaybox」フッターを非表示にします。Scale および Enterprise プランのみ。 |
+| `eventCatalog`         | イベントタイプの説明。顧客がサブスクライブする際に表示されます                               |
+
+<Tip>
+  イベントカタログを充実させると、サポートへの問い合わせを大幅に減らせます。各イベントの内容だけでなく、*いつ*送信されるのかも記載しましょう。
+</Tip>

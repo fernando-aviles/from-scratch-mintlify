@@ -1,0 +1,67 @@
+---
+title: "Ofrece webhooks a tus clientes"
+sidebarTitle: "Distribución a clientes"
+description: "Usa las aplicaciones y el portal de clientes para enviar webhooks a los puntos de conexión de cada uno de tus clientes."
+---
+
+Si estás creando una plataforma, es probable que tus clientes quieran recibir webhooks *tuyos*. Relaybox te permite ofrecérselos sin tener que construir ninguna infraestructura de entrega.
+
+## Aplicaciones {#applications}
+
+Una **aplicación** representa a uno de tus clientes. Cada aplicación tiene sus propios puntos de conexión, y los eventos que se publican en una aplicación solo se entregan a los puntos de conexión de dicha aplicación.
+
+```javascript
+// Crea una aplicación por cliente, normalmente durante el registro.
+const app = await relaybox.applications.create({
+  name: "Acme Corp",
+  uid: customer.id, // tu propio ID, así no tienes que almacenar el nuestro
+});
+
+// Publica solo para ese cliente.
+await relaybox.events.create({
+  application: customer.id,
+  type: "invoice.created",
+  payload: { invoice_id: "inv_492" },
+});
+```
+
+## Portal de clientes {#customer-portal}
+
+Tus clientes necesitan una forma de agregar puntos de conexión, consultar las entregas y hacer el reenvío de las que fallaron. El **portal de clientes** es una interfaz prediseñada que puedes integrar en tu aplicación.
+
+```html
+<relaybox-portal
+  publishable-key="rbx_pub_..."
+  session-token="{{ token_from_your_backend }}"
+  theme="auto"
+></relaybox-portal>
+<script src="https://cdn.relaybox.dev/portal/v3.js" async></script>
+```
+
+Genera el token de sesión en tu servidor, limitado a una sola aplicación:
+
+```javascript
+const { token } = await relaybox.portal.createSession({
+  application: customer.id,
+  expiresIn: "1h",
+});
+```
+
+<Frame caption="El portal de clientes, integrado en una página de configuración.">
+  <img src="/images/screenshots/customer-portal.svg" alt="Un portal integrado que muestra una lista de puntos de conexión, cada uno con su estado y su tasa de éxito de entregas recientes" />
+</Frame>
+
+## Personalizar la marca del portal {#branding-the-portal}
+
+En los planes Team y superiores, puedes adaptar el portal a la imagen de tu producto:
+
+| Ajuste                 | Descripción                                                                 |
+| ---------------------- | --------------------------------------------------------------------------- |
+| `primaryColor`         | Botones y enlaces                                                           |
+| `fontFamily`           | Cualquier fuente que ya esté cargada en tu página                           |
+| `hideRelayboxBranding` | Elimina el pie de página «Powered by Relaybox». Solo en Scale y Enterprise. |
+| `eventCatalog`         | Descripciones de tus tipos de evento, que los clientes ven al suscribirse   |
+
+<Tip>
+  Un buen catálogo de eventos reduce drásticamente las solicitudes de soporte. Describe *cuándo* se envía cada evento, no solo qué contiene.
+</Tip>

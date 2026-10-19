@@ -1,0 +1,8 @@
+{
+  "root": "ko/guides/integrations/overview",
+  "pages": [
+    "ko/guides/integrations/slack",
+    "ko/guides/integrations/stripe",
+    "ko/guides/integrations/github"
+  ]
+}

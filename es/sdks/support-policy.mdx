@@ -1,0 +1,34 @@
+---
+title: "Política de soporte de los SDK"
+sidebarTitle: "Política de soporte"
+description: "Qué versiones de los SDK y qué entornos de ejecución admitimos y durante cuánto tiempo."
+icon: "life-ring"
+---
+
+import { sdks } from "/snippets/es/data/sdk-versions.mdx";
+
+## Versiones {#versions}
+
+Ofrecemos soporte para la **versión principal actual** de cada SDK con nuevas funcionalidades y correcciones de errores, y para la **versión principal anterior** con correcciones de seguridad durante los 12 meses posteriores al lanzamiento de una nueva versión principal.
+
+| SDK                | Versión actual                     | Entorno de ejecución mínimo | Estado               |
+| ------------------ | ---------------------------------- | --------------------------- | -------------------- |
+| {sdks.node.name}   | <code>{sdks.node.version}</code>   | {sdks.node.runtime}         | {sdks.node.status}   |
+| {sdks.python.name} | <code>{sdks.python.version}</code> | {sdks.python.runtime}       | {sdks.python.status} |
+| {sdks.go.name}     | <code>{sdks.go.version}</code>     | {sdks.go.runtime}           | {sdks.go.status}     |
+
+## Entornos de ejecución {#runtimes}
+
+Ofrecemos compatibilidad con todas las versiones de entornos de ejecución que siguen recibiendo mantenimiento por parte de su propio proyecto. Cuando un entorno de ejecución llega al final de su vida útil, dejamos de admitirlo en la siguiente versión **menor** del SDK y lo indicamos en el [registro de cambios](/es/changelog).
+
+## Versionado semántico {#semantic-versioning}
+
+Los SDK siguen el [versionado semántico](https://semver.org):
+
+* Las versiones de **parche** corrigen errores.
+* Las versiones **menores** añaden funcionalidades de forma retrocompatible.
+* Las versiones **principales** pueden incluir cambios incompatibles y siempre se publican con una guía de migración.
+
+<Info>
+  Las versiones preliminares, como `3.0.0-beta.4`, pueden incluir cambios incompatibles de una versión a otra. No las uses en producción salvo que fijes una versión exacta.
+</Info>

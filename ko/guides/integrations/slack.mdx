@@ -1,0 +1,40 @@
+---
+title: "Slack"
+description: "Relaybox 이벤트를 Slack 채널에 게시합니다."
+icon: "slack"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="Slack" logo="/images/integrations/slack.svg" category="대상 · 채팅">
+  이벤트가 게시될 때마다 서식이 적용된 메시지를 채널로 보냅니다.
+</IntegrationHeader>
+
+## 워크스페이스 연결 {#connect-your-workspace}
+
+<Steps>
+  <Step title="Relaybox 권한 부여">
+    대시보드에서 **Integrations → Slack**으로 이동한 후 **Add to Slack**을 클릭합니다. 워크스페이스를 선택하고 요청된 권한을 승인합니다.
+  </Step>
+
+  <Step title="채널 및 이벤트 선택">
+    메시지를 게시할 채널과 메시지를 보낼 이벤트 유형을 선택합니다. 비공개 채널에 게시하려면 먼저 해당 채널에 `/invite @Relaybox`를 입력하여 **Relaybox** 앱을 초대해야 합니다.
+  </Step>
+
+  <Step title="메시지 사용자 지정">
+    템플릿으로 메시지 텍스트를 원하는 대로 구성할 수 있습니다. 템플릿에서는 `{{ }}` 자리 표시자로 이벤트의 필드를 참조합니다.
+
+    ```handlebars
+    :package: Order *{{payload.order_id}}* shipped to {{payload.shipping.city}}.
+    <{{payload.tracking_url}}|Track the package>
+    ```
+  </Step>
+</Steps>
+
+## 속도 제한 {#rate-limits}
+
+Slack은 채널당 초당 약 1개의 메시지만 허용합니다. 이보다 빠르게 게시하면 Relaybox가 메시지를 대기열에 넣은 뒤 Slack이 수락하는 속도에 맞춰 전송합니다.
+
+<Tip>
+  발생량이 많은 이벤트 유형이라면 사람이 실제로 확인해야 하는 이벤트만 전달하도록 [변환](/ko/guides/sending-events/transformations)을 사용해 보세요.
+</Tip>

@@ -1,0 +1,84 @@
+---
+title: "シングルサインオン（SSO）"
+sidebarTitle: "シングルサインオン"
+description: "自社の ID プロバイダーを使って、チームのメンバーが Relaybox にサインインできるようにします。"
+---
+
+対象プラン: <Badge color="purple">Enterprise</Badge>
+
+SSO を使用すると、メンバーは Relaybox のパスワードではなく、自社の ID プロバイダー (IdP) 経由でサインインします。退職したメンバーを IdP で無効化すれば、Relaybox へのアクセス権も同時に失われます。
+
+Relaybox は SAML 2.0 と OpenID Connect に対応しています。
+
+## SSO を設定する {#set-up-sso}
+
+<Tabs>
+  <Tab title="Okta">
+    <Steps>
+      <Step title="Okta でアプリを作成する">
+        Okta の管理コンソールで **Applications → Browse App Catalog** に移動し、**Relaybox** を検索して **Add integration** をクリックします。
+      </Step>
+
+      <Step title="メタデータ URL をコピーする">
+        **Sign On** タブで **Metadata URL** をコピーします。
+      </Step>
+
+      <Step title="Relaybox と接続する">
+        Relaybox で **Settings → Security → Single sign-on** に移動し、**Okta** を選択して、コピーしたメタデータ URL を貼り付けます。
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Microsoft Entra ID">
+    <Steps>
+      <Step title="エンタープライズアプリケーションを登録する">
+        Entra 管理センターで **Enterprise applications → New application → Create your own application** に移動します。名前に「Relaybox」と入力し、**Integrate any other application you don&#39;t find in the gallery** を選択します。
+      </Step>
+
+      <Step title="SAML を構成する">
+        **Single sign-on** で **SAML** を選択します。**Identifier** と **Reply URL** には、Relaybox の **Settings → Security → Single sign-on** に表示されている値を設定します。
+      </Step>
+
+      <Step title="フェデレーションメタデータをアップロードする">
+        **Federation Metadata XML** をダウンロードし、Relaybox にアップロードします。
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Google Workspace">
+    <Steps>
+      <Step title="カスタム SAML アプリを追加する">
+        Google 管理コンソールで **Apps → Web and mobile apps → Add app → Add custom SAML app** に移動します。
+      </Step>
+
+      <Step title="設定情報を相互に登録する">
+        Google から IdP メタデータをダウンロードし、Relaybox に表示されている ACS URL とエンティティ ID を Google 側に入力します。
+      </Step>
+
+      <Step title="アプリを有効にする">
+        **User access** を **ON for everyone** に設定します。または、アクセスを許可する組織部門に対してのみオンにします。
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## SSO を必須にする {#enforce-sso}
+
+テストが完了したら、**Require SSO** をオンにします。パスワードで登録したメンバーは、次回アクセス時に IdP 経由でのサインインを求められます。
+
+<Warning>
+  アカウントオーナーはいつでもパスワードと第 2 要素でサインインできるため、IdP に障害が発生してもログインできなくなることはありません。オーナーアカウントには、強力で他と使い回していないパスワードを必ず設定してください。
+</Warning>
+
+## Just-in-time プロビジョニング {#just-in-time-provisioning}
+
+**Just-in-time provisioning** を有効にすると、IdP の認証を通過したすべてのユーザーに、**Viewer** ロールの Relaybox アカウントが自動で作成されます。より上位の権限を付与するには、IdP グループをロールにマッピングします：
+
+```json
+{
+  "role_mappings": [
+    { "idp_group": "platform-engineering", "role": "admin" },
+    { "idp_group": "engineering", "role": "developer" }
+  ]
+}
+```

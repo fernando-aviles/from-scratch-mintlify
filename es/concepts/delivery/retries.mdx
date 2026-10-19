@@ -1,0 +1,63 @@
+---
+title: "Reintentos"
+description: "Relaybox reintenta las entregas fallidas con retroceso exponencial durante unas 41 horas."
+---
+
+import { retrySchedule, maxRetryWindow } from "/snippets/es/data/retry-schedule.mdx";
+
+Cuando un intento de entrega falla, Relaybox programa otro. Los intervalos de espera aumentan con cada intento para que un servidor sobrecargado tenga tiempo de recuperarse, y añadimos hasta un 10 % de variación aleatoria (jitter) para evitar que miles de reintentos lleguen a la vez.
+
+## Programación de reintentos predeterminada {#default-retry-schedule}
+
+<table>
+  <thead>
+    <tr>
+      <th>Intento</th>
+      <th>Espera desde el intento anterior</th>
+      <th>Tiempo desde el primer intento</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {retrySchedule.map((row) => (
+              <tr key={row.attempt}>
+                <td>{row.attempt}</td>
+                <td>{row.delay}</td>
+                <td>{row.cumulative}</td>
+              </tr>
+            ))}
+  </tbody>
+</table>
+
+Tras el octavo intento, {maxRetryWindow} después del primero, el evento se marca como **fallido** para ese punto de conexión. Aun así, puedes [reenviarlo](/es/api-reference/events/replay) manualmente en cualquier momento dentro de tu período de retención.
+
+## Respuestas que no se reintentan {#responses-that-skip-retries}
+
+Algunas respuestas le indican a Relaybox que reintentar no servirá de nada. Cuando tu punto de conexión devuelve una de ellas, dejamos de intentarlo de inmediato:
+
+| Estado                  | Por qué no reintentamos                                              |
+| ----------------------- | -------------------------------------------------------------------- |
+| `410 Gone`              | El punto de conexión ya no existe. Además, Relaybox lo desactiva.    |
+| `413 Payload Too Large` | La próxima vez, la misma carga útil seguirá siendo demasiado grande. |
+
+<Note>
+  Los códigos `400`, `401` y `404` **sí** se reintentan, porque suelen deberse a un despliegue defectuoso que luego se revierte.
+</Note>
+
+## Personalizar la programación {#customize-the-schedule}
+
+Disponible en: <Badge color="blue">Scale y Enterprise</Badge>
+
+Puedes acortar la programación para eventos urgentes o ampliarla para puntos de conexión que sabes que tendrán tiempos de inactividad programados:
+
+```json
+{
+  "retry_policy": {
+    "max_attempts": 4,
+    "backoff": "exponential",
+    "initial_delay_seconds": 2
+  }
+}
+```
+
+El período máximo es de siete días, sea cual sea el plan.

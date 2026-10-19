@@ -1,0 +1,59 @@
+---
+title: "監査ログ"
+description: "Relaybox アカウントに加えられたすべての変更を、改ざんを検知できる形で記録します。"
+---
+
+利用可能なプラン: <Badge color="green">Scale および Enterprise</Badge>
+
+監査ログには、**誰が**、**いつ**、**どこから**、**何を**行ったかが記録されます。ダッシュボード、API、CLI のいずれから行われた変更も記録の対象です。
+
+## 記録される操作 {#whats-logged}
+
+<AccordionGroup>
+  <Accordion title="エンドポイント">
+    作成、更新、一時停止、再開、削除、シークレットのローテーション。
+  </Accordion>
+
+  <Accordion title="APIキー">
+    作成、ローテーション、失効、スコープの変更。キー自体が記録されることはありません。
+  </Accordion>
+
+  <Accordion title="チーム">
+    メンバーの招待、削除、ロールの変更。所有権の譲渡。
+  </Accordion>
+
+  <Accordion title="セキュリティ設定">
+    SSO の設定または変更、Require SSO のオン/オフの切り替え、IP 許可リストの変更。
+  </Accordion>
+
+  <Accordion title="再送">
+    誰がどのイベントをどのエンドポイントに再送したか。なお、イベントのパブリッシュはすでにイベントログに記録されているため、監査対象の操作には含まれません。
+  </Accordion>
+</AccordionGroup>
+
+## ログエントリの形式 {#log-entry-format}
+
+```json
+{
+  "id": "aud_7Gm3Rk",
+  "action": "endpoint.secret_rotated",
+  "actor": {
+    "type": "member",
+    "email": "dana@example.com"
+  },
+  "target": {
+    "type": "endpoint",
+    "id": "ep_5Np8Wz"
+  },
+  "ip_address": "203.0.113.42",
+  "occurred_at": "2026-10-18T09:15:44Z"
+}
+```
+
+## エクスポート {#exporting}
+
+**Settings → Audit log** からログを CSV 形式でダウンロードできるほか、Datadog、Splunk、S3 バケットへ継続的にストリーミングすることもできます。新しいエントリは 1 分以内にストリーミング先へ配信されます。
+
+<Info>
+  監査ログは、対象となるすべてのプランで 1 年間保持されます。この期間はイベントの保持期間とは関係ありません。
+</Info>

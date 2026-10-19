@@ -1,0 +1,34 @@
+{
+  "groups": [
+    {
+      "group": "概要",
+      "pages": [
+        "ja/api-reference/introduction",
+        "ja/api-reference/authentication",
+        "ja/api-reference/errors",
+        "ja/api-reference/pagination"
+      ]
+    },
+    {
+      "group": "イベント",
+      "icon": "bolt",
+      "pages": [
+        "ja/api-reference/events/create",
+        "ja/api-reference/events/list",
+        "ja/api-reference/events/get",
+        "ja/api-reference/events/replay"
+      ]
+    },
+    {
+      "group": "エンドポイント",
+      "icon": "satellite-dish",
+      "pages": [
+        "ja/api-reference/endpoints/create",
+        "ja/api-reference/endpoints/list",
+        "ja/api-reference/endpoints/update",
+        "ja/api-reference/endpoints/delete",
+        "ja/api-reference/endpoints/rotate-secret"
+      ]
+    }
+  ]
+}

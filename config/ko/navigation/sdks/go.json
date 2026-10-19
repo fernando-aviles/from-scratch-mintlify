@@ -1,0 +1,17 @@
+{
+  "groups": [
+    {
+      "group": "Go SDK",
+      "pages": [
+        "ko/sdks/go/overview",
+        "ko/sdks/go/configuration"
+      ]
+    },
+    {
+      "group": "리소스",
+      "pages": [
+        "ko/sdks/support-policy"
+      ]
+    }
+  ]
+}

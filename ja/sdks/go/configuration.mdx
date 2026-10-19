@@ -1,0 +1,38 @@
+---
+title: "Go SDK の設定"
+sidebarTitle: "設定"
+description: "Relaybox Go クライアントで使用できる Functional Options について説明します。"
+---
+
+Go クライアントは、Functional Options を使って設定します。
+
+```go
+client := relaybox.NewClient(
+	os.Getenv("RELAYBOX_API_KEY"),
+	relaybox.WithRegion(relaybox.RegionEU),
+	relaybox.WithTimeout(10*time.Second),
+	relaybox.WithMaxRetries(5),
+)
+```
+
+## オプション {#options}
+
+| オプション               | デフォルト                | 説明                                              |
+| ------------------- | -------------------- | ----------------------------------------------- |
+| `WithRegion(r)`     | `RegionUS`           | アカウントのデータ所在地 (データレジデンシー) リージョンです。               |
+| `WithTimeout(d)`    | `30s`                | リクエストごとのタイムアウトです。コンテキストの期限のほうが短い場合は、そちらが優先されます。 |
+| `WithMaxRetries(n)` | `3`                  | ネットワークエラー、`429`、`5xx` が発生した場合の再試行回数です。          |
+| `WithHTTPClient(c)` | `http.DefaultClient` | プロキシやトレーシングに使用するカスタムの `*http.Client` です。        |
+
+## エラー処理 {#error-handling}
+
+API エラーは `*relaybox.Error` として返されます。エラーコードを確認するには、`errors.As` を使用します。
+
+```go
+_, err := client.Events.Create(ctx, params)
+
+var apiErr *relaybox.Error
+if errors.As(err, &apiErr) && apiErr.Code == "rate_limited" {
+	// 待機時間を置いてから、後で再試行します。
+}
+```

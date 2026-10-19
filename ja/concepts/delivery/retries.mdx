@@ -1,0 +1,63 @@
+---
+title: "再試行"
+description: "Relaybox は、失敗した配信を指数バックオフで約 41 時間にわたって再試行します。"
+---
+
+import { retrySchedule, maxRetryWindow } from "/snippets/ja/data/retry-schedule.mdx";
+
+配信の試行が失敗すると、Relaybox は次の試行をスケジュールします。負荷のかかったサーバーが回復する時間を確保できるよう、待機時間は試行のたびに長くなります。さらに、大量の再試行が同じタイミングに集中しないよう、最大 10% のランダムなジッターを加えています。
+
+## デフォルトの再試行スケジュール {#default-retry-schedule}
+
+<table>
+  <thead>
+    <tr>
+      <th>試行回数</th>
+      <th>前回の試行からの待機時間</th>
+      <th>初回試行からの経過時間</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {retrySchedule.map((row) => (
+              <tr key={row.attempt}>
+                <td>{row.attempt}</td>
+                <td>{row.delay}</td>
+                <td>{row.cumulative}</td>
+              </tr>
+            ))}
+  </tbody>
+</table>
+
+8 回目の試行 (初回から {maxRetryWindow} 後) も失敗すると、そのイベントは当該エンドポイントで **failed** としてマークされます。その後も、保持期間内であればいつでも手動で[再送](/ja/api-reference/events/replay)できます。
+
+## 再試行されないレスポンス {#responses-that-skip-retries}
+
+レスポンスの中には、再試行しても解決しないことを Relaybox に示すものがあります。エンドポイントがこれらのいずれかを返した場合、Relaybox は直ちに再試行を停止します。
+
+| ステータス                   | 再試行しない理由                                            |
+| ----------------------- | --------------------------------------------------- |
+| `410 Gone`              | エンドポイントがすでに存在しないためです。この場合、Relaybox はエンドポイントを無効化します。 |
+| `413 Payload Too Large` | 同じペイロードは次回も大きすぎるためです。                               |
+
+<Note>
+  `400`、`401`、`404` は再試行**されます**。これらのエラーは、不具合のあるデプロイが原因で発生し、その後ロールバックされることが多いためです。
+</Note>
+
+## スケジュールをカスタマイズする {#customize-the-schedule}
+
+対象プラン: <Badge color="blue">Scale および Enterprise</Badge>
+
+即時性が求められるイベントではスケジュールを短縮し、計画メンテナンスなどでダウンタイムが予定されているエンドポイントではスケジュールを延長できます。
+
+```json
+{
+  "retry_policy": {
+    "max_attempts": 4,
+    "backoff": "exponential",
+    "initial_delay_seconds": 2
+  }
+}
+```
+
+期間は、プランにかかわらず最大 7 日間です。

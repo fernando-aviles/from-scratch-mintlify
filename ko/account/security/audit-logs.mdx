@@ -1,0 +1,59 @@
+---
+title: "감사 로그"
+description: "Relaybox 계정에서 이루어진 모든 변경 사항을 변조 여부를 확인할 수 있는 형태로 기록합니다."
+---
+
+사용 가능 플랜: <Badge color="green">Scale 및 Enterprise</Badge>
+
+감사 로그는 **누가**, **언제**, **어디에서**, **무엇을** 했는지 기록합니다. 대시보드는 물론 API와 CLI를 통한 변경 사항도 모두 기록됩니다.
+
+## 기록되는 항목 {#whats-logged}
+
+<AccordionGroup>
+  <Accordion title="엔드포인트">
+    생성, 업데이트, 일시 중지, 재개, 삭제, 시크릿 교체가 기록됩니다.
+  </Accordion>
+
+  <Accordion title="API 키">
+    생성, 교체, 폐기, 범위 변경이 기록됩니다. 키 값 자체는 절대 기록되지 않습니다.
+  </Accordion>
+
+  <Accordion title="팀">
+    멤버 초대, 제거, 역할 변경 및 소유권 이전이 기록됩니다.
+  </Accordion>
+
+  <Accordion title="보안 설정">
+    SSO 구성 또는 변경, Require SSO 활성화/비활성화, IP 허용 목록 변경이 기록됩니다.
+  </Accordion>
+
+  <Accordion title="재전송">
+    누가 어떤 이벤트를 어떤 엔드포인트로 재전송했는지 기록됩니다. 이벤트 게시는 이미 이벤트 로그에 기록되므로 감사 대상에 포함되지 않습니다.
+  </Accordion>
+</AccordionGroup>
+
+## 로그 항목 형식 {#log-entry-format}
+
+```json
+{
+  "id": "aud_7Gm3Rk",
+  "action": "endpoint.secret_rotated",
+  "actor": {
+    "type": "member",
+    "email": "dana@example.com"
+  },
+  "target": {
+    "type": "endpoint",
+    "id": "ep_5Np8Wz"
+  },
+  "ip_address": "203.0.113.42",
+  "occurred_at": "2026-10-18T09:15:44Z"
+}
+```
+
+## 내보내기 {#exporting}
+
+**Settings → 감사 로그**에서 로그를 CSV로 다운로드하거나, Datadog, Splunk 또는 S3 버킷으로 계속 스트리밍할 수 있습니다. 스트리밍 대상에는 새 항목이 1분 이내에 전달됩니다.
+
+<Info>
+  감사 로그는 이벤트 보존 기간과 관계없이 해당 기능을 지원하는 모든 플랜에서 1년간 보존됩니다.
+</Info>

@@ -1,0 +1,54 @@
+---
+title: "비동기 사용법"
+description: "asyncio 환경에서 Relaybox Python SDK를 사용합니다."
+---
+
+`Relaybox`의 모든 메서드에는 이에 대응하는 비동기 메서드가 `AsyncRelaybox`에 있습니다.
+
+```python
+import asyncio
+import os
+from relaybox import AsyncRelaybox
+
+async def main():
+    async with AsyncRelaybox(os.environ["RELAYBOX_API_KEY"]) as relaybox:
+        event = await relaybox.events.create(
+            type="order.paid",
+            payload={"order_id": "ord_8Hx2kP"},
+        )
+        print(event.id)
+
+asyncio.run(main())
+```
+
+## FastAPI {#fastapi}
+
+클라이언트를 lifespan 핸들러에서 생성하면 여러 요청에서 클라이언트를 공유하고, 종료 시 깔끔하게 닫을 수 있습니다.
+
+```python
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request, HTTPException
+from relaybox import AsyncRelaybox, Webhook, WebhookVerificationError
+
+webhook = Webhook(os.environ["RELAYBOX_SIGNING_SECRET"])
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.relaybox = AsyncRelaybox(os.environ["RELAYBOX_API_KEY"])
+    yield
+    await app.state.relaybox.close()
+
+app = FastAPI(lifespan=lifespan)
+
+@app.post("/webhooks", status_code=204)
+async def receive(request: Request):
+    try:
+        event = webhook.verify(await request.body(), request.headers)
+    except WebhookVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    # ...
+```
+
+<Note>
+  서명 검증은 CPU 연산만으로 빠르게 처리되므로, 비동기 코드에서도 `Webhook.verify`는 동기 함수로 동작합니다.
+</Note>
