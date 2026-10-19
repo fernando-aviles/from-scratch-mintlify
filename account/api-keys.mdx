@@ -1,0 +1,53 @@
+---
+title: "API keys"
+description: "Create, scope, and rotate the keys your services use to call the Relaybox API."
+icon: "key"
+---
+
+import ApiKeyWarning from "/snippets/shared/api-key-warning.mdx";
+
+API keys authenticate requests to the Relaybox API. Each key belongs to one environment and is shown only once, when you create it.
+
+<ApiKeyWarning />
+
+## Key prefixes
+
+You can tell what a key is for by its prefix:
+
+| Prefix | Environment | Use it for |
+| --- | --- | --- |
+| `rbx_test_` | Test | Local development and CI. Events are delivered, but never billed. |
+| `rbx_live_` | Production | Your production services. |
+| `rbx_pub_` | Either | Embedding the [customer portal](/guides/sending-events/fan-out#customer-portal) in your frontend. Publishable keys can't publish events. |
+
+## Scopes
+
+By default, a new key has full access to its environment. For better security, give each service only the scopes it needs:
+
+<ParamField path="events:write" type="scope">
+  Publish events. This is usually the only scope a producer service needs.
+</ParamField>
+
+<ParamField path="events:read" type="scope">
+  List and retrieve events and delivery attempts.
+</ParamField>
+
+<ParamField path="endpoints:write" type="scope">
+  Create, update, and delete endpoints, and rotate their secrets.
+</ParamField>
+
+<ParamField path="endpoints:read" type="scope">
+  List and retrieve endpoints. Doesn't include signing secrets.
+</ParamField>
+
+## Rotate a key
+
+Rotating a key creates a new one with the same scopes and schedules the old one for deletion.
+
+1. Go to **Settings → API keys** and find the key.
+2. Click **Rotate** and choose how long the old key should keep working: immediately, 1 hour, 24 hours, or 7 days.
+3. Copy the new key and deploy it to your services before the old one expires.
+
+<Note>
+  If you think a key has leaked, choose **Immediately**. Requests using the old key start failing with `401 unauthenticated` right away.
+</Note>

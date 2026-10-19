@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "group": "Guides",
+      "pages": ["guides/overview"]
+    },
+    {
+      "group": "Receiving events",
+      "icon": "inbox",
+      "pages": [
+        "guides/receiving-events/local-development",
+        "guides/receiving-events/verify-signatures",
+        "guides/receiving-events/handling-failures"
+      ]
+    },
+    {
+      "group": "Sending events",
+      "icon": "paper-plane",
+      "pages": [
+        "guides/sending-events/publish-your-first-event",
+        "guides/sending-events/fan-out",
+        "guides/sending-events/transformations"
+      ]
+    },
+    {
+      "group": "Integrations",
+      "icon": "plug",
+      "$ref": "./guides/integrations.json"
+    },
+    {
+      "group": "Migration",
+      "pages": ["guides/migrating-from-v2"]
+    }
+  ]
+}

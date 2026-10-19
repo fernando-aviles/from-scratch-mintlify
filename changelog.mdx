@@ -1,0 +1,51 @@
+---
+title: "Changelog"
+description: "New features, improvements, and fixes in Relaybox."
+icon: "clock-rotate-left"
+rss: true
+---
+
+<Update label="October 2026" description="v3.4" tags={["Dashboard", "SDKs"]}>
+  ## Delivery log search
+
+  You can now search the delivery log by any field in the payload. Try `payload.order_id:ord_8Hx2kP` in the search box on the **Events** page.
+
+  ## Improvements
+
+  - The Node.js SDK now supports Bun 1.1 and later.
+  - Replaying more than 10,000 events now runs in the background, and we email you when it's done.
+  - Endpoint pages show a 30-day success rate chart.
+
+  ## Fixes
+
+  - Fixed an issue where the CLI's `listen` command could disconnect after 24 hours.
+</Update>
+
+<Update label="September 2026" description="v3.3" tags={["API"]}>
+  ## Customizable retry schedules
+
+  Scale and Enterprise customers can now [customize the retry schedule](/concepts/delivery/retries#customize-the-schedule) for each endpoint.
+
+  ## Improvements
+
+  - The `GET /v3/events` endpoint now supports filtering by `metadata`.
+  - Error responses now include a `docs_url` that links to the relevant page of these docs.
+</Update>
+
+<Update label="August 2026" description="v3.2" tags={["Integrations"]}>
+  ## GitHub source
+
+  Receive GitHub webhooks through Relaybox with the new [GitHub integration](/guides/integrations/github), built and maintained by the community.
+
+  ## Fixes
+
+  - Slack messages with more than 40 kilobytes of text are now truncated instead of failing.
+</Update>
+
+<Update label="July 2026" description="v3.0" tags={["API", "SDKs", "Dashboard"]}>
+  ## Relaybox v3
+
+  Our biggest release yet. Highlights include ordered delivery, transformations, and a redesigned dashboard.
+
+  Read the [migration guide](/guides/migrating-from-v2) to upgrade.
+</Update>

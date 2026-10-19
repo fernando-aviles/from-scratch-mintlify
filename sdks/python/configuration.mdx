@@ -1,0 +1,46 @@
+---
+title: "Configure the Python SDK"
+sidebarTitle: "Configuration"
+description: "Every option you can pass to the Relaybox client."
+---
+
+```python
+relaybox = Relaybox(
+    os.environ["RELAYBOX_API_KEY"],
+    region="eu",
+    timeout=10.0,
+    max_retries=5,
+)
+```
+
+## Client options
+
+<ParamField body="region" type="str" default="us">
+  The data residency region of your account: `"us"`, `"eu"`, or `"jp"`.
+</ParamField>
+
+<ParamField body="timeout" type="float" default="30.0">
+  How long to wait for a response, in seconds.
+</ParamField>
+
+<ParamField body="max_retries" type="int" default="3">
+  How many times to retry requests that fail with a network error, `429`, or `5xx`.
+</ParamField>
+
+<ParamField body="http_client" type="httpx.Client">
+  A pre-configured `httpx` client, for proxies or custom TLS settings.
+</ParamField>
+
+## Logging
+
+The SDK logs through the standard `logging` module, under the `relaybox` logger. To see every request:
+
+```python
+import logging
+
+logging.getLogger("relaybox").setLevel(logging.DEBUG)
+```
+
+<Warning>
+  Debug logs include request bodies, which may contain personal data. Don't enable debug logging in production.
+</Warning>

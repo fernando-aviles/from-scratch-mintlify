@@ -1,0 +1,56 @@
+---
+title: "Publish your first event"
+description: "Go from a single test event to a production-ready publisher, with retries and idempotency."
+---
+
+import Prerequisites from "/snippets/shared/prerequisites.mdx";
+import PublishEvent from "/snippets/code/publish-event.mdx";
+
+<Prerequisites language="node" environment="production" />
+
+## 1. Publish an event
+
+The simplest publish is one API call:
+
+<PublishEvent />
+
+The response is the stored event, including its `id`. Delivery happens asynchronously, so a successful response means Relaybox **accepted** the event, not that it was delivered.
+
+## 2. Add an idempotency key
+
+In production, network errors between your service and Relaybox will happen. Add an idempotency key derived from your own data so that retrying a publish is always safe:
+
+```javascript {3}
+await relaybox.events.create(
+  { type: "order.paid", payload: { order_id: order.id } },
+  { idempotencyKey: `order-${order.id}-paid` }
+);
+```
+
+Read more in [Idempotency](/concepts/delivery/idempotency).
+
+## 3. Publish from a transaction
+
+A common bug: your database transaction commits, then the process crashes before publishing. The event is lost. The reverse is also possible — you publish, then the transaction rolls back.
+
+The fix is the **transactional outbox** pattern: write the event to an `outbox` table in the same transaction, and have a separate worker publish from that table.
+
+```sql
+BEGIN;
+  UPDATE orders SET status = 'paid' WHERE id = 'ord_8Hx2kP';
+  INSERT INTO outbox (type, payload) VALUES ('order.paid', '{"order_id": "ord_8Hx2kP"}');
+COMMIT;
+```
+
+<Info>
+  The Node.js and Python SDKs include an outbox worker for PostgreSQL. See [Node.js configuration](/sdks/node/configuration#outbox-worker).
+</Info>
+
+## 4. Go live
+
+Before switching to your `rbx_live_` key, check that:
+
+- [ ] Every event type is documented for the teams that consume it
+- [ ] Publishing uses idempotency keys
+- [ ] You've set an alert on the publish error rate
+- [ ] Your API key has only the `events:write` scope

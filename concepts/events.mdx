@@ -1,0 +1,79 @@
+---
+title: "Events"
+description: "Events are immutable records of something that happened in your system. Learn how they're structured and named."
+icon: "bolt"
+---
+
+import EventPayload from "/snippets/code/event-payload.mdx";
+
+An **event** is the unit of everything in Relaybox. You publish events; Relaybox stores them, routes them, and delivers them. Once published, an event can't be edited or deleted — only [replayed](/api-reference/events/replay) or left to expire when your plan's retention window ends.
+
+## Anatomy of an event
+
+<EventPayload />
+
+<ResponseField name="id" type="string" required>
+  A unique identifier that starts with `evt_`. Relaybox generates it when you publish.
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  The [event type](#naming-event-types), for example `order.paid`. Endpoints subscribe to event types.
+</ResponseField>
+
+<ResponseField name="created_at" type="string" required>
+  When Relaybox accepted the event, as an ISO 8601 timestamp in UTC.
+</ResponseField>
+
+<ResponseField name="ordering_key" type="string">
+  Optional. Events with the same key are delivered in order. See [Ordered delivery](/concepts/delivery/ordering).
+</ResponseField>
+
+<ResponseField name="payload" type="object" required>
+  Your data. Any valid JSON object up to 256 KB.
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  Up to 20 string key-value pairs that you can use to filter events in the dashboard. Metadata is delivered to endpoints, but transformations can't modify it.
+
+  <Expandable title="reserved keys">
+    <ResponseField name="environment" type="string">
+      Set automatically from the API key you used: `test` or `production`.
+    </ResponseField>
+    <ResponseField name="source" type="string">
+      Free-form. We recommend the name of the service that published the event.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Naming event types
+
+Event types are lowercase, dot-separated strings. We recommend the pattern `resource.past_tense_verb`:
+
+<CodeGroup>
+```text Good
+order.paid
+invoice.payment_failed
+user.email_changed
+```
+
+```text Avoid
+OrderPaid          # not lowercase or dot-separated
+order.pay          # sounds like a command, not something that happened
+orders.paid.v2     # put versions in the payload, not the type
+```
+</CodeGroup>
+
+<Tip>
+  Endpoints can subscribe with wildcards. Subscribing to `order.*` matches `order.paid` and `order.refunded`, but not `order.line_item.added`. Use `order.**` to match every level.
+</Tip>
+
+## Size limits
+
+| Field | Limit |
+| --- | --- |
+| `type` | 128 characters |
+| `ordering_key` | 256 characters |
+| `payload` | 256 KB after JSON encoding |
+| `metadata` | 20 keys, 512 characters per value |
+
+If you need to send something larger, upload it to your own storage and include a signed URL in the payload instead.

@@ -1,0 +1,6 @@
+{
+  "pages": [
+    "account/security/sso",
+    "account/security/audit-logs"
+  ]
+}

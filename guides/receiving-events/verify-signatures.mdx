@@ -1,0 +1,53 @@
+---
+title: "Verify webhook signatures"
+sidebarTitle: "Verify signatures"
+description: "Add signature verification to your endpoint in a few lines of code."
+---
+
+import VerifySignature from "/snippets/code/verify-signature.mdx";
+import NeedHelp from "/snippets/shared/need-help.mdx";
+
+This guide shows you how to verify signatures with an SDK. For an explanation of the signing scheme itself, see [Signatures](/concepts/signatures).
+
+<Steps>
+  <Step title="Find your signing secret">
+    In the dashboard, open the endpoint and click **Reveal** next to **Signing secret**. It starts with `whsec_`.
+
+    Store it in an environment variable called `RELAYBOX_SIGNING_SECRET`.
+  </Step>
+  <Step title="Read the raw body">
+    Configure your framework so you can access the request body **before** it's parsed as JSON. How you do this depends on the framework — the examples below show the most common ones.
+  </Step>
+  <Step title="Verify, then process">
+    <VerifySignature />
+  </Step>
+  <Step title="Test it">
+    Use the CLI to send a correctly signed event, then send a forged one to make sure it's rejected:
+
+    ```bash
+    # Should be accepted
+    relaybox trigger order.paid
+
+    # Should be rejected with 400
+    curl -X POST http://localhost:3000/webhooks \
+      -H "Relaybox-Signature: v1,not-a-real-signature" \
+      -d '{"type": "order.paid"}'
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Every request fails verification">
+    You're almost certainly verifying a parsed-and-re-serialized body. Log the exact bytes you pass to `verify()` and compare them with the payload shown in the delivery log.
+  </Accordion>
+  <Accordion title="Verification fails only in production">
+    Check that production is using the production endpoint's secret. Each endpoint has its own secret, and test and production endpoints never share one.
+  </Accordion>
+  <Accordion title="Verification fails with a “timestamp too old” error">
+    Your server's clock is drifting. Make sure NTP is running. As a temporary workaround, you can raise the tolerance in the SDK, but don't set it above 15 minutes.
+  </Accordion>
+</AccordionGroup>
+
+<NeedHelp />

@@ -1,0 +1,59 @@
+export const glossaryTerms = [
+  {
+    term: "Event",
+    definition:
+      "A single, immutable message describing something that happened in your system, such as an order being paid or a user signing up.",
+    seeAlso: { label: "events", href: "/concepts/events" },
+  },
+  {
+    term: "Event type",
+    definition:
+      "A dot-separated name that classifies an event, like invoice.paid. Endpoints subscribe to one or more event types.",
+  },
+  {
+    term: "Endpoint",
+    definition:
+      "A URL that Relaybox delivers events to. Each endpoint has its own signing secret, subscriptions, and retry policy.",
+    seeAlso: { label: "endpoints", href: "/concepts/endpoints" },
+  },
+  {
+    term: "Delivery attempt",
+    definition:
+      "One HTTP request from Relaybox to an endpoint. A single event can have many delivery attempts if earlier attempts fail.",
+  },
+  {
+    term: "Retry schedule",
+    definition:
+      "The sequence of delays Relaybox waits between failed delivery attempts before marking an event as failed.",
+    seeAlso: { label: "retries", href: "/concepts/delivery/retries" },
+  },
+  {
+    term: "Signing secret",
+    definition:
+      "A per-endpoint secret used to compute the Relaybox-Signature header, so receivers can verify that a request really came from Relaybox.",
+    seeAlso: { label: "signatures", href: "/concepts/signatures" },
+  },
+  {
+    term: "Ordering key",
+    definition:
+      "An optional string on an event. Events that share an ordering key are delivered to each endpoint strictly one at a time, in the order they were published.",
+    seeAlso: { label: "ordered delivery", href: "/concepts/delivery/ordering" },
+  },
+  {
+    term: "Idempotency key",
+    definition:
+      "A client-supplied value that lets you safely retry a publish request without creating duplicate events.",
+    seeAlso: { label: "idempotency", href: "/concepts/delivery/idempotency" },
+  },
+  {
+    term: "Replay",
+    definition:
+      "Re-sending one or more past events to an endpoint, for example after fixing a bug in your handler.",
+  },
+  {
+    term: "Transformation",
+    definition:
+      "A small JavaScript function that runs inside Relaybox and reshapes an event's payload before it is delivered to a specific endpoint.",
+    seeAlso: { label: "transformations", href: "/guides/sending-events/transformations" },
+  },
+];

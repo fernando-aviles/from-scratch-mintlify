@@ -1,0 +1,57 @@
+---
+title: "Recover from endpoint failures"
+sidebarTitle: "Handle failures"
+description: "What to do when your endpoint goes down, and how to catch up on missed events afterward."
+---
+
+import { maxRetryWindow } from "/snippets/data/retry-schedule.mdx";
+
+Outages happen. Relaybox is designed so that a few hours of downtime on your side doesn't lose a single event.
+
+## During a short outage
+
+For anything under {maxRetryWindow}, you don't have to do anything. Relaybox [retries automatically](/concepts/delivery/retries) and delivers every event once your endpoint is back.
+
+<Tip>
+  If you know an outage is coming — a database migration, say — [pause the endpoint](/concepts/endpoints#endpoint-states) first. Events queue up and are delivered in order when you resume, without burning through retry attempts.
+</Tip>
+
+## After a long outage
+
+If your endpoint was down longer than the retry window, some events will be marked **failed**. Replay them once you've recovered:
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Open the endpoint and select the **Failed** filter.
+    2. Choose the time range of the outage.
+    3. Click **Replay all**. Relaybox shows how many events will be sent and asks you to confirm.
+  </Tab>
+  <Tab title="CLI">
+    ```bash
+    relaybox events replay \
+      --endpoint ep_5Np8Wz \
+      --status failed \
+      --since "2026-10-18T02:00:00Z" \
+      --until "2026-10-18T09:30:00Z"
+    ```
+  </Tab>
+  <Tab title="API">
+    See [Replay events](/api-reference/events/replay).
+  </Tab>
+</Tabs>
+
+## Get alerted
+
+Don't find out about failures from your customers. Under **Settings → Alerts**, choose when to be notified:
+
+| Alert | Triggers when |
+| --- | --- |
+| **Failure rate** | More than a chosen percentage of attempts fail over 5 minutes |
+| **Backlog** | An endpoint's oldest pending event is older than a chosen duration |
+| **Endpoint disabled** | Relaybox disables an endpoint after 5 days of failures |
+
+Alerts can go to email, Slack, PagerDuty, or any webhook URL — including a Relaybox endpoint.
+
+<Warning>
+  Don't route alerts *only* to an endpoint that depends on the same infrastructure as the one you're monitoring. If that infrastructure goes down, you won't hear about it.
+</Warning>

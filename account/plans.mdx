@@ -1,0 +1,48 @@
+---
+title: "Plans and limits"
+sidebarTitle: "Plans"
+description: "Compare Relaybox plans, understand usage-based billing, and learn what happens when you go over your limits."
+icon: "credit-card"
+---
+
+import { plans, overageRate, trialLength } from "/snippets/data/plans.mdx";
+import { PlanTable } from "/snippets/components/PlanTable.jsx";
+
+Every plan includes unlimited endpoints, signatures, and the full API. Plans differ in volume, how long we keep your logs, and the level of support you get.
+
+<PlanTable plans={plans} highlight="team" />
+
+New accounts can try the Scale plan free for {trialLength}. No credit card is required to start a trial.
+
+## How usage is counted
+
+You're billed per **event published**, not per delivery. An event fanned out to ten endpoints counts once. Retries and replays are free.
+
+<Accordion title="Example: calculating a monthly bill">
+  Suppose you're on the Team plan and publish 2.4 million events in a month:
+
+  - 2 million events are included in the plan.
+  - The remaining 400,000 events are billed at {overageRate}.
+  - 400,000 ÷ 10,000 × $0.25 = **$10.00** in overage.
+
+  Your total for the month is $49 + $10 = **$59.00**.
+</Accordion>
+
+## What happens at the limit?
+
+<Tabs>
+  <Tab title="Hobby">
+    On the Hobby plan, publishing stops when you reach 100,000 events. The API returns `429 rate_limited` until the next billing cycle or until you upgrade. Events you already published are still delivered.
+  </Tab>
+  <Tab title="Paid plans">
+    Paid plans never stop publishing. Events above your included volume are billed at {overageRate}. You can set a **spend cap** under **Settings → Billing** to receive an alert, or to stop publishing, at a dollar amount you choose.
+  </Tab>
+</Tabs>
+
+## Changing plans
+
+Upgrades take effect immediately and are prorated. Downgrades take effect at the end of the current billing cycle.
+
+<Note>
+  If you downgrade to a plan with shorter log retention, logs older than the new limit are deleted when the downgrade takes effect. Export anything you need first.
+</Note>

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "Relaybox Docs",
+  "description": "Relaybox is a reliable event delivery platform. Send, receive, and replay webhooks without building the plumbing yourself.",
+  "colors": {
+    "primary": "#0F766E",
+    "light": "#5EEAD4",
+    "dark": "#115E59"
+  },
+  "logo": {
+    "light": "/images/logo/light.svg",
+    "dark": "/images/logo/dark.svg",
+    "href": "https://relaybox.dev"
+  },
+  "favicon": "/images/logo/favicon.svg",
+  "styling": {
+    "eyebrows": "breadcrumbs"
+  },
+  "seo": {
+    "metatags": {
+      "og:site_name": "Relaybox Docs",
+      "og:image": "/images/share-image.svg"
+    }
+  },
+  "banner": {
+    "content": "**Relaybox v3 is here.** Ordered delivery, transformations, and a brand-new dashboard. [Read the migration guide](/guides/migrating-from-v2)",
+    "dismissible": true
+  },
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude"]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Status",
+        "href": "https://status.relaybox.dev"
+      },
+      {
+        "label": "Support",
+        "href": "mailto:support@relaybox.dev"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Open dashboard",
+      "href": "https://app.relaybox.dev"
+    }
+  },
+  "api": {
+    "openapi": "api-reference/openapi.yaml",
+    "playground": {
+      "display": "interactive"
+    },
+    "examples": {
+      "languages": ["curl", "javascript", "python", "go"]
+    }
+  },
+  "navigation": {
+    "$ref": "config/navigation.json"
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/relaybox",
+      "github": "https://github.com/relaybox",
+      "discord": "https://discord.gg/relaybox"
+    },
+    "links": [
+      {
+        "header": "Product",
+        "items": [
+          {
+            "label": "Pricing",
+            "href": "https://relaybox.dev/pricing"
+          },
+          {
+            "label": "Changelog",
+            "href": "/changelog"
+          },
+          {
+            "label": "Status page",
+            "href": "https://status.relaybox.dev"
+          }
+        ]
+      },
+      {
+        "header": "Company",
+        "items": [
+          {
+            "label": "About us",
+            "href": "https://relaybox.dev/about"
+          },
+          {
+            "label": "Careers",
+            "href": "https://relaybox.dev/careers"
+          },
+          {
+            "label": "Security & compliance",
+            "href": "/account/security/overview"
+          }
+        ]
+      }
+    ]
+  },
+  "errors": {
+    "404": {
+      "redirect": false,
+      "title": "We couldn't find that page",
+      "description": "The page may have moved during the v3 docs reorganization. Try searching, or head back to the [quickstart](/get-started/quickstart)."
+    }
+  },
+  "redirects": {
+    "$ref": "config/redirects.json"
+  }
+}

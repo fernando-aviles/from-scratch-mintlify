@@ -1,0 +1,50 @@
+---
+title: "Pagination"
+description: "List endpoints return results in pages. Use cursors to move between them."
+icon: "arrow-right-long"
+---
+
+Every endpoint that returns a list — like [List events](/api-reference/events/list) — is paginated with **cursors**. Each response includes a `next_cursor`; pass it back as the `cursor` parameter to get the next page.
+
+```json
+{
+  "data": [
+    { "id": "evt_2b7XqLm9TfR4", "type": "order.paid" },
+    { "id": "evt_2b7XqLk3PdW8", "type": "order.created" }
+  ],
+  "next_cursor": "eyJpZCI6ImV2dF8yYjdYcUxrM1BkVzgifQ"
+}
+```
+
+When `next_cursor` is `null`, you've reached the last page.
+
+## Iterating in the SDKs
+
+The SDKs handle cursors for you. Iterate over the result, and new pages are fetched as needed:
+
+<CodeGroup>
+```javascript Node.js
+for await (const event of relaybox.events.list({ type: "order.*" })) {
+  console.log(event.id);
+}
+```
+
+```python Python
+for event in relaybox.events.list(type="order.*"):
+    print(event.id)
+```
+
+```go Go
+iter := client.Events.List(ctx, &relaybox.EventListParams{Type: "order.*"})
+for iter.Next() {
+	fmt.Println(iter.Event().ID)
+}
+if err := iter.Err(); err != nil {
+	log.Fatal(err)
+}
+```
+</CodeGroup>
+
+<Tip>
+  Cursors are opaque. Don't try to decode or construct them yourself — the format can change without notice.
+</Tip>

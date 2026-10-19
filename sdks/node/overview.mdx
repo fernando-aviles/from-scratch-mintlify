@@ -1,0 +1,58 @@
+---
+title: "Node.js SDK"
+sidebarTitle: "Overview"
+description: "Publish events and verify webhooks from Node.js and Bun."
+icon: "node-js"
+---
+
+import SdkIntro from "/snippets/shared/sdk-intro.mdx";
+import PublishEvent from "/snippets/code/publish-event.mdx";
+
+<SdkIntro language="node" />
+
+## Install
+
+<CodeGroup>
+```bash npm
+npm install @relaybox/node
+```
+
+```bash pnpm
+pnpm add @relaybox/node
+```
+
+```bash yarn
+yarn add @relaybox/node
+```
+
+```bash bun
+bun add @relaybox/node
+```
+</CodeGroup>
+
+The package ships ESM and CommonJS builds, along with TypeScript types.
+
+## Create a client
+
+```typescript
+import { Relaybox } from "@relaybox/node";
+
+const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY);
+```
+
+Create one client and reuse it. The client keeps HTTP connections alive between requests.
+
+## Publish an event
+
+<PublishEvent />
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="sliders" href="/sdks/node/configuration">
+    Timeouts, retries, regions, and the outbox worker.
+  </Card>
+  <Card title="Webhook handlers" icon="inbox" href="/sdks/node/webhook-handlers">
+    Verify signatures in Express, Fastify, Next.js, and Hono.
+  </Card>
+</CardGroup>

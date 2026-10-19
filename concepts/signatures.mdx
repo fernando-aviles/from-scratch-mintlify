@@ -1,0 +1,51 @@
+---
+title: "Signatures"
+description: "Every request from Relaybox is signed, so your endpoint can reject forged or replayed requests."
+icon: "signature"
+---
+
+import VerifySignature from "/snippets/code/verify-signature.mdx";
+
+Anyone who knows your endpoint's URL can send it a request. Signatures let you prove that a request came from Relaybox and wasn't modified on the way.
+
+## How signing works
+
+Each endpoint has a **signing secret** that starts with `whsec_`. For every delivery, Relaybox:
+
+1. Builds a string from the event ID, the current Unix timestamp, and the raw request body, joined with periods: `{id}.{timestamp}.{body}`.
+2. Computes an HMAC-SHA256 of that string using the secret.
+3. Sends the result, along with the timestamp, in the `Relaybox-Signature` header.
+
+```http
+POST /webhooks HTTP/1.1
+Content-Type: application/json
+Relaybox-Event-Id: evt_2b7XqLm9TfR4
+Relaybox-Timestamp: 1792420327
+Relaybox-Signature: v1,K5oZfzN95Z9UVu1EsfQmfVNQhnkZ2pj9o9NDN/H/pI4=
+```
+
+## Verify the signature
+
+We strongly recommend using an SDK, which handles constant-time comparison and timestamp checks for you:
+
+<VerifySignature />
+
+<Warning>
+  Always verify against the **raw** request body. Frameworks that parse JSON and re-serialize it can change whitespace or key order, which breaks the signature.
+</Warning>
+
+## Protecting against replay attacks
+
+A valid signature only proves that Relaybox sent the request *at some point*. To stop an attacker from capturing a request and re-sending it later, the SDKs reject any request whose timestamp is more than five minutes old.
+
+If you verify signatures manually, compare `Relaybox-Timestamp` against your server's clock and reject anything outside your tolerance.
+
+## Multiple signatures during rotation
+
+When you [rotate a secret](/api-reference/endpoints/rotate-secret), Relaybox signs with both the old and new secret for 24 hours. The header then contains two space-separated signatures:
+
+```text
+Relaybox-Signature: v1,K5oZfz...pI4= v1,9xQ2mL...aB8=
+```
+
+A request is valid if **any** signature matches. The SDKs handle this automatically.

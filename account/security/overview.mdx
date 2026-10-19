@@ -1,0 +1,43 @@
+---
+title: "Security and compliance"
+sidebarTitle: "Overview"
+description: "How Relaybox protects your data, and the controls available to your team."
+icon: "shield-halved"
+---
+
+Relaybox handles data that's often sensitive: payment confirmations, account changes, personal information. Security is built into every layer of the platform.
+
+## Data protection
+
+- **In transit:** All traffic to the API and dashboard uses TLS 1.2 or later. Deliveries to your endpoints require HTTPS in production.
+- **At rest:** Event payloads are encrypted with AES-256. Enterprise customers can bring their own key through AWS KMS or Google Cloud KMS.
+- **Residency:** Choose to store data in the United States, the European Union, or Japan when you create an account. Data never leaves the region you choose.
+
+## Compliance
+
+<CardGroup cols={3}>
+  <Card title="SOC 2 Type II" icon="certificate">
+    Audited annually. Request the report from your account manager.
+  </Card>
+  <Card title="GDPR" icon="scale-balanced">
+    We sign a Data Processing Agreement with every paid customer.
+  </Card>
+  <Card title="HIPAA" icon="hospital">
+    Available on Enterprise plans with a signed Business Associate Agreement.
+  </Card>
+</CardGroup>
+
+## Account controls
+
+<CardGroup cols={2}>
+  <Card title="Single sign-on" icon="right-to-bracket" href="/account/security/sso">
+    Require members to sign in through Okta, Microsoft Entra ID, or Google Workspace.
+  </Card>
+  <Card title="Audit logs" icon="clipboard-list" href="/account/security/audit-logs">
+    See who changed what, and when.
+  </Card>
+</CardGroup>
+
+## Reporting a vulnerability
+
+If you believe you've found a security issue, email [security@relaybox.dev](mailto:security@relaybox.dev). Please don't open a public GitHub issue. We respond to every report within two business days.

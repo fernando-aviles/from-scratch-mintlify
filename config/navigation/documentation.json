@@ -1,0 +1,35 @@
+{
+  "groups": [
+    {
+      "group": "Get started",
+      "pages": [
+        "index",
+        "get-started/quickstart",
+        "get-started/how-it-works",
+        "get-started/glossary"
+      ]
+    },
+    {
+      "group": "Core concepts",
+      "pages": [
+        "concepts/events",
+        "concepts/endpoints",
+        {
+          "group": "Delivery",
+          "icon": "truck-fast",
+          "root": "concepts/delivery/overview",
+          "pages": [
+            "concepts/delivery/retries",
+            "concepts/delivery/ordering",
+            "concepts/delivery/idempotency"
+          ]
+        },
+        "concepts/signatures"
+      ]
+    },
+    {
+      "group": "Account & billing",
+      "$ref": "./documentation/account.json"
+    }
+  ]
+}

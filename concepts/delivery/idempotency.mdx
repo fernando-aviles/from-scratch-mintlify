@@ -1,0 +1,47 @@
+---
+title: "Idempotency"
+description: "Avoid duplicate side effects when publishing or receiving events."
+---
+
+Relaybox delivers every event *at least* once. Occasionally your endpoint will receive the same event twice — for example, if your server processed it but the connection dropped before Relaybox saw the `200`. Idempotency is how you make sure that doesn't charge a customer twice.
+
+There are two sides to it.
+
+## When publishing
+
+Network errors can also happen between your service and the Relaybox API. If a publish request times out, you don't know whether the event was accepted. Send an `Idempotency-Key` header so that retrying is always safe:
+
+```bash
+curl https://api.relaybox.dev/v3/events \
+  -H "Authorization: Bearer $RELAYBOX_API_KEY" \
+  -H "Idempotency-Key: checkout-ord_8Hx2kP-paid" \
+  -d '{"type": "order.paid", "payload": {"order_id": "ord_8Hx2kP"}}'
+```
+
+If Relaybox has already seen that key in the last 24 hours, it returns the original event instead of creating a new one.
+
+<Info>
+  Reusing an idempotency key with a **different** body returns a `409 idempotency_conflict` error. See [Errors](/api-reference/errors).
+</Info>
+
+## When receiving
+
+Every delivery includes a `Relaybox-Event-Id` header. Store the IDs you've processed and skip any you've already seen:
+
+```python
+def handle(event):
+    # INSERT fails if the ID already exists, so this is safe under concurrency.
+    inserted = db.execute(
+        "INSERT INTO processed_events (id) VALUES (%s) ON CONFLICT DO NOTHING",
+        [event.id],
+    ).rowcount
+
+    if not inserted:
+        return  # Already handled: this is a duplicate delivery.
+
+    fulfill_order(event.payload["order_id"])
+```
+
+<Tip>
+  You only need to keep IDs for as long as Relaybox might retry — about two days with the default schedule. A daily cleanup job is enough.
+</Tip>

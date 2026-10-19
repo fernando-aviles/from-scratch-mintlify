@@ -1,0 +1,84 @@
+---
+title: "Migrate from v2 to v3"
+sidebarTitle: "Migrating from v2"
+description: "What changed in Relaybox v3, and how to upgrade your integration."
+icon: "arrow-right-arrow-left"
+---
+
+import { sdks } from "/snippets/data/sdk-versions.mdx";
+
+Relaybox v3 is a major release with a new API version, new SDKs, and a new signature scheme. Most teams finish the migration in about an hour.
+
+<Info>
+  The v2 API will keep working until **March 31, 2027**. After that date, v2 requests return `410 Gone`.
+</Info>
+
+## What's new in v3
+
+- **Ordered delivery** with [ordering keys](/concepts/delivery/ordering)
+- **[Transformations](/guides/sending-events/transformations)** that run inside Relaybox
+- **Longer retries:** about 41 hours instead of 24
+- **Metadata** on events, for filtering and routing
+
+## Breaking changes
+
+<AccordionGroup>
+  <Accordion title="New base URL" icon="link">
+    Change `https://api.relaybox.dev/v2` to `https://api.relaybox.dev/v3`.
+  </Accordion>
+  <Accordion title="The data field is now payload" icon="pen">
+    Events published to v3 use `payload` instead of `data`. If you publish with v2 and receive with v3 during the migration, Relaybox includes **both** fields.
+  </Accordion>
+  <Accordion title="New signature header" icon="signature">
+    v2 sent `X-Relaybox-Signature` with a hex-encoded HMAC of the body only. v3 sends `Relaybox-Signature` with a base64 HMAC of the event ID, timestamp, and body. See [Signatures](/concepts/signatures).
+
+    For 90 days after you upgrade an endpoint, Relaybox sends **both** headers so you can deploy the new verification code at your own pace.
+  </Accordion>
+  <Accordion title="Event IDs" icon="fingerprint">
+    Event IDs changed from numeric strings (`"1849302"`) to prefixed strings (`"evt_2b7XqLm9TfR4"`). If you store event IDs in a numeric column, migrate it to a text column first.
+  </Accordion>
+</AccordionGroup>
+
+## Upgrade the SDK
+
+<Tabs>
+  <Tab title="Node.js">
+    ```bash
+    npm install @relaybox/node@^3
+    ```
+
+    The current version is **{sdks.node.version}**.
+  </Tab>
+  <Tab title="Python">
+    ```bash
+    pip install --upgrade "relaybox>=3,<4"
+    ```
+
+    The current version is **{sdks.python.version}**.
+  </Tab>
+  <Tab title="Go">
+    ```bash
+    go get github.com/relaybox/relaybox-go/v3
+    ```
+
+    The current version is **{sdks.go.version}**. Note that the Go SDK for v3 is still in beta.
+  </Tab>
+</Tabs>
+
+## Rename `data` to `payload`
+
+<CodeGroup>
+```javascript Before (v2)
+await relaybox.events.create({
+  type: "order.paid",
+  data: { order_id: "ord_8Hx2kP" },
+});
+```
+
+```javascript After (v3)
+await relaybox.events.create({
+  type: "order.paid",
+  payload: { order_id: "ord_8Hx2kP" },
+});
+```
+</CodeGroup>

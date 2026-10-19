@@ -1,0 +1,33 @@
+---
+title: "Delivery"
+description: "An overview of how Relaybox delivers events: retries, ordering, and idempotency."
+icon: "truck-fast"
+---
+
+Delivering an event sounds simple: make an HTTP request. In practice, servers time out, deploys restart processes, and networks drop packets. Relaybox's delivery engine handles these failures so you don't have to.
+
+This section covers three related topics:
+
+<CardGroup cols={3}>
+  <Card title="Retries" icon="rotate" href="/concepts/delivery/retries">
+    What happens when an endpoint fails, and for how long we keep trying.
+  </Card>
+  <Card title="Ordering" icon="list-ol" href="/concepts/delivery/ordering">
+    How to make sure related events arrive in sequence.
+  </Card>
+  <Card title="Idempotency" icon="fingerprint" href="/concepts/delivery/idempotency">
+    How to handle the duplicates that at-least-once delivery can produce.
+  </Card>
+</CardGroup>
+
+## What counts as a successful delivery?
+
+A delivery attempt **succeeds** when your endpoint returns any `2xx` status code within 15 seconds. Everything else is a failure:
+
+- `3xx` redirects (Relaybox doesn't follow redirects, for security reasons)
+- `4xx` and `5xx` responses
+- Timeouts, TLS errors, and DNS failures
+
+<Tip>
+  Return `2xx` as soon as you've durably stored the event, then process it asynchronously. Slow handlers are the most common cause of timeouts.
+</Tip>

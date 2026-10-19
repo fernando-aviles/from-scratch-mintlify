@@ -1,0 +1,42 @@
+---
+title: "Team members and roles"
+sidebarTitle: "Team members"
+description: "Invite teammates and control what they can see and change."
+icon: "users"
+---
+
+Invite teammates from **Settings → Team**. Each member has exactly one role per environment, so you can, for example, give a contractor full access to `test` but read-only access to `production`.
+
+## Roles
+
+| Permission | Viewer | Developer | Admin | Owner |
+| --- | :---: | :---: | :---: | :---: |
+| View events and delivery logs | ✓ | ✓ | ✓ | ✓ |
+| Replay events | | ✓ | ✓ | ✓ |
+| Create and edit endpoints | | ✓ | ✓ | ✓ |
+| Create API keys | | | ✓ | ✓ |
+| Invite and remove members | | | ✓ | ✓ |
+| Manage billing | | | | ✓ |
+| Delete the account | | | | ✓ |
+
+<Info>
+  Every account has exactly one owner. To transfer ownership, the current owner goes to **Settings → Team**, opens the member's menu, and chooses **Make owner**.
+</Info>
+
+## Invite a member
+
+<Steps>
+  <Step title="Open the Team page">
+    Go to **Settings → Team** and click **Invite member**.
+  </Step>
+  <Step title="Choose roles">
+    Enter one or more email addresses, separated by commas, and choose a role for each environment.
+  </Step>
+  <Step title="Send the invitation">
+    Invitations expire after seven days. You can resend an expired invitation from the same page.
+  </Step>
+</Steps>
+
+<Tip>
+  On Enterprise plans with [single sign-on](/account/security/sso) enabled, you can skip invitations entirely. Members are created automatically the first time they sign in through your identity provider.
+</Tip>

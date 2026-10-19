@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "account/plans",
+    "account/team-members",
+    "account/api-keys",
+    {
+      "group": "Security",
+      "icon": "shield-halved",
+      "root": "account/security/overview",
+      "$ref": "./security.json"
+    }
+  ]
+}

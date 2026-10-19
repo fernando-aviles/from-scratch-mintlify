@@ -1,0 +1,39 @@
+---
+title: "Stripe"
+description: "Receive Stripe webhooks through Relaybox for retries, replay, and fan-out."
+icon: "stripe"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="Stripe" logo="/images/integrations/stripe.svg" category="Source · Payments">
+  Point Stripe at Relaybox once, then route payment events to as many internal services as you like.
+</IntegrationHeader>
+
+## Why put Relaybox in front of Stripe?
+
+Stripe retries failed webhooks for up to three days, but you can't easily replay a specific event to a specific service, and only one URL receives each event. With Relaybox in the middle:
+
+- Every internal service gets its own endpoint and its own retry queue.
+- You can replay any Stripe event during your retention window.
+- Signature verification happens once, at the edge.
+
+## Set up the source
+
+<Steps>
+  <Step title="Create the source">
+    Go to **Integrations → Stripe** and click **Create source**. Relaybox gives you an ingest URL like `https://in.relaybox.dev/src_9Kq2`.
+  </Step>
+  <Step title="Add the URL in Stripe">
+    In the Stripe dashboard, go to **Developers → Webhooks → Add endpoint**, paste the ingest URL, and select the events you want.
+  </Step>
+  <Step title="Paste the Stripe signing secret">
+    Stripe shows a signing secret for the new endpoint. Paste it back into Relaybox so that we can reject requests that didn't come from Stripe.
+  </Step>
+</Steps>
+
+Stripe events now appear in Relaybox with the type prefixed by `stripe.` — for example, `stripe.invoice.paid`.
+
+<Warning>
+  Your internal services will now receive **Relaybox** signatures, not Stripe signatures. Update them to verify with the Relaybox endpoint secret.
+</Warning>

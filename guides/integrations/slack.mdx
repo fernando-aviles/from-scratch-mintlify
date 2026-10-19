@@ -1,0 +1,38 @@
+---
+title: "Slack"
+description: "Post Relaybox events to a Slack channel."
+icon: "slack"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="Slack" logo="/images/integrations/slack.svg" category="Destination · Chat">
+  Send a formatted message to a channel whenever an event is published.
+</IntegrationHeader>
+
+## Connect your workspace
+
+<Steps>
+  <Step title="Authorize Relaybox">
+    In the dashboard, go to **Integrations → Slack** and click **Add to Slack**. Choose the workspace and approve the requested permissions.
+  </Step>
+  <Step title="Choose a channel and events">
+    Pick the channel to post in and the event types that should trigger a message. Private channels require you to invite the **Relaybox** app first by typing `/invite @Relaybox` in the channel.
+  </Step>
+  <Step title="Customize the message">
+    Use a template to control the message text. Templates use `{{ }}` placeholders that refer to fields in the event:
+
+    ```handlebars
+    :package: Order *{{payload.order_id}}* shipped to {{payload.shipping.city}}.
+    <{{payload.tracking_url}}|Track the package>
+    ```
+  </Step>
+</Steps>
+
+## Rate limits
+
+Slack allows about one message per second per channel. If you publish faster than that, Relaybox queues messages and sends them as fast as Slack accepts them.
+
+<Tip>
+  For high-volume event types, consider a [transformation](/guides/sending-events/transformations) that only forwards the events a human actually needs to see.
+</Tip>

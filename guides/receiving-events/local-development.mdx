@@ -1,0 +1,61 @@
+---
+title: "Develop locally with the CLI"
+sidebarTitle: "Local development"
+description: "Forward real events to your laptop without exposing it to the internet."
+---
+
+Your laptop doesn't have a public URL, so Relaybox can't deliver to it directly. The `relaybox listen` command solves this by opening an outbound connection to Relaybox and forwarding events to a local port.
+
+## Forward events
+
+```bash
+relaybox listen --forward-to http://localhost:3000/webhooks
+```
+
+```text Output
+✔ Connected as dana@example.com (test environment)
+✔ Temporary endpoint ep_dev_4Lk9 is subscribed to all event types
+
+Waiting for events… Press Ctrl+C to stop.
+
+14:32:07  order.paid        evt_2b7XqLm9TfR4  → 204 No Content (38 ms)
+14:32:09  order.shipped     evt_2b7XqLp1VbN2  → 500 Internal Server Error (12 ms)
+```
+
+The temporary endpoint is deleted when you stop the command.
+
+## Useful flags
+
+<ParamField path="--events" type="string">
+  Comma-separated event types to subscribe to. Supports wildcards. Defaults to all events.
+</ParamField>
+
+<ParamField path="--forward-to" type="string" required>
+  The local URL to forward events to.
+</ParamField>
+
+<ParamField path="--skip-verify" type="boolean">
+  Don't sign forwarded requests. Useful when you haven't written verification code yet. **Never** use this to work around a verification bug.
+</ParamField>
+
+<ParamField path="--print-json" type="boolean">
+  Print each full payload instead of a one-line summary.
+</ParamField>
+
+## Trigger test events
+
+You don't have to wait for real traffic. Send a sample event of any type:
+
+```bash
+relaybox trigger order.paid
+```
+
+Or replay a real event from your test environment:
+
+```bash
+relaybox events replay evt_2b7XqLm9TfR4 --to ep_dev_4Lk9
+```
+
+<Tip>
+  Run `relaybox fixtures` to see every built-in sample event type. You can also add your own fixtures in a `.relaybox/fixtures` folder in your project.
+</Tip>

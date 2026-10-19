@@ -1,0 +1,83 @@
+---
+title: "Endpoints"
+description: "Endpoints are the URLs Relaybox delivers events to. Each one has its own subscriptions, secret, and settings."
+icon: "satellite-dish"
+---
+
+An **endpoint** is a URL that receives events. When you publish an event, Relaybox delivers it to every enabled endpoint subscribed to its type.
+
+## Create an endpoint
+
+You can create endpoints in the dashboard or with the [API](/api-reference/endpoints/create).
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Go to **Endpoints** and click **Add endpoint**.
+    2. Enter the URL. It must use HTTPS in production environments.
+    3. Choose the event types to subscribe to, or select **All events**.
+    4. Click **Create**. Relaybox shows the signing secret once — copy it now.
+  </Tab>
+  <Tab title="API">
+    ```bash
+    curl https://api.relaybox.dev/v3/endpoints \
+      -H "Authorization: Bearer $RELAYBOX_API_KEY" \
+      -d url="https://example.com/webhooks" \
+      -d "event_types[]=order.*" \
+      -d description="Order notifications for the fulfillment team"
+    ```
+  </Tab>
+  <Tab title="CLI">
+    ```bash
+    relaybox endpoints create https://example.com/webhooks --events "order.*"
+    ```
+  </Tab>
+</Tabs>
+
+## Endpoint states
+
+Every endpoint is in one of four states:
+
+<AccordionGroup>
+  <Accordion title="Enabled" icon="circle-check">
+    The endpoint receives events normally. This is the default for new endpoints.
+  </Accordion>
+  <Accordion title="Paused" icon="circle-pause">
+    You paused the endpoint manually. Relaybox queues events for up to 72 hours and delivers them in order when you resume it.
+  </Accordion>
+  <Accordion title="Disabled" icon="circle-xmark">
+    Relaybox stopped delivering because the endpoint failed every attempt for five consecutive days. We email the account owners before this happens. Events published while an endpoint is disabled are **not** queued, but you can replay them.
+  </Accordion>
+  <Accordion title="Pending verification" icon="hourglass-half">
+    On Enterprise plans with **Require endpoint verification** turned on, new endpoints must respond to a challenge request before they receive events.
+  </Accordion>
+</AccordionGroup>
+
+## Rate limiting delivery
+
+By default Relaybox delivers as fast as your endpoint can respond. If your server can't keep up, set a rate limit:
+
+```json
+{
+  "rate_limit": {
+    "requests": 50,
+    "per": "second"
+  }
+}
+```
+
+Events above the limit wait in a queue instead of failing. The queue is drained in the order events were published.
+
+<Warning>
+  A rate limit lower than your publish rate means the queue will grow without bound. Relaybox alerts you when an endpoint's backlog is more than one hour behind.
+</Warning>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Signing secrets" icon="key" href="/concepts/signatures">
+    How Relaybox signs requests to your endpoint.
+  </Card>
+  <Card title="Rotate a secret" icon="rotate" href="/api-reference/endpoints/rotate-secret">
+    Roll a secret without dropping events.
+  </Card>
+</CardGroup>

@@ -1,0 +1,34 @@
+---
+title: "SDK support policy"
+sidebarTitle: "Support policy"
+description: "Which SDK versions and runtimes we support, and for how long."
+icon: "life-ring"
+---
+
+import { sdks } from "/snippets/data/sdk-versions.mdx";
+
+## Versions
+
+We support the **current major version** of each SDK with new features and bug fixes, and the **previous major version** with security fixes for 12 months after a new major version is released.
+
+| SDK | Current version | Minimum runtime | Status |
+| --- | --- | --- | --- |
+| {sdks.node.name} | <code>{sdks.node.version}</code> | {sdks.node.runtime} | {sdks.node.status} |
+| {sdks.python.name} | <code>{sdks.python.version}</code> | {sdks.python.runtime} | {sdks.python.status} |
+| {sdks.go.name} | <code>{sdks.go.version}</code> | {sdks.go.runtime} | {sdks.go.status} |
+
+## Runtimes
+
+We support every runtime version that's still maintained by its own project. When a runtime reaches end of life, we drop support for it in the next **minor** SDK release, and note the change in the [changelog](/changelog).
+
+## Semantic versioning
+
+The SDKs follow [semantic versioning](https://semver.org):
+
+- **Patch** releases fix bugs.
+- **Minor** releases add features in a backward-compatible way.
+- **Major** releases may include breaking changes, and always come with a migration guide.
+
+<Info>
+  Pre-release versions, like `3.0.0-beta.4`, may include breaking changes between releases. Don't use them in production unless you pin an exact version.
+</Info>

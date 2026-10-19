@@ -1,0 +1,26 @@
+[
+  {
+    "source": "/getting-started",
+    "destination": "/get-started/quickstart"
+  },
+  {
+    "source": "/concepts/retries",
+    "destination": "/concepts/delivery/retries"
+  },
+  {
+    "source": "/concepts/webhook-security",
+    "destination": "/concepts/signatures"
+  },
+  {
+    "source": "/guides/migrating-from-v1",
+    "destination": "/guides/migrating-from-v2"
+  },
+  {
+    "source": "/api/:slug*",
+    "destination": "/api-reference/:slug*"
+  },
+  {
+    "source": "/billing",
+    "destination": "/account/plans"
+  }
+]

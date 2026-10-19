@@ -1,0 +1,20 @@
+---
+title: "Integrations"
+description: "Connect Relaybox to the tools your team already uses."
+icon: "plug"
+---
+
+Integrations are pre-built connections between Relaybox and third-party services. They come in two directions:
+
+- **Sources** receive webhooks *from* a service — like Stripe or GitHub — and turn them into Relaybox events. You get retries, replay, and logs for webhooks you don't control.
+- **Destinations** deliver Relaybox events *to* a service — like Slack — without writing a transformation by hand.
+
+| Integration | Source | Destination |
+| --- | :---: | :---: |
+| [Slack](/guides/integrations/slack) | | ✓ |
+| [Stripe](/guides/integrations/stripe) | ✓ | |
+| [GitHub](/guides/integrations/github) | ✓ | |
+
+<Note>
+  Don't see the service you need? Any service that sends webhooks can be a source using a **generic HTTP source**, and any service with an HTTP API can be a destination using a [transformation](/guides/sending-events/transformations).
+</Note>

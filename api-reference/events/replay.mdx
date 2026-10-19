@@ -1,0 +1,9 @@
+---
+openapi: "POST /events/replay"
+---
+
+You can replay up to 100,000 events per request. For larger ranges, split the time window into several requests.
+
+<Note>
+  Replayed events keep their original `id` and `created_at`. Your [idempotency checks](/concepts/delivery/idempotency#when-receiving) will treat them as duplicates if you already processed them successfully.
+</Note>

@@ -1,0 +1,62 @@
+{
+  "global": {
+    "anchors": [
+      {
+        "anchor": "Community",
+        "icon": "discord",
+        "href": "https://discord.gg/relaybox"
+      },
+      {
+        "anchor": "Blog",
+        "icon": "newspaper",
+        "href": "https://relaybox.dev/blog"
+      }
+    ]
+  },
+  "tabs": [
+    {
+      "tab": "Documentation",
+      "icon": "book-open",
+      "$ref": "./navigation/documentation.json"
+    },
+    {
+      "tab": "Guides",
+      "icon": "map",
+      "$ref": "./navigation/guides.json"
+    },
+    {
+      "tab": "API Reference",
+      "icon": "code",
+      "$ref": "./navigation/api-reference.json"
+    },
+    {
+      "tab": "SDKs",
+      "icon": "cube",
+      "menu": [
+        {
+          "item": "Node.js",
+          "icon": "node-js",
+          "description": "Official SDK for Node.js and Bun",
+          "$ref": "./navigation/sdks/node.json"
+        },
+        {
+          "item": "Python",
+          "icon": "python",
+          "description": "Official SDK for Python 3.9+",
+          "$ref": "./navigation/sdks/python.json"
+        },
+        {
+          "item": "Go",
+          "icon": "golang",
+          "description": "Official SDK for Go 1.21+",
+          "$ref": "./navigation/sdks/go.json"
+        }
+      ]
+    },
+    {
+      "tab": "Changelog",
+      "icon": "clock-rotate-left",
+      "pages": ["changelog"]
+    }
+  ]
+}

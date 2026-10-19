@@ -1,0 +1,52 @@
+---
+title: "API reference"
+sidebarTitle: "Introduction"
+description: "Use the Relaybox REST API to publish events, manage endpoints, and inspect deliveries."
+icon: "code"
+---
+
+The Relaybox API is organized around REST. It accepts JSON request bodies, returns JSON responses, and uses standard HTTP status codes and verbs.
+
+## Base URL
+
+```text
+https://api.relaybox.dev/v3
+```
+
+Customers with EU or Japan data residency use a regional base URL instead:
+
+| Region | Base URL |
+| --- | --- |
+| United States (default) | `https://api.relaybox.dev/v3` |
+| European Union | `https://eu.api.relaybox.dev/v3` |
+| Japan | `https://jp.api.relaybox.dev/v3` |
+
+## Try it out
+
+Every endpoint page has an interactive playground. Paste a **test** API key into the **Authorization** field to send real requests from your browser.
+
+<Warning>
+  Never paste a `rbx_live_` key into the playground or any other website.
+</Warning>
+
+## Versioning
+
+The major version is part of the URL. Within a major version, we only make backward-compatible changes, such as:
+
+- Adding new endpoints
+- Adding optional request parameters
+- Adding fields to responses
+- Adding new values to enums that are documented as extensible
+
+<Tip>
+  Write your code so it ignores unknown fields in responses. That way, additive changes never break your integration.
+</Tip>
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/api-reference/authentication">
+    How to send your API key.
+  </Card>
+  <Card title="Errors" icon="circle-exclamation" href="/api-reference/errors">
+    Every error code, and what to do about it.
+  </Card>
+</CardGroup>

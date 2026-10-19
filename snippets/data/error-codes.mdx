@@ -1,0 +1,50 @@
+export const errorCodes = [
+  {
+    status: 400,
+    code: "invalid_request",
+    meaning: "The request body is malformed or a required field is missing.",
+    fix: "Check the errors array in the response for the exact field.",
+  },
+  {
+    status: 401,
+    code: "unauthenticated",
+    meaning: "No API key was sent, or the key has been revoked.",
+    fix: "Send your key in the Authorization: Bearer header.",
+  },
+  {
+    status: 403,
+    code: "insufficient_scope",
+    meaning: "The API key is valid but doesn't have permission for this action.",
+    fix: "Create a key with the required scope, or ask an admin to update it.",
+  },
+  {
+    status: 404,
+    code: "not_found",
+    meaning: "The resource doesn't exist, or belongs to a different environment.",
+    fix: "Make sure you're using the right key for the environment.",
+  },
+  {
+    status: 409,
+    code: "idempotency_conflict",
+    meaning: "The idempotency key was reused with a different request body.",
+    fix: "Generate a new idempotency key for each distinct request.",
+  },
+  {
+    status: 422,
+    code: "payload_too_large",
+    meaning: "The event payload is larger than 256 KB.",
+    fix: "Store large data elsewhere and send a reference in the payload instead.",
+  },
+  {
+    status: 429,
+    code: "rate_limited",
+    meaning: "You've exceeded the rate limit for your plan.",
+    fix: "Wait for the number of seconds in the Retry-After header, then try again.",
+  },
+  {
+    status: 500,
+    code: "internal_error",
+    meaning: "Something went wrong on our side.",
+    fix: "Retry with exponential backoff. If it keeps happening, contact support with the request_id.",
+  },
+];

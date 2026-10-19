@@ -1,0 +1,16 @@
+{
+  "groups": [
+    {
+      "group": "Node.js SDK",
+      "pages": [
+        "sdks/node/overview",
+        "sdks/node/configuration",
+        "sdks/node/webhook-handlers"
+      ]
+    },
+    {
+      "group": "Resources",
+      "pages": ["sdks/support-policy"]
+    }
+  ]
+}

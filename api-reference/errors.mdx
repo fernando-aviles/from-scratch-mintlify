@@ -1,0 +1,38 @@
+---
+title: "Errors"
+description: "How the Relaybox API reports errors, and what each error code means."
+icon: "circle-exclamation"
+---
+
+import { errorCodes } from "/snippets/data/error-codes.mdx";
+
+When a request fails, the API returns a non-`2xx` status code and a JSON body with details:
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "The field `type` is required.",
+    "request_id": "req_8sKd02LmQ",
+    "docs_url": "https://docs.relaybox.dev/api-reference/errors#invalid_request"
+  }
+}
+```
+
+<Note>
+  Use `code` in your error handling logic. The `message` is meant for humans and can change at any time.
+</Note>
+
+## Error codes
+
+{errorCodes.map((err) => (
+  <ResponseField key={err.code} name={err.code} type={`${err.status}`}>
+    {err.meaning} {err.fix}
+  </ResponseField>
+))}
+
+## Retrying failed requests
+
+It's safe to retry a request that failed with `429` or any `5xx` status, as long as you send the same [idempotency key](/concepts/delivery/idempotency#when-publishing). The official SDKs do this automatically, with exponential backoff, up to three times.
+
+Don't retry `4xx` errors other than `429` without changing the request. They'll fail the same way again.

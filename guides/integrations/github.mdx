@@ -1,0 +1,28 @@
+---
+title: "GitHub"
+description: "Receive GitHub webhooks through Relaybox."
+icon: "github"
+---
+
+import { IntegrationHeader } from "/snippets/components/IntegrationHeader.jsx";
+
+<IntegrationHeader name="GitHub" logo="/images/integrations/github.svg" category="Source · Developer tools" maintainedBy="the Relaybox community">
+  Fan out push, pull request, and release events to CI runners, chat bots, and deploy tools.
+</IntegrationHeader>
+
+<Info>
+  This integration is maintained by the community. Report issues on [GitHub](https://github.com/relaybox/integration-github/issues).
+</Info>
+
+## Set up the source
+
+1. In Relaybox, go to **Integrations → GitHub** and click **Create source**.
+2. In your GitHub repository or organization, go to **Settings → Webhooks → Add webhook**.
+3. Set **Payload URL** to the ingest URL from Relaybox and **Content type** to `application/json`.
+4. Generate a random secret, paste it into both GitHub and Relaybox, and click **Add webhook**.
+
+GitHub's `X-GitHub-Event` header becomes the Relaybox event type, prefixed with `github.`. A push event becomes `github.push`, and a pull request event becomes `github.pull_request`.
+
+## Filtering by action
+
+Many GitHub events include an `action` field — a `pull_request` event might be `opened`, `closed`, or `synchronize`. To subscribe to only some actions, turn on **Split by action** when you create the source. Event types then include the action: `github.pull_request.opened`.

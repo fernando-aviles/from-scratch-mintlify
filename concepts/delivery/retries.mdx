@@ -1,0 +1,62 @@
+---
+title: "Retries"
+description: "Relaybox retries failed deliveries with exponential backoff for about 41 hours."
+---
+
+import { retrySchedule, maxRetryWindow } from "/snippets/data/retry-schedule.mdx";
+
+When a delivery attempt fails, Relaybox schedules another one. Delays grow with each attempt so a struggling server has time to recover, and we add up to 10% random jitter so that thousands of retries don't arrive at the same moment.
+
+## Default retry schedule
+
+<table>
+  <thead>
+    <tr>
+      <th>Attempt</th>
+      <th>Delay after previous attempt</th>
+      <th>Time since first attempt</th>
+    </tr>
+  </thead>
+  <tbody>
+    {retrySchedule.map((row) => (
+      <tr key={row.attempt}>
+        <td>{row.attempt}</td>
+        <td>{row.delay}</td>
+        <td>{row.cumulative}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+After the eighth attempt — {maxRetryWindow} after the first — the event is marked **failed** for that endpoint. You can still [replay it](/api-reference/events/replay) manually at any time during your retention window.
+
+## Responses that skip retries
+
+Some responses tell Relaybox that retrying won't help. When your endpoint returns one of these, we stop immediately:
+
+| Status | Why we don't retry |
+| --- | --- |
+| `410 Gone` | The endpoint no longer exists. Relaybox also disables it. |
+| `413 Payload Too Large` | The same payload will be too large next time, too. |
+
+<Note>
+  `400`, `401`, and `404` **are** retried, because they're often caused by a bad deploy that gets rolled back.
+</Note>
+
+## Customize the schedule
+
+Available on: <Badge color="blue">Scale and Enterprise</Badge>
+
+You can shorten the schedule for time-sensitive events, or lengthen it for endpoints you know have planned downtime:
+
+```json
+{
+  "retry_policy": {
+    "max_attempts": 4,
+    "backoff": "exponential",
+    "initial_delay_seconds": 2
+  }
+}
+```
+
+The maximum window is seven days, regardless of plan.

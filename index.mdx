@@ -1,0 +1,57 @@
+---
+title: "Relaybox documentation"
+sidebarTitle: "Welcome"
+description: "Send, receive, and replay webhooks without building the plumbing yourself."
+mode: "wide"
+---
+
+import { Hero } from "/snippets/components/Hero.jsx";
+import NeedHelp from "/snippets/shared/need-help.mdx";
+
+<Hero
+  title="Webhooks that just work"
+  subtitle="Relaybox delivers your events to thousands of endpoints with automatic retries, signatures, and ordering — so your team can ship features instead of queues."
+  primaryCta={{ label: "Start the quickstart", href: "/get-started/quickstart" }}
+  secondaryCta={{ label: "Explore the API", href: "/api-reference/introduction" }}
+/>
+
+## Choose your path
+
+<CardGroup cols={3}>
+  <Card title="I want to send webhooks" icon="paper-plane" href="/guides/sending-events/publish-your-first-event">
+    Give your customers reliable webhooks with a hosted portal, retries, and logs.
+  </Card>
+  <Card title="I want to receive webhooks" icon="inbox" href="/guides/receiving-events/local-development">
+    Put Relaybox in front of Stripe, GitHub, or Slack to buffer, verify, and replay events.
+  </Card>
+  <Card title="I'm migrating from v2" icon="arrow-right-arrow-left" href="/guides/migrating-from-v2">
+    See what changed in v3 and upgrade your integration in about an hour.
+  </Card>
+</CardGroup>
+
+## Popular topics
+
+<Columns cols={2}>
+  <Card title="How retries work" icon="rotate" href="/concepts/delivery/retries" horizontal>
+    Exponential backoff for up to 41 hours.
+  </Card>
+  <Card title="Verify signatures" icon="signature" href="/concepts/signatures" horizontal>
+    Make sure every request really came from us.
+  </Card>
+  <Card title="Ordered delivery" icon="list-ol" href="/concepts/delivery/ordering" horizontal>
+    Keep related events in sequence.
+  </Card>
+  <Card title="Plans & limits" icon="credit-card" href="/account/plans" horizontal>
+    Compare plans and understand overages.
+  </Card>
+</Columns>
+
+## SDKs
+
+<CardGroup cols={3}>
+  <Card title="Node.js" icon="node-js" href="/sdks/node/overview" />
+  <Card title="Python" icon="python" href="/sdks/python/overview" />
+  <Card title="Go" icon="golang" href="/sdks/go/overview" />
+</CardGroup>
+
+<NeedHelp />

@@ -1,0 +1,63 @@
+---
+title: "Configure the Node.js SDK"
+sidebarTitle: "Configuration"
+description: "Every option you can pass to the Relaybox client."
+---
+
+Pass options as the second argument to the constructor:
+
+```typescript
+const relaybox = new Relaybox(process.env.RELAYBOX_API_KEY, {
+  region: "eu",
+  timeout: 10_000,
+  maxRetries: 5,
+});
+```
+
+## Client options
+
+<ParamField body="region" type="'us' | 'eu' | 'jp'" default="us">
+  The data residency region of your account. Sets the base URL automatically.
+</ParamField>
+
+<ParamField body="timeout" type="number" default="30000">
+  How long to wait for a response, in milliseconds, before failing the request.
+</ParamField>
+
+<ParamField body="maxRetries" type="number" default="3">
+  How many times to retry requests that fail with a network error, `429`, or `5xx`. Set to `0` to turn off automatic retries.
+</ParamField>
+
+<ParamField body="fetch" type="typeof fetch">
+  A custom `fetch` implementation. Useful for adding tracing or running in unusual environments.
+</ParamField>
+
+<ParamField body="logger" type="Logger">
+  An object with `debug`, `info`, `warn`, and `error` methods. Defaults to no logging.
+</ParamField>
+
+## Outbox worker
+
+The outbox worker publishes events from a PostgreSQL table, so that publishing is part of your database transaction. See the [transactional outbox pattern](/guides/sending-events/publish-your-first-event#3-publish-from-a-transaction) for background.
+
+```typescript
+import { OutboxWorker } from "@relaybox/node/outbox";
+import { Pool } from "pg";
+
+const worker = new OutboxWorker({
+  client: relaybox,
+  pool: new Pool({ connectionString: process.env.DATABASE_URL }),
+  table: "outbox",       // default
+  batchSize: 100,        // events per poll
+  pollIntervalMs: 500,
+});
+
+await worker.start();
+
+// Stop gracefully on shutdown so in-flight events aren't published twice.
+process.on("SIGTERM", () => worker.stop());
+```
+
+<Note>
+  Run the migration in `node_modules/@relaybox/node/outbox/migration.sql` to create the `outbox` table before starting the worker.
+</Note>

@@ -1,0 +1,30 @@
+---
+title: "Authentication"
+description: "Authenticate API requests with a bearer token."
+icon: "lock"
+---
+
+import ApiKeyWarning from "/snippets/shared/api-key-warning.mdx";
+
+Send your API key in the `Authorization` header of every request, using the `Bearer` scheme:
+
+```bash
+curl https://api.relaybox.dev/v3/endpoints \
+  -H "Authorization: Bearer rbx_test_51Hx..."
+```
+
+Requests without a valid key fail with `401 unauthenticated`. Requests with a key that lacks the right [scope](/account/api-keys#scopes) fail with `403 insufficient_scope`.
+
+<ApiKeyWarning />
+
+## Test and production
+
+The key determines the environment. A request made with an `rbx_test_` key can only see test events and test endpoints, and vice versa. There's no `environment` parameter.
+
+## IP allowlist
+
+Available on: <Badge color="purple">Enterprise</Badge>
+
+You can restrict API access to specific IP ranges under **Settings → Security → IP allowlist**. Requests from other addresses fail with `403 ip_not_allowed`, even with a valid key.
+
+To allowlist Relaybox's *outgoing* delivery IPs in your own firewall, use the list published at `https://relaybox.dev/ips.json`. It changes rarely, and we announce changes at least 30 days in advance.

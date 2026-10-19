@@ -1,0 +1,55 @@
+---
+title: "Audit logs"
+description: "A tamper-evident record of every change made to your Relaybox account."
+---
+
+Available on: <Badge color="green">Scale and Enterprise</Badge>
+
+Audit logs record **who** did **what**, **when**, and **from where**. They cover changes made in the dashboard, through the API, and through the CLI.
+
+## What's logged
+
+<AccordionGroup>
+  <Accordion title="Endpoints">
+    Created, updated, paused, resumed, deleted, and secret rotated.
+  </Accordion>
+  <Accordion title="API keys">
+    Created, rotated, revoked, and scopes changed. The key itself is never logged.
+  </Accordion>
+  <Accordion title="Team">
+    Member invited, removed, and role changed. Ownership transferred.
+  </Accordion>
+  <Accordion title="Security settings">
+    SSO configured or changed, Require SSO turned on or off, IP allowlist changed.
+  </Accordion>
+  <Accordion title="Replays">
+    Who replayed which events, to which endpoints. Publishing events isn't an audited action, because it's already recorded in the event log.
+  </Accordion>
+</AccordionGroup>
+
+## Log entry format
+
+```json
+{
+  "id": "aud_7Gm3Rk",
+  "action": "endpoint.secret_rotated",
+  "actor": {
+    "type": "member",
+    "email": "dana@example.com"
+  },
+  "target": {
+    "type": "endpoint",
+    "id": "ep_5Np8Wz"
+  },
+  "ip_address": "203.0.113.42",
+  "occurred_at": "2026-10-18T09:15:44Z"
+}
+```
+
+## Exporting
+
+Download logs as CSV from **Settings → Audit log**, or stream them continuously to Datadog, Splunk, or an S3 bucket. Streaming destinations receive new entries within one minute.
+
+<Info>
+  Audit logs are retained for one year on every eligible plan, independent of your event retention.
+</Info>

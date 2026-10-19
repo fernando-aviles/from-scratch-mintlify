@@ -1,0 +1,68 @@
+---
+title: "Transform payloads per endpoint"
+sidebarTitle: "Transformations"
+description: "Run a small JavaScript function to reshape, filter, or redact events before they reach a specific endpoint."
+---
+
+import BetaFeature from "/snippets/shared/beta-feature.mdx";
+
+<BetaFeature feature="Transformations" plans="Scale and Enterprise" />
+
+Different consumers want different shapes. Your billing service needs every field, while a Slack channel needs a one-line message. Instead of publishing the same event twice, attach a **transformation** to an endpoint.
+
+## Write a transformation
+
+A transformation is a JavaScript function named `handler`. It receives the event and returns the request to send — or `null` to skip delivery.
+
+```javascript
+export function handler(event) {
+  // Only notify Slack about large orders.
+  if (event.payload.amount < 100_000) {
+    return null;
+  }
+
+  const dollars = (event.payload.amount / 100).toFixed(2);
+
+  return {
+    body: {
+      text: `💰 New order for $${dollars} (${event.payload.order_id})`,
+    },
+  };
+}
+```
+
+You can also change the URL, method, and headers:
+
+```javascript
+export function handler(event) {
+  return {
+    url: `https://api.example.com/tenants/${event.metadata.tenant}/hooks`,
+    headers: { "X-Event-Type": event.type },
+    body: event.payload,
+  };
+}
+```
+
+## Limits
+
+<Columns cols={3}>
+  <Card title="50 ms" icon="stopwatch">
+    Maximum run time per event.
+  </Card>
+  <Card title="16 MB" icon="memory">
+    Maximum memory.
+  </Card>
+  <Card title="No network" icon="ban">
+    `fetch` and other I/O aren't available.
+  </Card>
+</Columns>
+
+If a transformation throws an error or exceeds a limit, the delivery attempt fails and is retried like any other failure. You'll see the error message in the delivery log.
+
+## Test before you deploy
+
+The dashboard editor has a **Test** panel. Pick a recent event, run the transformation against it, and inspect the output before saving.
+
+<Warning>
+  Saving a transformation takes effect immediately, including for events that are currently waiting to be retried.
+</Warning>

@@ -1,0 +1,67 @@
+---
+title: "Offer webhooks to your customers"
+sidebarTitle: "Fan out to customers"
+description: "Use applications and the customer portal to send webhooks to each of your customers' endpoints."
+---
+
+If you're building a platform, your customers probably want webhooks from *you*. Relaybox lets you offer them without building any delivery infrastructure.
+
+## Applications
+
+An **application** represents one of your customers. Each application has its own endpoints, and events published to an application go only to that application's endpoints.
+
+```javascript
+// Create one application per customer, usually at signup.
+const app = await relaybox.applications.create({
+  name: "Acme Corp",
+  uid: customer.id, // your own ID, so you don't have to store ours
+});
+
+// Publish to that customer only.
+await relaybox.events.create({
+  application: customer.id,
+  type: "invoice.created",
+  payload: { invoice_id: "inv_492" },
+});
+```
+
+## Customer portal
+
+Your customers need a way to add endpoints, see deliveries, and replay failures. The **customer portal** is a pre-built UI you can embed in your app.
+
+```html
+<relaybox-portal
+  publishable-key="rbx_pub_..."
+  session-token="{{ token_from_your_backend }}"
+  theme="auto"
+></relaybox-portal>
+<script src="https://cdn.relaybox.dev/portal/v3.js" async></script>
+```
+
+Generate the session token on your server, scoped to one application:
+
+```javascript
+const { token } = await relaybox.portal.createSession({
+  application: customer.id,
+  expiresIn: "1h",
+});
+```
+
+<Frame caption="The customer portal, embedded in a settings page.">
+  <img src="/images/screenshots/customer-portal.svg" alt="An embedded portal showing a list of endpoints, each with a status and a recent delivery success rate" />
+</Frame>
+
+## Branding the portal
+
+On Team plans and above, you can match the portal to your product:
+
+| Setting | Description |
+| --- | --- |
+| `primaryColor` | Buttons and links |
+| `fontFamily` | Any font already loaded on your page |
+| `hideRelayboxBranding` | Removes the "Powered by Relaybox" footer. Scale and Enterprise only. |
+| `eventCatalog` | Descriptions of your event types, shown to customers when they subscribe |
+
+<Tip>
+  A good event catalog dramatically reduces support tickets. Describe *when* each event is sent, not just what's in it.
+</Tip>

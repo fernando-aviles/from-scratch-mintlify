@@ -1,0 +1,98 @@
+---
+title: "Quickstart"
+description: "Publish your first event and receive it on a local endpoint in under five minutes."
+icon: "rocket"
+---
+
+import Prerequisites from "/snippets/shared/prerequisites.mdx";
+import PublishEvent from "/snippets/code/publish-event.mdx";
+import ApiKeyWarning from "/snippets/shared/api-key-warning.mdx";
+import NeedHelp from "/snippets/shared/need-help.mdx";
+
+In this quickstart, you'll create an endpoint, publish an event to it, and watch the delivery show up in your terminal. The examples use Node.js, but every step works the same way with the [Python](/sdks/python/overview) and [Go](/sdks/go/overview) SDKs.
+
+<Prerequisites language="node" />
+
+<Steps>
+  <Step title="Install the CLI">
+    The Relaybox CLI forwards events from Relaybox to your local machine, so you don't need a public URL while developing.
+
+    <CodeGroup>
+    ```bash macOS
+    brew install relaybox/tap/relaybox
+    ```
+
+    ```bash Linux
+    curl -fsSL https://relaybox.dev/install.sh | sh
+    ```
+
+    ```powershell Windows
+    scoop bucket add relaybox https://github.com/relaybox/scoop-bucket
+    scoop install relaybox
+    ```
+    </CodeGroup>
+
+    Then sign in. This opens your browser and stores a short-lived token on your machine:
+
+    ```bash
+    relaybox login
+    ```
+  </Step>
+
+  <Step title="Start listening for events">
+    In a new terminal, start a tunnel that forwards events to port 3000:
+
+    ```bash
+    relaybox listen --forward-to http://localhost:3000/webhooks
+    ```
+
+    The CLI prints a temporary endpoint ID that starts with `ep_dev_`. Keep this terminal open.
+
+    <Tip>
+      You don't need a running server yet. The CLI shows every event it receives, even if forwarding fails.
+    </Tip>
+  </Step>
+
+  <Step title="Set your API key">
+    Copy your **test** API key from the dashboard and export it as an environment variable:
+
+    ```bash
+    export RELAYBOX_API_KEY="rbx_test_..."
+    ```
+
+    <ApiKeyWarning />
+  </Step>
+
+  <Step title="Publish an event">
+    Install the SDK and publish an `order.paid` event:
+
+    ```bash
+    npm install @relaybox/node
+    ```
+
+    <PublishEvent />
+
+    Within a second or two, the event appears in the terminal running `relaybox listen`.
+  </Step>
+
+  <Step title="Check the delivery log">
+    Open **Events** in the [dashboard](https://app.relaybox.dev/events) to see the payload, every delivery attempt, and the response your server returned.
+
+    <Frame caption="The delivery log shows each attempt, its status code, and how long it took.">
+      <img src="/images/screenshots/delivery-log.svg" alt="The Relaybox dashboard showing a delivered order.paid event with one successful attempt" />
+    </Frame>
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Understand how delivery works" icon="diagram-project" href="/get-started/how-it-works">
+    Learn what happens between publishing an event and your endpoint receiving it.
+  </Card>
+  <Card title="Verify signatures" icon="signature" href="/guides/receiving-events/verify-signatures">
+    Before going to production, make sure your endpoint rejects forged requests.
+  </Card>
+</CardGroup>
+
+<NeedHelp />
